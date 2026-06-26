@@ -1,0 +1,25 @@
+---
+name: sdd-gate
+scope: global
+---
+
+# Purpose
+Nguyên tắc bất biến của quy trình Spec-Driven Design — áp dụng cho mọi stack, không thuộc về 1 skill cụ thể.
+
+# Required
+- Task ước tính > 30 phút implement, hoặc requirement chưa rõ: phải có spec được user duyệt trước khi viết code.
+- Spec/Plan phải lưu thành file trong repo (`docs/specs/`, `docs/plans/`), không chỉ tồn tại trong chat.
+- Khi scope/quyết định thay đổi giữa lúc code: sửa spec trước, sửa code sau — không để spec lệch khỏi thực tế.
+- Mỗi gate (Specify → Plan → Implement → Review → Ship) phải có artefact kiểm chứng được (file, test pass, checklist) trước khi qua gate tiếp theo.
+
+# Preferred
+- Task < 30 phút, scope tự rõ ràng (fix 1 dòng, đổi 1 config): có thể bỏ qua spec, đi thẳng implement.
+
+# Forbidden
+- Bắt đầu code khi spec/plan chưa được user duyệt (trừ trường hợp Preferred ở trên).
+- Tự nới rộng scope ngoài spec đã duyệt mà không quay lại xin duyệt lại.
+- Đánh dấu task "done" khi chưa có verification step nào pass.
+
+# Examples
+- docs/specs/2026-06-26-checkout-flow.md
+- docs/plans/2026-06-26-checkout-flow.md

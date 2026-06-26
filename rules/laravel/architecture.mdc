@@ -1,0 +1,22 @@
+---
+name: architecture
+scope: laravel
+---
+
+# Purpose
+Kiến trúc tầng cho project Laravel.
+
+# Required
+- Controller chỉ gọi Service, không gọi trực tiếp Eloquent Model.
+- Service chỉ gọi Repository, không tự query DB.
+- Business logic nằm ở Service, không nằm ở Controller hoặc Model.
+
+# Forbidden
+- Query Eloquent trong Controller.
+- Query Eloquent trong Service.
+- Validation logic nằm trong Controller (phải dùng FormRequest).
+
+# Examples
+- app/Http/Controllers/CourseController.php
+- app/Services/CourseService.php
+- app/Repositories/CourseRepository.php

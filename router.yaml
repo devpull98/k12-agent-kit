@@ -1,0 +1,79 @@
+# Router: intent -> skill. Strict-first, fallback nếu không match.
+routes:
+  - intent: "viết spec trước khi code"
+    keywords: [spec, requirement, acceptance criteria]
+    skill: spec-driven-development
+    confidence: strict
+
+  - intent: "viết test trước implementation"
+    keywords: [tdd, test, unit test, write test first]
+    skill: tdd
+    not_for_skills: [debugging]
+    confidence: strict
+
+  - intent: "sửa bug có sẵn"
+    keywords: [fix, bug, lỗi, debug]
+    skill: debugging
+    not_for_skills: [tdd]
+    confidence: strict
+
+  - intent: "khám phá ý tưởng và thiết kế trước khi viết spec"
+    keywords: [brainstorm, ý tưởng, design, feature mới, chưa rõ requirement]
+    skill: brainstorming
+    not_for_skills: [spec-driven-development]
+    confidence: strict
+
+  - intent: "lập task breakdown từ spec đã có"
+    keywords: [plan, task breakdown, dependency, vertical slice]
+    skill: writing-plans
+    not_for_skills: [spec-driven-development]
+    confidence: strict
+
+  - intent: "trace nguyên nhân lỗi qua nhiều layer"
+    keywords: [root cause, trace, call stack, multi-layer, backward trace]
+    skill: root-cause-tracing
+    not_for_skills: [debugging]
+    confidence: strict
+
+  - intent: "review code trước khi merge"
+    keywords: [review, pull request, pr, code review, merge]
+    skill: code-review
+    confidence: strict
+
+  - intent: "đơn giản hóa code không đổi behavior"
+    keywords: [refactor, simplify, clean code, complexity]
+    skill: refactoring
+    not_for_skills: [debugging, tdd]
+    confidence: strict
+
+  - intent: "chuẩn bị deploy production"
+    keywords: [ship, deploy, release, launch, rollout, rollback]
+    skill: shipping
+    confidence: strict
+
+  - intent: "rà soát bảo mật trước merge/release"
+    keywords: [security, bảo mật, vulnerability, owasp, secret, auth]
+    skill: security-review
+    confidence: strict
+
+  - intent: "tối ưu hiệu năng có đo lường"
+    keywords: [performance, tối ưu, chậm, n+1, latency]
+    skill: performance-optimization
+    not_for_skills: [refactoring]
+    confidence: strict
+
+  - intent: "ghi log tiến độ / báo cáo task vừa xong"
+    keywords: [log, tiến độ, progress, nhật ký, báo cáo, hoàn thành task]
+    skill: progress-logging
+    confidence: strict
+
+  - intent: "tổng kết sprint / retro"
+    keywords: [retro, retrospective, sprint, tổng kết, velocity]
+    skill: sprint-retro
+    not_for_skills: [progress-logging]
+    confidence: strict
+
+fallback:
+  mode: free-match
+  scan: skills/*/SKILL.md
+  require_confirmation: true

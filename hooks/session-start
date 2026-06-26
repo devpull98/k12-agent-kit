@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Inject AGENTS.md + stack hiện tại vào context khi session bắt đầu.
+set -euo pipefail
+
+ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+STACK=$(grep -E '^stack:' "$ROOT/config.yaml" 2>/dev/null | sed 's/stack:[[:space:]]*//' | tr -d '\r')
+AGENTS_CONTENT=$(cat "$ROOT/AGENTS.md")
+
+if command -v jq >/dev/null 2>&1; then
+  jq -n --arg ctx "$AGENTS_CONTENT" --arg stack "$STACK" \
+    '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: ("Stack hiện tại: " + $stack + "\n\n" + $ctx)}}'
+else
+  ESCAPED=$(printf '%s' "$AGENTS_CONTENT" | sed 's/"/\\"/g' | tr '\n' ' ')
+  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"Stack hien tai: %s. %s"}}\n' "$STACK" "$ESCAPED"
+fi

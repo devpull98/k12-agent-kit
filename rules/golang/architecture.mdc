@@ -1,0 +1,23 @@
+---
+name: architecture
+scope: golang
+---
+
+# Purpose
+Kiến trúc tầng cho project Golang (theo clean/hexagonal architecture phổ biến).
+
+# Required
+- Handler (HTTP layer) chỉ gọi UseCase/Service interface, không gọi trực tiếp DB hoặc package khác.
+- Business logic nằm ở `internal/usecase` hoặc `internal/service`, không nằm ở `internal/handler`.
+- Truy cập DB qua `internal/repository`, expose qua interface để mock được trong test.
+- Error trả về phải wrap context (`fmt.Errorf("...: %w", err)`), không trả lỗi trần.
+
+# Forbidden
+- Query DB trực tiếp trong handler.
+- Package `internal/usecase` import package `internal/handler` (ngược hướng dependency).
+- Dùng `panic` để xử lý lỗi nghiệp vụ (chỉ dùng cho lỗi không thể phục hồi/programmer error).
+
+# Examples
+- internal/handler/course_handler.go
+- internal/usecase/course_usecase.go
+- internal/repository/course_repository.go

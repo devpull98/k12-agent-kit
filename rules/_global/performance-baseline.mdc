@@ -1,0 +1,26 @@
+---
+name: performance-baseline
+scope: global
+---
+
+# Purpose
+Quy tắc hiệu năng tối thiểu áp dụng cho mọi stack — chống các anti-pattern phổ biến, không phải hướng dẫn tối ưu chi tiết.
+
+# Required
+- List endpoint phải có pagination, không trả toàn bộ bảng không giới hạn.
+- Truy vấn liên quan (N+1) phải dùng join/eager-load, không query trong loop.
+- Mọi thay đổi liên quan hiệu năng phải có số đo trước/sau (profiling), không tối ưu khi chưa có evidence.
+
+# Preferred
+- Cache dữ liệu đọc nhiều, ít đổi (config, lookup table) với TTL hợp lý.
+- Dùng index cho cột thường filter/sort.
+- Với UI: ảnh có kích thước rõ ràng, lazy-load phần dưới fold, code-splitting cho route nặng.
+
+# Forbidden
+- Tối ưu khi chưa đo (premature optimization) làm tăng độ phức tạp không cần thiết.
+- Fetch toàn bộ dataset rồi filter/sort ở application layer khi DB có thể làm việc đó.
+- Đồng bộ hóa (blocking) các tác vụ I/O nặng trên main thread/request thread khi có thể làm async.
+
+# Examples
+- app/Repositories/TaskRepository.php (Laravel — eager load + pagination)
+- internal/repository/task_repo.go (Golang — index + limit/offset)

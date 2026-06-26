@@ -1,0 +1,22 @@
+---
+name: error-handling
+scope: global
+---
+
+# Purpose
+Quy tắc xử lý lỗi áp dụng cho mọi stack.
+
+# Required
+- Mọi lỗi nghiệp vụ (business exception) phải có error code riêng, không dùng message tự do để so sánh logic.
+- Lỗi không xử lý được phải log kèm context (request id, user id) trước khi throw/return.
+
+# Preferred
+- Tách exception class theo domain, không dùng 1 exception chung cho toàn app.
+
+# Forbidden
+- Catch exception rồi swallow im lặng (catch rỗng, không log không rethrow).
+- Trả lỗi hệ thống (stack trace, SQL error) trực tiếp ra response cho client.
+
+# Examples
+- app/Exceptions/DomainException.php (Laravel)
+- internal/errors/domain_error.go (Golang)

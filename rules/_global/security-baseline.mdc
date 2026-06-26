@@ -1,0 +1,32 @@
+---
+name: security-baseline
+scope: global
+---
+
+# Purpose
+Quy tắc bảo mật tối thiểu áp dụng cho mọi stack: input không tin cậy, secret, auth, dependency.
+
+# Required
+- Validate toàn bộ input ngoài hệ thống tại boundary (API route, form handler) — không validate rải rác bên trong.
+- Tham số hóa mọi query DB (parameterized query / ORM), không nối chuỗi input vào SQL.
+- Hash password bằng bcrypt/scrypt/argon2 (không lưu plaintext).
+- Mọi endpoint bảo vệ phải check cả authentication và authorization (ownership/role), không chỉ check đăng nhập.
+- Output ra HTML phải được encode/escape (dùng auto-escape của framework).
+- Secret (API key, token, password) chỉ đọc từ env var, không hardcode trong code.
+- Request tới URL do user cung cấp (webhook, import-from-url) phải allowlist host và chặn IP private/reserved (chống SSRF).
+- Output từ LLM coi là dữ liệu không tin cậy — không đưa thẳng vào eval/SQL/shell/innerHTML.
+
+# Preferred
+- Chạy `npm audit` (hoặc tương đương) trước mỗi release; review dependency mới trước khi thêm.
+- Set security header cơ bản (CSP, HSTS, X-Frame-Options) và cookie httpOnly/secure/sameSite.
+
+# Forbidden
+- Commit secret vào git (API key, password, token).
+- Log thông tin nhạy cảm (password, token, full PII).
+- Tin tưởng validation phía client như security boundary.
+- Trả stack trace/lỗi nội bộ trực tiếp ra response cho client.
+- Dùng `eval()`/`innerHTML` với dữ liệu input chưa qua xử lý.
+
+# Examples
+- app/Http/Middleware/Authorize.php (Laravel)
+- internal/middleware/auth.go (Golang)

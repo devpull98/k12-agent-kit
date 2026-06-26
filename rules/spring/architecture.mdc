@@ -1,0 +1,24 @@
+---
+name: architecture
+scope: spring
+---
+
+# Purpose
+Kiến trúc tầng cho project Spring Boot.
+
+# Required
+- Controller chỉ gọi Service (qua interface), không gọi Repository trực tiếp.
+- Service chứa business logic, gọi Repository (Spring Data JPA) để truy cập DB.
+- DTO riêng cho request/response, không trả Entity trực tiếp ra Controller.
+- Dùng `@Transactional` ở tầng Service, không ở Controller.
+
+# Forbidden
+- Inject Repository vào Controller.
+- Business logic nằm trong Entity hoặc Controller.
+- Trả Entity JPA trực tiếp làm response body (lộ field nội bộ, lazy-loading exception).
+
+# Examples
+- src/main/java/.../controller/CourseController.java
+- src/main/java/.../service/CourseService.java
+- src/main/java/.../repository/CourseRepository.java
+- src/main/java/.../dto/CourseResponse.java

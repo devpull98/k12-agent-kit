@@ -1,0 +1,27 @@
+---
+name: observability
+scope: global
+---
+
+# Purpose
+Quy tắc instrumentation tối thiểu để production behavior có thể quan sát/chẩn đoán được — áp dụng mọi stack.
+
+# Required
+- Log có cấu trúc (structured/JSON), có event name ổn định — không log bằng string interpolation tự do.
+- Mọi log line phải có correlation/request ID, lan truyền qua mọi call ra ngoài (HTTP header, queue metadata).
+- Không log secret, token, password, PII chưa redact.
+- Mọi endpoint/external dependency mới phải có metric Rate/Error/Duration (RED) tối thiểu.
+- Alert phải dựa trên symptom (error rate, latency) chứ không phải cause (CPU, disk) — alert phải actionable, có runbook.
+
+# Preferred
+- Latency đo bằng histogram (p95/p99), không dùng trung bình.
+- Trace request qua nhiều service bằng 1 chuẩn chung (OpenTelemetry hoặc tương đương).
+
+# Forbidden
+- Dùng label có cardinality không giới hạn cho metric (user_id, raw URL, error message text).
+- Alert chỉ để rồi bị acknowledge hàng ngày không có hành động (alert vô dụng).
+- Ship feature có I/O/retry/queue mới mà không có log/metric nào.
+
+# Examples
+- app/Logging/RequestLogger.php (Laravel)
+- internal/telemetry/logger.go (Golang)
