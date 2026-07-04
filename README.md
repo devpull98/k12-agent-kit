@@ -116,11 +116,14 @@ graph TD
 
 Bộ kit thiết kế sẵn các Agent Persona chuyên biệt để phân rã và kiểm định chất lượng chéo (Cross-verification):
 
-1.  **Code Reviewer (`code-reviewer.md`):** Kiểm tra mã nguồn trên 5 trục chất lượng (Kiến trúc, Hiệu năng, Bảo mật, Khả năng test, và Naming). Đóng vai trò kiểm duyệt trước khi merge.
-2.  **Tester (`tester.md`):** Đọc BDD spec, lên kịch bản test suite động, kiểm tra các trường hợp biên và Edge cases.
-3.  **Test Engineer (`test-engineer.md`):** Chuyên thiết kế cấu trúc test suite tự động, phân tích khoảng trống độ phủ test (Coverage Gap Analysis).
-4.  **Security Auditor (`security-auditor.md`):** Rà soát bảo mật tĩnh, Threat Modeling, quét OWASP Top 10 và các rò rỉ secret key.
-5.  **Web Performance Auditor (`web-performance-auditor.md`):** Audit Core Web Vitals, đo lường độ trễ (latency), N+1 queries và tối ưu hóa tài nguyên.
+1.  **Full-Stack Developer (`fullstack-developer.md`):** Hiện thực hóa feature từ spec — lập kế hoạch, phân tách task song song, TDD, và gắn @trace tags.
+2.  **Debugger (`debugger.md`):** Phân tích log, trace call stack qua nhiều layer, xác định root cause và sửa lỗi theo Prove-It Pattern.
+3.  **Code Simplifier (`code-simplifier.md`):** Tái cấu trúc code — giảm complexity, loại bỏ code smell, tăng readability mà không đổi behavior.
+4.  **Code Reviewer (`code-reviewer.md`):** Kiểm tra mã nguồn trên 5 trục chất lượng (Kiến trúc, Hiệu năng, Bảo mật, Khả năng test, và Naming). Đóng vai trò kiểm duyệt trước khi merge.
+5.  **Tester (`tester.md`):** Đọc BDD spec, lên kịch bản test suite động, kiểm tra các trường hợp biên và Edge cases.
+6.  **Test Engineer (`test-engineer.md`):** Chuyên thiết kế cấu trúc test suite tự động, phân tích khoảng trống độ phủ test (Coverage Gap Analysis).
+7.  **Security Auditor (`security-auditor.md`):** Rà soát bảo mật tĩnh, Threat Modeling, quét OWASP Top 10 và các rò rỉ secret key.
+8.  **Web Performance Auditor (`web-performance-auditor.md`):** Audit Core Web Vitals, đo lường độ trễ (latency), N+1 queries và tối ưu hóa tài nguyên.
 
 ---
 
