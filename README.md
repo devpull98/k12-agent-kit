@@ -28,73 +28,68 @@ Dưới đây là sơ đồ tổng thể mô tả cách thức vận hành và s
 
 ```mermaid
 graph TD
-    %% Nodes definition %%
-    Start(["1. Nhận Ticket / Request"]) --> Route{"2. Intent Router<br/>router.yaml"}
-    
-    Route -->|Match Keyword| LoadSkill["3. Nạp Skill tương ứng<br/>skills/*/SKILL.md"]
-    Route -->|Không Match| Fallback["3. Fallback: Free Match<br/>Yêu cầu giải trình lý do"] --> LoadSkill
-    
-    LoadSkill --> LoadRules["4. Resolve {stack}<br/>Nạp Rules tĩnh tương ứng<br/>rules/global/* + rules/stack/*"]
-    
-    LoadRules --> TrackSelect{"5. Chọn Track<br/>workflows/canonical-flow.md"}
-    
+    Start(["1. Nhận Ticket / Request"]) --> Route{"2. Intent Router\nrouter.yaml"}
+
+    Route -->|Match Keyword| LoadSkill["3. Nạp Skill tương ứng\nskills/*/SKILL.md"]
+    Route -->|Không Match| Fallback["3. Fallback: Free Match\nYêu cầu giải trình lý do"] --> LoadSkill
+
+    LoadSkill --> LoadRules["4. Resolve stack\nNạp Rules tĩnh tương ứng\nrules/_global/* + rules/stack/*"]
+
+    LoadRules --> TrackSelect{"5. Chọn Track\nworkflows/canonical-flow.md"}
+
     %% Standard Track %%
-    TrackSelect -->|Standard Track| SpecPipeline["6. Spec Pipeline 3 Lớp"]
-    subgraph Spec Pipeline [Spec Pipeline]
-        Brief["Product Brief<br/>docs/specs/feature.md<br/>Cái gì? Vì sao? Boundaries"] --> BDD["Behavior - BDD Spec<br/>docs/specs/bdd/UC.feature<br/> Given-When-Then"]
-        BDD --> TechDesign["Technical Design<br/>tech-design/UC-tech.md<br/>API, DB, Concurrency"]
-    end
-    
-    SpecPipeline --> PlanBreakdown["7. Lập Kế Hoạch<br/>plan-template.md<br/>Risk, Concurrency, Tasks"]
-    PlanBreakdown --> TDDCycle["8. Vòng Lặp TDD"]
-    
+    TrackSelect -->|Standard Track| Brief["6a. Product Brief\ndocs/specs/feature.md"]
+    Brief --> BDD["6b. BDD Spec\ndocs/specs/bdd/UC.feature\nGiven-When-Then"]
+    BDD --> TechDesign["6c. Technical Design\ntech-design/UC-tech.md\nAPI, DB, Concurrency"]
+    TechDesign --> PlanBreakdown["7. Lập Kế Hoạch\nplan-template.md\nRisk, Concurrency, Tasks"]
+
     %% Fast Track %%
-    TrackSelect -->|Fast Track<br/>Marker: [fast-track]| PlanFast["6. Lập Kế Hoạch rút gọn"]
+    TrackSelect -->|Fast Track\nMarker: fast-track| PlanFast["6. Lập Kế Hoạch rút gọn"]
     PlanFast --> TDDCycle
-    
+
     %% Hotfix Track %%
-    TrackSelect -->|Hotfix Track<br/>Marker: [hotfix]| BugFlow["6. Phân loại lỗi<br/>bug-flow"]
+    TrackSelect -->|Hotfix Track\nMarker: hotfix| BugFlow["6. Phân loại lỗi\nbug-flow"]
     BugFlow --> TDDCycle
-    
-    subgraph TDD Workflow [Vòng lặp Code & Test]
-        TDDCycle --> Red["8.1 Viết Test Fail<br/>Prove-It Pattern nếu fix bug"]
-        Red --> Green["8.2 Viết code tối thiểu<br/>để test Pass"]
-        Green --> Refactor["8.3 Tối ưu hóa code<br/>Đối chiếu Rules/Architecture"]
-        Refactor --> Annotate["8.4 Gắn tag Traceability<br/>@trace.implements / @trace.verifies"]
-        Annotate --> LogProgress["8.5 Ghi progress log<br/>docs/logs/"]
-        LogProgress -->|Task tiếp theo| TDDCycle
+
+    PlanBreakdown --> TDDCycle["8. Bắt đầu TDD"]
+
+    subgraph TDDLoop ["Vòng lặp Code & Test"]
+        TDDCycle --> Red["8.1 Viết Test Fail\nProve-It Pattern nếu fix bug"]
+        Red --> Green["8.2 Viết code tối thiểu\nđể test Pass"]
+        Green --> Refactor2["8.3 Tối ưu hóa code\nĐối chiếu Rules/Architecture"]
+        Refactor2 --> Annotate["8.4 Gắn tag Traceability\n@trace.implements / @trace.verifies"]
+        Annotate --> LogProgress["8.5 Ghi progress log\ndocs/logs/"]
     end
-    
-    %% Quality Gates %%
-    TDDWorkflow --> GovernanceChecks{"9. Run Governance checks<br/>governance-check.sh"}
-    
-    subgraph Quality Gates [Hệ thống Quality Gates]
-        GovernanceChecks --> GateStack["validate-stack.sh<br/>Kiểm tra stack rules"]
-        GovernanceChecks --> GateSDD["validate-sdd-gate.sh<br/>Kiểm tra Spec/BDD có khớp code thay đổi"]
-        GovernanceChecks --> GateTrace["validate-trace.sh<br/>Kiểm tra độ phủ @trace của scenario & TSV signals"]
+
+    LogProgress -->|Task tiếp theo| TDDCycle
+    LogProgress -->|Tất cả tasks done| GovernanceChecks{"9. Run Governance checks\ngovernance-check.sh"}
+
+    subgraph QualityGates ["Hệ thống Quality Gates"]
+        GovernanceChecks --> GateStack["validate-stack.sh\nKiểm tra stack rules"]
+        GovernanceChecks --> GateSDD["validate-sdd-gate.sh\nKiểm tra Spec/BDD khớp code"]
+        GovernanceChecks --> GateTrace["validate-trace.sh\nKiểm tra @trace & TSV signals"]
     end
-    
-    GateStack -->|FAIL| FixGate["10. Quay lại step gần nhất sửa nguyên nhân gốc"] --> TDDCycle
+
+    GateStack -->|FAIL| FixGate["10. Quay lại step gần nhất\nsửa nguyên nhân gốc"]
     GateSDD -->|FAIL| FixGate
     GateTrace -->|FAIL| FixGate
-    
+    FixGate --> TDDCycle
+
     GateStack & GateSDD & GateTrace -->|ALL PASS| DevSelfPass["11. dev_selftest: pass"]
-    DevSelfPass --> QCRun["12. QC Automation<br/>qc-automation"]
+    DevSelfPass --> QCRun["12. QC Automation\nqc-automation"]
     QCRun -->|FAIL| BugFlow
     QCRun -->|PASS| QCStatusPass["13. qc_status: pass"]
-    
-    QCStatusPass --> Shipping["14. Deploy / Release<br/>shipping"]
+
+    QCStatusPass --> Shipping["14. Deploy / Release\nshipping"]
     Shipping --> End(["15. Merge PR & Ship thành công"])
 
-    %% Styling %%
     classDef start_end fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
     classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
     classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
-    classDef subgraph_style fill:#fafafa,stroke:#bdbdbd,stroke-width:1px,stroke-dasharray: 5 5;
-    
+
     class Start,End start_end;
     class Route,TrackSelect,GovernanceChecks decision;
-    class LoadSkill,LoadRules,PlanBreakdown,Red,Green,Refactor,Annotate,LogProgress,GateStack,GateSDD,GateTrace,DevSelfPass,QCRun,QCStatusPass,Shipping,PlanFast,BugFlow process;
+    class LoadSkill,LoadRules,Brief,BDD,TechDesign,PlanBreakdown,PlanFast,BugFlow,TDDCycle,Red,Green,Refactor2,Annotate,LogProgress,GateStack,GateSDD,GateTrace,DevSelfPass,QCRun,QCStatusPass,Shipping,FixGate process;
 ```
 
 ---
