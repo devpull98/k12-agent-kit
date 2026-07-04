@@ -96,19 +96,90 @@ graph TD
 
 ## 3. Các Tuyến Phát Triển (Delivery Tracks)
 
-*Single source of truth: [workflows/canonical-flow.md](file:///E:/Educa/k12-agent-kit/workflows/canonical-flow.md)*
+> Chi tiết đầy đủ: [`workflows/canonical-flow.md`](workflows/canonical-flow.md)
+> Không chắc đang ở bước nào → gõ **"giờ làm gì?"** để gọi skill `next-step`.
 
-### A. Standard Track (Dành cho Feature lớn / Đổi logic)
-*   **Quy trình bắt buộc:** `Product Brief` $\rightarrow$ `BDD Spec` $\rightarrow$ `Tech Design` $\rightarrow$ `Plan` $\rightarrow$ `TDD` $\rightarrow$ `Code Review` $\rightarrow$ `QC Automation` $\rightarrow$ `Trace Validation` $\rightarrow$ `Shipping`.
-*   **Enforcement:** Mọi cổng Quality Gate đều được kích hoạt tự động.
+---
 
-### B. Fast Track (Task < 30 phút, rủi ro thấp)
-*   **Quy trình rút gọn:** `Plan (rút gọn)` $\rightarrow$ `TDD` $\rightarrow$ `Code Review` $\rightarrow$ `Trace Validation (tối thiểu)` $\rightarrow$ `Shipping`.
-*   **Escape Hatch:** Commit message hoặc PR Title chứa thẻ `[fast-track]` để bỏ qua cổng SDD gate.
+### A. Standard Track — Feature mới / thay đổi logic nghiệp vụ
 
-### C. Hotfix Track (Sửa lỗi khẩn cấp trên Production)
-*   **Quy trình khẩn cấp:** `Bug-flow (phân loại)` $\rightarrow$ `TDD (Viết test tái hiện trước)` $\rightarrow$ `Code Review` $\rightarrow$ `QC (chạy focused)` $\rightarrow$ `Shipping`.
-*   **Escape Hatch:** Commit message hoặc PR Title chứa thẻ `[hotfix]`.
+**Khi nào dùng:** Tính năng mới, thay đổi API/DB, logic quan trọng.
+
+**Flow:**
+```
+product-discovery → brainstorming → spec-driven-development
+  → bdd-specification → tech-docs → writing-plans
+  → (tdd → progress-logging) × n
+  → code-review → qc-automation → trace-validation → shipping
+```
+
+**Cách gọi từng bước qua chat:**
+
+| Bước | Nói với agent |
+|------|--------------|
+| Khám phá yêu cầu | `"khám phá yêu cầu"` hoặc `"product discovery"` |
+| Viết Product Brief | `"viết Product Brief cho <tính năng>"` |
+| Viết BDD spec | `"viết BDD spec cho <UC-ID>"` |
+| Thiết kế kỹ thuật | `"tech design cho <UC-ID>"` |
+| Lập kế hoạch task | `"lập kế hoạch"` hoặc `"writing plans"` |
+| Implement (TDD) | `"bắt đầu TDD task <n>"` |
+| Review code | `"review code"` |
+| Chạy QC | `"qc automation"` |
+| Validate trace | `"validate trace"` |
+| Deploy | `"ship"` hoặc `"deploy checklist"` |
+
+**Gate bắt buộc trước merge:**
+```bash
+bash scripts/governance-check.sh
+```
+
+---
+
+### B. Fast Track — Thay đổi nhỏ, rủi ro thấp (< 30 phút)
+
+**Khi nào dùng:** Sửa UI copy, config, typo, style — không đổi logic nghiệp vụ.
+
+**Flow:**
+```
+brainstorming (rút gọn) → writing-plans → tdd → code-review → trace-validation → shipping
+```
+
+**Cách kích hoạt:** Thêm tag `[fast-track]` vào commit message hoặc PR title — SDD gate tự động bỏ qua.
+
+```bash
+git commit -m "fix: update button label [fast-track]"
+```
+
+**Gọi qua chat:** Nói thẳng việc cần làm, agent sẽ bỏ qua spec pipeline:
+```
+"fix nhanh: đổi label nút Submit thành Lưu [fast-track]"
+```
+
+---
+
+### C. Hotfix Track — Sự cố production khẩn cấp
+
+**Khi nào dùng:** Bug production, downtime, data sai — cần fix ngay.
+
+**Flow:**
+```
+bug-flow (triage) → debugging / root-cause-tracing
+  → tdd (viết repro test FAIL trước) → code-review → qc (focused) → shipping
+```
+
+**Cách kích hoạt:** Thêm tag `[hotfix]` — toàn bộ discovery pipeline bỏ qua.
+
+```bash
+git commit -m "fix: resolve null pointer in payment service [hotfix]"
+```
+
+**Gọi qua chat:**
+```
+"bug production: <mô tả triệu chứng> [hotfix]"
+"phân tích log: <paste log> [hotfix]"
+```
+
+> **Lưu ý:** Hotfix vẫn bắt buộc viết repro test FAIL trước khi sửa (Prove-It Pattern) và chạy `governance-check.sh` trước khi merge.
 
 ---
 
