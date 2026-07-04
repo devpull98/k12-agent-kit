@@ -1,0 +1,82 @@
+# Spring Boot — Test Patterns
+
+## Stack context
+- Java 11, Spring Boot 2.x → dùng `javax.validation` (KHÔNG phải `jakarta`)
+- JUnit 5 + Mockito (`@ExtendWith(MockitoExtension.class)`)
+- Build tool: Maven (`mvn test`, `mvn verify`)
+
+## Chọn đúng test slice
+
+| Cần test gì | Annotation | Load gì |
+|---|---|---|
+| Controller (HTTP layer) | `@WebMvcTest(XController.class)` | Chỉ web layer, mock service |
+| JPA repository + MySQL | `@DataJpaTest` | JPA + H2 in-memory |
+| MongoDB repository | `@DataMongoTest` | Embedded MongoDB |
+| Kafka consumer/listener | `@SpringBootTest` + `@EmbeddedKafka` | Full context + embedded broker |
+| Pure business logic | Không annotation, plain JUnit 5 | Không load Spring |
+| Full integration | `@SpringBootTest(webEnvironment=RANDOM_PORT)` | Toàn bộ context |
+
+## Unit test (service/usecase)
+```java
+@ExtendWith(MockitoExtension.class)
+class LmsAccountServiceTest {
+    @Mock LmsAccountsRepository repo;
+    @InjectMocks LmsAccountServiceImpl service;
+
+    @Test
+    void should_returnAccount_when_usernameExists() { ... }
+}
+```
+
+## Controller test
+```java
+@WebMvcTest(AuthController.class)
+class AuthControllerTest {
+    @Autowired MockMvc mockMvc;
+    @MockBean AuthService authService;
+
+    @Test
+    void should_return401_when_passwordWrong() throws Exception {
+        mockMvc.perform(post("/api/auth/login").content(...))
+               .andExpect(status().isUnauthorized());
+    }
+}
+```
+
+## JPA repository test
+```java
+@DataJpaTest
+class LmsAccountsRepositoryTest {
+    @Autowired LmsAccountsRepository repo;
+    // H2 auto-configured, rollback sau mỗi test
+}
+```
+
+## Kafka consumer test
+```java
+@SpringBootTest
+@EmbeddedKafka(partitions = 1, topics = {"club-game-result"})
+class GameResultListenerTest {
+    @Autowired KafkaTemplate<String, String> template;
+    // Gửi message → assert side effect
+}
+```
+
+## Test naming convention
+```
+should_{expected_behavior}_when_{condition}
+```
+Ví dụ: `should_throwRunException_when_accountNotFound`
+
+## Mock chỉ ở boundary
+- Mock: Repository, Kafka producer, Redis, external HTTP client
+- KHÔNG mock: Service gọi Service khác nội bộ (dùng integration test thay)
+
+## RunException pattern
+```java
+assertThrows(RunException.class, () -> service.login("wrong", "pass"));
+```
+
+## Multi-module Maven
+Chạy test 1 module: `mvn test -pl lms-api -am`
+Chạy toàn bộ: `mvn verify`

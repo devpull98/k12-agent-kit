@@ -1,0 +1,41 @@
+# Traceability — Quy tắc liên kết artifact → code → test
+
+## Mục đích
+Mọi code và test đều phải truy ngược được về BDD scenario. Không có scenario → không có code.
+
+## @trace tags (bắt buộc)
+
+### Trong code (implementation)
+```
+// @trace.implements: {UC-ID}-SC{N}
+// @trace.implements: LOGIN-SC1
+```
+Đặt ở đầu class, method, hoặc handler thực hiện scenario đó.
+
+### Trong test
+```
+// @trace.verifies: {UC-ID}-SC{N}
+// @trace.verifies: LOGIN-SC1
+```
+Đặt ở đầu test class hoặc test method tương ứng.
+
+## UC-ID convention
+`{DOMAIN}-{TICKET}` hoặc tự đặt ngắn gọn, nhất quán trong project.
+Ví dụ: `LOGIN-01`, `LMS-SCHEDULE-02`, `CLUB-QUEST-01`.
+
+## Scenario numbering
+SC1, SC2, SC3... theo thứ tự scenario trong .feature file.
+Nếu 1 scenario được split thành nhiều test → vẫn dùng cùng SC-ID.
+
+## Trace file (tùy chọn cho project lớn)
+Lưu tại `docs/traces/{UC-ID}.tsv`:
+```
+sc_id   sc_title        implemented_by  test_file       dev_selftest  qc_status
+SC1     Happy path      LoginService    LoginServiceTest  pass          pass
+SC2     Wrong password  LoginService    LoginServiceTest  pass          -
+```
+
+## Quy tắc bất biến
+- Code không có @trace.implements → agent phải hỏi scenario nào đang được implement.
+- Test không có @trace.verifies → không tính là "covered" trong qc-automation.
+- Khi BDD spec thay đổi → tìm tất cả @trace.implements của UC đó, đánh giá impact trước khi merge.

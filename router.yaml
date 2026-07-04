@@ -1,5 +1,15 @@
 # Router: intent -> skill. Strict-first, fallback nếu không match.
 routes:
+  - intent: "chọn flow enterprise theo track standard fast hotfix"
+    keywords: [enterprise flow, track, standard track, fast track, hotfix track, workflow enterprise, quy trình enterprise]
+    skill: writing-plans
+    confidence: strict
+
+  - intent: "định nghĩa nguyên tắc vận hành dự án"
+    keywords: [principles, governance, must, must not, engineering principles, policy]
+    skill: spec-driven-development
+    confidence: strict
+
   - intent: "viết spec trước khi code"
     keywords: [spec, requirement, acceptance criteria]
     skill: spec-driven-development
@@ -17,6 +27,12 @@ routes:
     not_for_skills: [tdd]
     confidence: strict
 
+  - intent: "xử lý bug production theo hotfix track"
+    keywords: [hotfix, production bug, incident, sev1, sev2, rollback]
+    skill: bug-flow
+    not_for_skills: [refactoring]
+    confidence: strict
+
   - intent: "khám phá ý tưởng và thiết kế trước khi viết spec"
     keywords: [brainstorm, ý tưởng, design, feature mới, chưa rõ requirement]
     skill: brainstorming
@@ -26,6 +42,12 @@ routes:
   - intent: "lập task breakdown từ spec đã có"
     keywords: [plan, task breakdown, dependency, vertical slice]
     skill: writing-plans
+    not_for_skills: [spec-driven-development]
+    confidence: strict
+
+  - intent: "thực thi thay đổi nhỏ theo fast track"
+    keywords: [fast track, quick fix, typo, copy change, config update, ui quick fix]
+    skill: tdd
     not_for_skills: [spec-driven-development]
     confidence: strict
 
@@ -71,6 +93,36 @@ routes:
     keywords: [retro, retrospective, sprint, tổng kết, velocity]
     skill: sprint-retro
     not_for_skills: [progress-logging]
+    confidence: strict
+
+  - intent: "viết BDD scenario từ yêu cầu hoặc ticket"
+    keywords: [bdd, scenario, given when then, kịch bản, behavior spec, feature spec, acceptance scenario]
+    skill: bdd-specification
+    not_for_skills: [spec-driven-development, tdd]
+    confidence: strict
+
+  - intent: "viết tech design doc trước khi code"
+    keywords: [tech design, api contract, thiết kế kỹ thuật, db schema, endpoint design, tech docs]
+    skill: tech-docs
+    not_for_skills: [tdd, bdd-specification]
+    confidence: strict
+
+  - intent: "chạy QC pipeline từ BDD spec đến test automation"
+    keywords: [qc, qc-analyze, qc-run, qc-report, test automation, kiểm thử, tester pipeline]
+    skill: qc-automation
+    not_for_skills: [tdd, debugging]
+    confidence: strict
+
+  - intent: "phân loại bug và xác định hướng fix"
+    keywords: [bug flow, classify bug, phân loại lỗi, bug report, bug case, ai fix bug]
+    skill: bug-flow
+    not_for_skills: [debugging, root-cause-tracing]
+    confidence: strict
+
+  - intent: "kiểm tra @trace tags và spec coverage trước merge"
+    keywords: [trace validation, coverage check, spec drift, @trace, trace report, gap analysis]
+    skill: trace-validation
+    not_for_skills: [code-review]
     confidence: strict
 
 fallback:

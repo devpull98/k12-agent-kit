@@ -1,0 +1,47 @@
+# project-context.yaml — Khai báo per-project. Copy file này vào root project thật và điền thông tin.
+# Framework tự load đúng rules dựa trên file này khi session bắt đầu.
+
+# --- BẮT BUỘC ---
+stack: spring   # spring | laravel | golang | nodejs | react | django | flutter | ...
+
+# --- KHUYẾN NGHỊ ENTERPRISE ---
+qc_stack: qc-playwright     # qc-playwright | cypress | selenium | postman
+default_role: ""            # Dev | Tester | TechLead | "" (auto-detect)
+
+# --- TÙY CHỌN: Test runner (nếu không điền, framework tự suy từ stack) ---
+# test_runner: junit5   # junit5 | phpunit | jest | vitest | pytest | go-test
+
+# --- TÙY CHỌN: Domain routing (cho project multi-module hoặc multi-domain) ---
+domains:
+  - lms
+  - club
+  - teacher
+  - products
+
+# --- TÙY CHỌN: Module → domain mapping (giúp agent biết code nằm ở đâu) ---
+# modules:
+#   lms-api: lms
+#   lms-core: lms
+#   lms-worker: lms
+#   k12-uni-club: club
+#   k12-teacher-service: teacher
+#   k12-products: products
+
+# --- TÙY CHỌN: Infrastructure context ---
+# db:
+#   - mysql
+#   - mongodb
+#   - redis
+# messaging:
+#   - kafka
+#   - rabbitmq
+
+# --- TÙY CHỌN: Đường dẫn artifact (mặc định nếu không điền) ---
+paths:
+  bdd_specs: docs/specs/bdd
+  tech_design: docs/specs/tech-design
+  test_plans: docs/test-plans
+  bug_reports: docs/bugs
+  progress_logs: docs/logs
+  principles: docs/principles.md
+  trace_dir: docs/trace

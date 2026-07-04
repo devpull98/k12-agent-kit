@@ -1,0 +1,119 @@
+# Git Safety — k12-backend-java
+
+**Status:** ENFORCED | **Owner:** Tech Lead | **Since:** 2026-07-04
+
+---
+
+## Rule: No Direct Commits to master / test
+
+### MUST NOT
+- Commit directly to `master` branch
+- Commit directly to `test` branch
+- Push to `master`/`test` without PR review
+- Use `git push --force` on `master`/`test`
+- Use `git reset --hard` on shared branches
+- Skip pre-commit hooks with `--no-verify`
+- Amend merged commits
+
+### MUST
+
+**1. Create feature branch first:**
+```bash
+# Feature: feature/<ticket>-<short-desc>
+git checkout -b feature/JIRA-123-trophy-lag-fix
+
+# Hotfix (urgent bug): hotfix/<ticket>
+git checkout -b hotfix/JIRA-456-payment-crash
+
+# Chore (docs, refactor): chore/<desc>
+git checkout -b chore/update-trophy-docs
+```
+
+**2. Commit on feature branch:**
+```bash
+git add <files>
+git commit -m "message"
+# Commit multiple times if needed — squash before merge if required
+```
+
+**3. Push with upstream tracking:**
+```bash
+git push -u origin feature/JIRA-123-trophy-lag-fix
+```
+
+**4. Create Pull Request:**
+- Title: Concise (<70 chars)
+- Description: What + Why + Testing
+- Assign reviewers (at least 1 Tech Lead/Senior Dev)
+
+**5. After approval, merge:**
+```bash
+# Via GitHub UI preferred (preserves commit history)
+# OR: git merge --no-ff feature/JIRA-123-trophy-lag-fix
+# Then: git push origin master
+```
+
+**6. Delete feature branch:**
+```bash
+git branch -d feature/JIRA-123-trophy-lag-fix
+git push origin --delete feature/JIRA-123-trophy-lag-fix
+```
+
+---
+
+## Why This Rule
+
+| Risk | Impact | Mitigation |
+|------|--------|-----------|
+| Direct commit to master | Breaks CI/CD, auto-deploy, other devs | Branch → review gate |
+| Force push | Loses commits, breaks shared history | Prohibit --force |
+| Skipped hooks | Broken build, failed tests pushed | Enforce hooks |
+| No code review | Silent bugs, security issues | PR review mandatory |
+
+---
+
+## Exceptions
+
+**Only with explicit Tech Lead approval (document in exceptions table):**
+- Hotfix directly to master (must have test coverage, must create PR after)
+- Emergency rollback (document reason + timestamp)
+
+---
+
+## Enforcement
+
+### Agent Behavior
+- If `git status` shows `On branch master` or `On branch test` **and** unstaged changes → **STOP**
+- Print: "⛔ Direct commit to master/test prohibited. Run: `git checkout -b feature/<ticket>-<desc>`"
+- Do NOT proceed with `git add` or `git commit`
+
+### CI/CD
+- Master/test push without PR: **REJECTED** by branch protection
+- Commit without pre-commit hooks: **BLOCKED** (husky / git hooks)
+
+---
+
+## Quick Reference
+
+```bash
+# Current branch?
+git branch -v
+
+# Wrong branch? Create feature branch instead:
+git checkout -b feature/JIRA-123-fix
+
+# Want to preserve commits? Cherry-pick or rebase:
+git cherry-pick <commit-hash>
+
+# Already committed to master? (Oops!)
+git reset HEAD~1                    # Undo last commit, keep changes
+git checkout -b feature/JIRA-123    # Create feature branch
+git commit -m "..."                 # Commit to feature
+git push -u origin feature/...      # Push feature branch
+git checkout master
+git reset --hard origin/master      # Reset master to origin
+```
+
+---
+
+**Last Updated:** 2026-07-04 | **Related:** CLAUDE.md § Git safety, docs/principles.md § 8

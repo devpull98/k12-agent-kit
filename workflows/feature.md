@@ -2,19 +2,36 @@
 name: feature
 ---
 
-# Flow
-brainstorm → spec → plan → (tdd → log)×n task → review → ship
+# Feature Flow — Track-aware navigation
 
-# Steps
-| Step       | Skill     | On fail → |
-|------------|-----------|-----------|
-| brainstorm | brainstorming | - |
-| spec       | spec-driven-development | brainstorm |
-| plan       | writing-plans | spec |
-| tdd        | tdd       | plan |
-| log        | progress-logging | - (chạy ngay sau mỗi task tdd pass, không phải gate chặn) |
-| review     | code-review | tdd |
-| ship       | shipping  | review |
+## Track selection
+- **Standard**: feature có business logic/API/DB hoặc thay đổi lớn.
+- **Fast**: thay đổi nhỏ (copy, config, UI fix) với scope rõ và rủi ro thấp.
+- **Hotfix**: incident production, cần fix nhanh có kiểm soát rollback.
 
-`log` không phải gate — nó chạy sau MỖI task trong plan pass verification, lặp lại cho tới khi hết task,
-rồi mới sang `review`.
+## Flow (standard)
+brainstorm → spec → plan → (tdd → log)×n task → review → qc → trace → ship
+
+## Flow (fast)
+brainstorm (nhanh) → plan (rút gọn) → tdd → review → trace → ship
+
+## Flow (hotfix)
+bug-flow (classify) → debugging/tdd (repro first) → review → qc (focused re-run) → trace → ship
+
+## Steps & gates
+| Step | Skill | Gate? | On fail → |
+|------|-------|-------|-----------|
+| brainstorm | brainstorming | scope + success criteria rõ | refine yêu cầu |
+| spec | spec-driven-development | BDD/spec đủ rõ để implement | brainstorm |
+| plan | writing-plans | task breakdown hợp lệ, dependency rõ | spec |
+| tdd | tdd | test pass và bám scenario | plan |
+| log | progress-logging | không phải gate (chạy sau mỗi task pass) | — |
+| review | code-review | không còn Critical/Major blocker | tdd |
+| qc | qc-automation / bug-flow | `qc_status` pass hoặc issue được route | bug-flow |
+| trace | trace-validation | không GAP blocker | tdd/review |
+| ship | shipping | release checklist pass | review |
+
+## Rule vận hành
+- `log` luôn chạy sau mỗi task pass để giữ audit trail rõ.
+- Fail ở gate nào quay lại step gần nhất xử lý được nguyên nhân gốc.
+- Chỉ merge khi cả `dev_selftest` và `qc_status` đều pass.

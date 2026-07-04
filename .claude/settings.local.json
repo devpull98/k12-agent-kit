@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"E:\\\\spec-driven-dev-docs-main\" && find . -type f -name \"*.md\" -o -name \"*.json\" -o -name \"*.yml\" -o -name \"*.yaml\" | head -50)"
+    ]
+  }
+}

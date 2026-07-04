@@ -1,0 +1,87 @@
+# Golang — Test Patterns
+
+## Stack context
+- Go 1.18+, standard `testing` package
+- testify (`github.com/stretchr/testify`) cho assert + mock
+- mockery hoặc gomock để generate mock
+- Test runner: `go test ./...`
+
+## Phân loại test
+
+| Cần test gì | Pattern |
+|---|---|
+| Pure function / usecase | Table-driven test, plain `testing.T` |
+| Repository (DB) | Interface mock hoặc integration với test DB |
+| HTTP handler | `httptest.NewRecorder()` + `httptest.NewServer()` |
+| Kafka consumer | Interface mock cho consumer |
+
+## Table-driven test (chuẩn Go)
+```go
+func TestCalculateDiscount(t *testing.T) {
+    tests := []struct {
+        name     string
+        price    float64
+        coupon   string
+        expected float64
+    }{
+        {"valid coupon", 100.0, "SAVE10", 90.0},
+        {"no coupon",    100.0, "",       100.0},
+        {"invalid",      100.0, "FAKE",   100.0},
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got := CalculateDiscount(tt.price, tt.coupon)
+            assert.Equal(t, tt.expected, got)
+        })
+    }
+}
+```
+
+## Mock với testify/mock
+```go
+type MockUserRepo struct { mock.Mock }
+
+func (m *MockUserRepo) FindByID(id string) (*User, error) {
+    args := m.Called(id)
+    return args.Get(0).(*User), args.Error(1)
+}
+
+func TestGetUser(t *testing.T) {
+    repo := new(MockUserRepo)
+    repo.On("FindByID", "123").Return(&User{ID: "123"}, nil)
+    svc := NewUserService(repo)
+    user, err := svc.GetUser("123")
+    assert.NoError(t, err)
+    assert.Equal(t, "123", user.ID)
+    repo.AssertExpectations(t)
+}
+```
+
+## HTTP handler test
+```go
+func TestLoginHandler(t *testing.T) {
+    body := `{"username":"admin","password":"secret"}`
+    req := httptest.NewRequest(http.MethodPost, "/login", strings.NewReader(body))
+    req.Header.Set("Content-Type", "application/json")
+    w := httptest.NewRecorder()
+
+    handler := NewLoginHandler(mockAuthService)
+    handler.ServeHTTP(w, req)
+
+    assert.Equal(t, http.StatusOK, w.Code)
+}
+```
+
+## Test naming convention
+```
+Test{FunctionName}_{Condition}_{ExpectedBehavior}
+TestGetUser_NotFound_ReturnsError
+```
+
+## Quy tắc
+- Mock interface, không mock struct cụ thể.
+- Mỗi test file tên `*_test.go`, cùng package với code hoặc package `..._test`.
+- `t.Parallel()` cho test độc lập để chạy nhanh hơn.
+- Integration test: dùng build tag `//go:build integration` để chạy tách biệt.
+- Chạy chỉ unit: `go test ./... -short`
+- Chạy integration: `go test ./... -tags=integration`

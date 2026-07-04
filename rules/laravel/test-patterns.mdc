@@ -1,0 +1,77 @@
+# Laravel — Test Patterns
+
+## Stack context
+- PHP 8.x, Laravel 9/10/11
+- PHPUnit (built-in) + Pest (optional)
+- Test runner: `php artisan test` hoặc `./vendor/bin/phpunit`
+
+## Phân loại test
+
+| Cần test gì | Class extends | Trait |
+|---|---|---|
+| HTTP endpoint, full stack | `TestCase` (Feature) | `RefreshDatabase` |
+| Pure logic, không DB | `TestCase` (Unit) | Không cần |
+| Console command | `TestCase` (Feature) | `RefreshDatabase` |
+| Queue job | `TestCase` (Feature) | `RefreshDatabase` |
+
+## Feature test (HTTP)
+```php
+class LoginTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_returns_token_when_credentials_valid(): void
+    {
+        $user = User::factory()->create(['password' => bcrypt('secret')]);
+
+        $response = $this->postJson('/api/login', [
+            'email' => $user->email,
+            'password' => 'secret',
+        ]);
+
+        $response->assertOk()->assertJsonStructure(['token']);
+    }
+}
+```
+
+## Unit test (service/action)
+```php
+class OrderCalculatorTest extends TestCase
+{
+    public function test_applies_discount_when_coupon_valid(): void
+    {
+        $calculator = new OrderCalculator();
+        $total = $calculator->calculate(items: [...], coupon: 'SAVE10');
+        $this->assertEquals(90.0, $total);
+    }
+}
+```
+
+## Factory pattern
+```php
+User::factory()->count(3)->create();
+Product::factory()->state(['status' => 'active'])->create();
+```
+
+## Mock service
+```php
+$this->mock(PaymentGateway::class, function (MockInterface $mock) {
+    $mock->shouldReceive('charge')->once()->andReturn(['status' => 'success']);
+});
+```
+
+## Queue / Event fake
+```php
+Queue::fake();
+Event::fake([OrderShipped::class]);
+// ... trigger action
+Queue::assertPushed(SendInvoiceJob::class);
+```
+
+## Test naming convention
+`test_{expected_behavior}_when_{condition}`
+hoặc (Pest): `it('returns token when credentials valid')`
+
+## Database
+- `RefreshDatabase` → migrate + rollback sau mỗi test (chậm hơn)
+- `DatabaseTransactions` → rollback transaction (nhanh hơn, không chạy được với nhiều connection)
