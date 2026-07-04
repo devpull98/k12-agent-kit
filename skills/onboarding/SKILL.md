@@ -25,6 +25,11 @@ Tự động hóa hoàn toàn quy trình onboarding của lập trình viên và
     *   Tự động copy mẫu `project-context.yaml` từ kit ra root của dự án thật.
     *   Tự động điền giá trị `stack:` đã phát hiện được ở Bước 1.
     *   Tự động detect các lệnh chạy test (ví dụ: `mvn test`, `npm test`, `go test ./...`) và điền vào trường `test_runner`.
+    *   **Bắt buộc phỏng vấn lập trình viên (Interactive Questions):** Agent dừng lại và hỏi người dùng 3 câu hỏi nhanh dưới đây để chốt cấu hình chính xác:
+        1. *"Vai trò mặc định của bạn trong dự án này là gì? (Dev / Tester / TechLead)?"*
+        2. *"Công cụ chạy QC tự động của dự án là gì? (Playwright / Cypress / Postman / Selenium)?"*
+        3. *"Các phân vùng domain nghiệp vụ chính bạn đang phụ trách trong dự án này là gì (ví dụ: lms, teacher, products)?"*
+    *   Nhận phản hồi từ người dùng và điền chính xác các giá trị này vào `default_role`, `qc_stack`, và `domains` của file `project-context.yaml`.
 3.  **Chuẩn bị Rules Stack:**
     *   Kiểm tra thư mục `rules/{stack}/` xem đã có file `architecture.mdc` chưa.
     *   Nếu chưa có $\rightarrow$ Tự động sao chép các file mẫu `.mdc` từ `rules/_template/` sang thư mục `rules/{stack}/` của dự án và báo cho lập trình viên biết để điền các convention riêng (nếu có).
