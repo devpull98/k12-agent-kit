@@ -1,0 +1,24 @@
+---
+name: architecture
+scope: template
+---
+
+# Purpose
+Kiến trúc tầng cho project {STACK}. Copy file này vào `rules/{stack}/architecture.mdc` và điền convention thật của team.
+
+# Required
+- HTTP/API layer chỉ gọi Service/UseCase — không truy cập DB trực tiếp.
+- Business logic nằm ở Service/UseCase — không nằm ở HTTP handler hoặc Controller.
+- Truy cập DB qua Repository (hoặc ORM wrapper tương đương), expose interface để mock trong test.
+- DTO/request-response riêng — không trả entity/model trực tiếp ra API.
+
+# Forbidden
+- Query DB trực tiếp từ HTTP handler/Controller/Router.
+- Business logic trong Controller hoặc Route handler.
+- Hardcode secret/config trong code (dùng env var).
+
+# Examples
+- {entry}/controllers/ hoặc {entry}/handlers/
+- {entry}/services/ hoặc {entry}/usecase/
+- {entry}/repositories/
+- {entry}/dto/ hoặc {entry}/models/request/

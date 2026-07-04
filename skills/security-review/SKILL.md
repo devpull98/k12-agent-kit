@@ -3,6 +3,8 @@ name: security-review
 description: Rà soát lỗ hổng bảo mật trước khi merge hoặc release. Use when code đụng tới auth, input từ user, secret, external call, hoặc trước khi ship feature ra production.
 keywords: [security, bảo mật, vulnerability, owasp, audit, secret, auth]
 not_for: [code-review thông thường không liên quan auth/input/secret]
+on_success: [code-review]
+on_failure: [tdd]
 requires_rules:
   - _global/security-baseline
 ---

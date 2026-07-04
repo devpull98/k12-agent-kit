@@ -1,18 +1,50 @@
 # Router: intent -> skill. Strict-first, fallback nếu không match.
 routes:
-  - intent: "chọn flow enterprise theo track standard fast hotfix"
-    keywords: [enterprise flow, track, standard track, fast track, hotfix track, workflow enterprise, quy trình enterprise]
+  - intent: "navigate enterprise delivery theo canonical flow và track"
+    keywords: [enterprise flow, canonical flow, track, standard track, fast track, hotfix track, workflow enterprise, quy trình enterprise, next step]
     skill: writing-plans
+    not_for_skills: [brainstorming]
+    confidence: strict
+
+  - intent: "tìm hiểu codebase hoặc product trước khi làm việc"
+    keywords: [product discovery, codebase, explore, onboarding, tìm hiểu, module, how does it work, architecture overview]
+    skill: product-discovery
+    not_for_skills: [brainstorming, debugging]
     confidence: strict
 
   - intent: "định nghĩa nguyên tắc vận hành dự án"
     keywords: [principles, governance, must, must not, engineering principles, policy]
     skill: spec-driven-development
+    notes: "Dùng templates/principles-template.md — khác với Product Brief (scope/feature)"
+    confidence: strict
+
+  - intent: "viết Product Brief trước khi BDD"
+    keywords: [product brief, scope, boundaries, feature spec, requirement doc, feature brief]
+    skill: spec-driven-development
+    not_for_skills: [bdd-specification]
+    notes: "Dùng templates/spec-template.md — output là docs/specs/{date}-{feature}.md"
+    confidence: strict
+
+  - intent: "bước tiếp theo là gì, đang ở đâu trong flow"
+    keywords: [next step, tiếp theo, giờ làm gì, bước tiếp, what next, where am i, đang ở phase nào]
+    skill: next-step
     confidence: strict
 
   - intent: "viết spec trước khi code"
     keywords: [spec, requirement, acceptance criteria]
     skill: spec-driven-development
+    confidence: strict
+
+  - intent: "viết BDD scenario từ yêu cầu hoặc ticket"
+    keywords: [bdd, scenario, given when then, kịch bản, behavior spec, feature spec, acceptance scenario]
+    skill: bdd-specification
+    not_for_skills: [spec-driven-development, tdd]
+    confidence: strict
+
+  - intent: "viết tech design doc trước khi code"
+    keywords: [tech design, api contract, thiết kế kỹ thuật, db schema, endpoint design, tech docs]
+    skill: tech-docs
+    not_for_skills: [tdd, bdd-specification]
     confidence: strict
 
   - intent: "viết test trước implementation"
@@ -42,13 +74,13 @@ routes:
   - intent: "lập task breakdown từ spec đã có"
     keywords: [plan, task breakdown, dependency, vertical slice]
     skill: writing-plans
-    not_for_skills: [spec-driven-development]
+    not_for_skills: [spec-driven-development, bdd-specification]
     confidence: strict
 
   - intent: "thực thi thay đổi nhỏ theo fast track"
     keywords: [fast track, quick fix, typo, copy change, config update, ui quick fix]
     skill: tdd
-    not_for_skills: [spec-driven-development]
+    not_for_skills: [spec-driven-development, bdd-specification]
     confidence: strict
 
   - intent: "trace nguyên nhân lỗi qua nhiều layer"
@@ -95,18 +127,6 @@ routes:
     not_for_skills: [progress-logging]
     confidence: strict
 
-  - intent: "viết BDD scenario từ yêu cầu hoặc ticket"
-    keywords: [bdd, scenario, given when then, kịch bản, behavior spec, feature spec, acceptance scenario]
-    skill: bdd-specification
-    not_for_skills: [spec-driven-development, tdd]
-    confidence: strict
-
-  - intent: "viết tech design doc trước khi code"
-    keywords: [tech design, api contract, thiết kế kỹ thuật, db schema, endpoint design, tech docs]
-    skill: tech-docs
-    not_for_skills: [tdd, bdd-specification]
-    confidence: strict
-
   - intent: "chạy QC pipeline từ BDD spec đến test automation"
     keywords: [qc, qc-analyze, qc-run, qc-report, test automation, kiểm thử, tester pipeline]
     skill: qc-automation
@@ -120,9 +140,33 @@ routes:
     confidence: strict
 
   - intent: "kiểm tra @trace tags và spec coverage trước merge"
-    keywords: [trace validation, coverage check, spec drift, @trace, trace report, gap analysis]
+    keywords: [trace validation, coverage check, spec drift, @trace, trace report, gap analysis, governance]
     skill: trace-validation
     not_for_skills: [code-review]
+    confidence: strict
+
+  - intent: "thiết kế system prompt hoặc agent instruction"
+    keywords: [system prompt, agent instruction, prompt template, few-shot, context engineering, agent design]
+    skill: brainstorming
+    notes: "Dùng brainstorming trước, sau đó điền vào templates/context-engineering/01-system-prompt-template.md"
+    confidence: strict
+
+  - intent: "quản lý context window và memory cho agent"
+    keywords: [context window, memory schema, session context, claude.md, context budget, persistent memory]
+    skill: spec-driven-development
+    notes: "Sau khi spec xong, điền vào templates/context-engineering/03-claude-md-template.md hoặc 06-memory-schema.md"
+    confidence: strict
+
+  - intent: "chuẩn bị input trước khi gọi skill"
+    keywords: [skill input, input contract, handoff, context card, truyền context, agent handoff]
+    skill: writing-plans
+    notes: "Điền vào templates/context-engineering/05-skill-input-contract.md hoặc 08-multi-agent-handoff.md"
+    confidence: strict
+
+  - intent: "build knowledge base hoặc RAG cho agent"
+    keywords: [rag, vector store, knowledge base, chunking, retrieval, embedding, document indexing]
+    skill: spec-driven-development
+    notes: "Spec schema trước, sau đó dùng templates/context-engineering/07-rag-document-schema.md"
     confidence: strict
 
 fallback:

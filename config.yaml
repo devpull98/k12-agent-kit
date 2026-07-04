@@ -1,2 +1,3 @@
-# Cấu hình per-project. Copy file này vào root project thật và chỉnh stack.
-stack: laravel   # laravel | spring | golang | nodejs ...
+# DEPRECATED — dùng project-context.yaml thay thế.
+# File này giữ lại để backward compat với hook cũ.
+stack: laravel

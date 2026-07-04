@@ -1,0 +1,28 @@
+---
+name: architecture
+scope: nodejs
+---
+
+# Purpose
+Kiến trúc tầng generic cho project Node.js (Express/Fastify/Nest tương đương).
+
+# Required
+- Route/Router chỉ khai báo path, middleware, validator — trỏ tới Controller/Handler, không chứa business logic.
+- Controller/Handler nhận request, gọi Service, trả response qua helper/format thống nhất — không query DB trực tiếp.
+- Service chứa business logic, gọi Repository — không import HTTP layer.
+- Repository là nơi duy nhất gọi ORM/DB driver (Sequelize, Prisma, Mongoose, TypeORM...).
+- Validate input tại boundary (express-validator, zod, joi...) trước khi vào Service.
+- Error nghiệp vụ throw typed error; global error middleware format response lỗi thống nhất.
+
+# Forbidden
+- Gọi ORM model trực tiếp từ Route hoặc Controller.
+- Business logic (điều kiện nghiệp vụ, orchestrate nhiều repo) nằm trong Route/Controller.
+- Format response lỗi/thành công khác nhau giữa các endpoint (phải qua helper chung).
+- Secret hardcode trong source.
+
+# Examples
+- routes/ hoặc src/routes/
+- controllers/ hoặc src/controllers/
+- services/ hoặc src/services/
+- repositories/ hoặc src/repositories/
+- Project-specific convention (flat vs modular): đặt trong `docs/principles.md` hoặc rule riêng per-project

@@ -3,7 +3,9 @@
 ## Mục đích
 Mọi code và test đều phải truy ngược được về BDD scenario. Không có scenario → không có code.
 
-## @trace tags (bắt buộc)
+## @trace tags (chỉ áp dụng khi có BDD spec chính thức)
+
+Không áp dụng cho: fast-track, hotfix, refactor nội bộ, optimize không đổi behavior.
 
 ### Trong code (implementation)
 ```
@@ -28,14 +30,19 @@ SC1, SC2, SC3... theo thứ tự scenario trong .feature file.
 Nếu 1 scenario được split thành nhiều test → vẫn dùng cùng SC-ID.
 
 ## Trace file (tùy chọn cho project lớn)
-Lưu tại `docs/traces/{UC-ID}.tsv`:
+Lưu tại `docs/trace/{UC-ID}.tsv`:
 ```
 sc_id   sc_title        implemented_by  test_file       dev_selftest  qc_status
 SC1     Happy path      LoginService    LoginServiceTest  pass          pass
 SC2     Wrong password  LoginService    LoginServiceTest  pass          -
 ```
 
+## Validation
+- Local/CI: `bash scripts/validate-trace.sh`
+- Merge gate: `./scripts/governance-check.sh` (bao gồm trace validation)
+
 ## Quy tắc bất biến
-- Code không có @trace.implements → agent phải hỏi scenario nào đang được implement.
-- Test không có @trace.verifies → không tính là "covered" trong qc-automation.
+- Chỉ thêm @trace khi UC-ID đến từ BDD spec đã được duyệt — không tự đặt UC-ID giả.
+- Code có BDD spec mà không có @trace.implements → agent hỏi scenario nào đang implement.
+- Test không có @trace.verifies → không tính là "covered" trong qc-automation (chỉ áp dụng khi có spec).
 - Khi BDD spec thay đổi → tìm tất cả @trace.implements của UC đó, đánh giá impact trước khi merge.

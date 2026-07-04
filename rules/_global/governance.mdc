@@ -1,0 +1,38 @@
+---
+name: governance
+scope: global
+---
+
+# Purpose
+Lớp enforcement runtime — bổ sung cho skill/workflow (honor system). Script là source of truth trước merge.
+
+# UC-ID Convention
+Format chuẩn: `{DOMAIN}-{NUMBER}` — viết hoa, số 3 chữ số, ví dụ: `LMS-001`, `CLUB-012`, `AUTH-003`.
+- DOMAIN: tên module/domain viết hoa (LMS, CLUB, TEACHER, PRODUCT, AUTH, PAYMENT...)
+- NUMBER: tăng dần per domain, 3 chữ số, bắt đầu từ 001
+- SC-ID: `{UC-ID}-SC{N}` — ví dụ `LMS-001-SC1`, `CLUB-012-SC3`
+- File BDD: `docs/specs/bdd/{UC-ID}.feature` — ví dụ `docs/specs/bdd/LMS-001.feature`
+- File tech-design: `docs/specs/tech-design/{UC-ID}-tech-design.md`
+
+# Required
+- Trước merge PR: chạy `./scripts/governance-check.sh` (hoặc từng script trong CI).
+- `validate-stack.sh`: stack trong `project-context.yaml` phải có `rules/{stack}/architecture.mdc` và `test-patterns.mdc` (dev tự viết theo `rules/_template/`).
+- `validate-sdd-gate.sh`: thay đổi source code phải đi kèm cập nhật `docs/specs/` hoặc `docs/plans/` (trừ fast/hotfix track).
+- `validate-trace.sh`: mọi SC-ID trong BDD spec phải có `@trace.implements` và `@trace.verifies` (trừ fast/hotfix không có BDD).
+- PR phải khai báo `dev_selftest` và `qc_status` (xem `templates/pull-request-template.md`).
+
+# Delivery track escape hatches
+| Track | SDD gate | Trace gate |
+|-------|----------|------------|
+| Standard | Bắt buộc spec + BDD + tech-design | Bắt buộc @trace |
+| Fast | Commit message `[fast-track]` hoặc `FAST_TRACK=1` | @trace tối thiểu nếu có BDD |
+| Hotfix | Commit message `[hotfix]` hoặc `HOTFIX=1` | Bỏ qua nếu không có BDD mới |
+
+# Forbidden
+- Merge khi `governance-check.sh` fail mà không có exception được Tech Lead ghi rõ trong PR.
+- Dùng `GOVERNANCE_SKIP=1` ngoài emergency đã được approve.
+
+# Examples
+- CI: `bash scripts/governance-check.sh origin/main`
+- Local pre-push: `bash scripts/governance-check.sh`
+- Emergency: commit `[hotfix] fix null pointer in payment callback`

@@ -1,0 +1,12 @@
+{
+  "name": "k12-agent-kit",
+  "plugins": [
+    {
+      "name": "uniclass-workflow",
+      "source": "./"
+    }
+  ],
+  "owner": {
+    "name": "devpull98"
+  }
+}

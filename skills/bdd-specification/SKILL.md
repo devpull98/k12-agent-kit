@@ -3,6 +3,8 @@ name: bdd-specification
 description: Viết BDD specification (Given/When/Then scenarios) từ yêu cầu hoặc ticket. Use when có feature mới cần xác định behavior trước khi code, hoặc khi tester cần spec để thiết kế test.
 keywords: [bdd, scenario, given when then, acceptance criteria, feature spec, behavior, kịch bản]
 not_for: [sửa bug nhỏ rõ ràng, refactor không đổi behavior]
+on_success: [tech-docs, qc-automation]
+on_failure: [spec-driven-development]
 requires_rules:
   - _global/sdd-gate
   - _global/traceability
@@ -17,7 +19,7 @@ Tạo BDD specification làm nguồn sự thật chung giữa dev và tester —
 - Spec hoặc brainstorm đã có (nếu có)
 
 # Steps
-1. **Xác định UC-ID**: Đặt ID ngắn gọn, nhất quán (`{DOMAIN}-{TICKET}` hoặc tự đặt). Ví dụ: `LOGIN-01`, `CLUB-QUEST-01`.
+1. **Xác định UC-ID**: Theo convention `{DOMAIN}-{NUMBER}` (xem `rules/_global/governance.mdc`). Ví dụ: `LMS-001`, `CLUB-012`, `AUTH-003`. Copy `templates/bdd-template.feature` làm starting point.
 2. **Xác định actors**: Ai là người dùng? (student, teacher, admin, system...)
 3. **Liệt kê scenarios**: Mỗi scenario = 1 luồng hành vi cụ thể:
    - Happy path (luồng chính thành công)
@@ -34,7 +36,8 @@ Tạo BDD specification làm nguồn sự thật chung giữa dev và tester —
    # @trace.status: draft
    ```
 6. **Lưu** vào `docs/specs/bdd/{UC-ID}.feature` (hoặc theo cấu trúc project).
-7. **Xin review**: Hỏi dev + tester xem scenario có đủ, có đo được không trước khi chốt.
+7. **Tạo trace file**: Tạo `docs/trace/{UC-ID}-trace.tsv` với schema chuẩn (xem `rules/_global/traceability.mdc`). Đây là bước dev tạo file — tester và dev sau đó cùng cập nhật `dev_selftest` và `qc_status` vào file này.
+8. **Xin review**: Hỏi dev + tester xem scenario có đủ, có đo được không trước khi chốt.
 
 # Output
 - File `.feature` với đầy đủ scenarios + @trace metadata

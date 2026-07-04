@@ -1,0 +1,56 @@
+# Node.js — Test Patterns (generic)
+
+## Stack context
+- Node.js 18+ LTS
+- Test runner: Jest hoặc Vitest (chọn 1, ghi rõ trong project-context.yaml `test_runner:`)
+- Run: `npm test` hoặc `npx jest` / `npx vitest run`
+
+## Phân loại test
+
+| Cần test gì | Tool | Ghi chú |
+|---|---|---|
+| Pure function / Service logic | Jest/Vitest unit | Mock repository ở boundary |
+| HTTP endpoint | supertest + app instance | Mock service hoặc test DB |
+| Repository + DB | integration test | Test DB riêng hoặc container |
+
+## Unit test (service)
+```javascript
+describe('CourseService', () => {
+  it('should_returnCourse_when_idExists', async () => {
+    const repo = { findById: jest.fn().mockResolvedValue({ id: 1 }) };
+    const service = new CourseService(repo);
+    const result = await service.getById(1);
+    expect(result.id).toBe(1);
+  });
+});
+```
+
+## HTTP test (supertest)
+```javascript
+const request = require('supertest');
+const app = require('../app');
+
+it('should_return401_when_tokenInvalid', async () => {
+  await request(app).get('/api/courses').set('Authorization', 'Bearer bad').expect(401);
+});
+```
+
+## Test naming convention
+```
+should_{expected_behavior}_when_{condition}
+```
+
+## Mock chỉ ở boundary
+- Mock: Repository, Redis, external HTTP, queue producer
+- KHÔNG mock: Service gọi Service nội bộ cùng module (dùng integration test)
+
+## @trace in tests
+```javascript
+// @trace.verifies: UC-LMS-001-SC1
+it('should_createAssignment_when_inputsValid', async () => { ... });
+```
+
+## Run commands
+- All tests: `npm test`
+- Single file: `npm test -- path/to/file.test.js`
+- Coverage: `npm test -- --coverage`

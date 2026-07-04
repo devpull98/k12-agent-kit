@@ -3,6 +3,8 @@ name: debugging
 description: Tìm root cause có hệ thống trước khi sửa lỗi, qua quy trình reproduce -> localize -> fix root cause -> guard. Use when test fail, build lỗi, behavior không đúng kỳ vọng, hoặc gặp bug/exception bất kỳ.
 keywords: [debug, bug, fix, lỗi, error, exception, test failure, root cause]
 not_for: [tdd cho feature mới chưa có bug]
+on_success: [tdd]
+on_failure: [root-cause-tracing]
 requires_rules:
   - _global/error-handling
 ---

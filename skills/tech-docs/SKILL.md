@@ -3,6 +3,8 @@ name: tech-docs
 description: Viết tech design document (API contract, DB schema, event definitions) từ BDD spec đã duyệt. Use when BDD spec đã chốt và cần thiết kế kỹ thuật trước khi generate code.
 keywords: [tech design, api contract, db schema, technical spec, thiết kế kỹ thuật, endpoint, migration]
 not_for: [viết code ngay khi chưa có BDD spec, refactor không cần schema mới]
+on_success: [writing-plans]
+on_failure: [bdd-specification]
 requires_rules:
   - _global/traceability
   - "{stack}/architecture"
@@ -36,7 +38,7 @@ Tạo tài liệu thiết kế kỹ thuật làm contract giữa dev và các b�
    # @trace.uc_id: {UC-ID}
    # @trace.bdd_version: 1.0
    ```
-6. **Lưu** vào `docs/specs/tech-design/{UC-ID}-tech-design.md`.
+6. **Lưu** vào `docs/specs/tech-design/{UC-ID}-tech-design.md` — copy `templates/tech-design-template.md` làm starting point.
 7. **Review**: Dev lead hoặc tech lead xem trước khi code.
 
 # Output

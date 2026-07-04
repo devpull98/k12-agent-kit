@@ -3,6 +3,8 @@ name: writing-plans
 description: Phân rã spec thành task nhỏ, có thứ tự, có acceptance criteria và verification step. Use when đã có spec/requirement rõ và cần lập task breakdown trước khi code, hoặc task cảm thấy quá lớn để bắt đầu.
 keywords: [plan, task breakdown, dependency graph, vertical slice, estimate]
 not_for: [thay đổi 1 file phạm vi rõ ràng]
+on_success: [tdd]
+on_failure: [bdd-specification, tech-docs]
 requires_rules:
   - _global/sdd-gate
 ---
@@ -11,7 +13,9 @@ requires_rules:
 Chuyển spec thành plan thực thi được: task nhỏ, có thứ tự theo dependency, mỗi task tự kiểm chứng được — để TDD/implementation chạy mượt, không đoán.
 
 # Inputs
-- Spec đã được duyệt (từ spec-driven-development)
+- BDD spec đã duyệt (`docs/specs/bdd/{UC-ID}.feature`) — standard track
+- Tech design đã review (nếu có API/DB change)
+- Product Brief (nếu có) từ spec-driven-development
 - Codebase hiện tại (pattern, convention đang dùng)
 
 # Steps

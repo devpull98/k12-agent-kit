@@ -3,6 +3,8 @@ name: trace-validation
 description: Kiểm tra @trace tags trong code và test có khớp với BDD spec không. Use when trước khi merge để verify coverage, hoặc khi nghi ngờ code bị drift khỏi spec.
 keywords: [trace, traceability, coverage, drift, @trace, validate trace, spec coverage]
 not_for: [viết test mới — dùng tdd hoặc qc-automation, review code quality — dùng code-review]
+on_success: [shipping]
+on_failure: [tdd, code-review]
 requires_rules:
   - _global/traceability
 ---
@@ -16,6 +18,7 @@ requires_rules:
 - Test files với `@trace.verifies` tags
 
 # Steps
+0. Chạy `bash scripts/validate-trace.sh` — dùng output script làm baseline, bổ sung phân tích DRIFT thủ công nếu cần.
 1. **Thu thập scenarios**: Đọc tất cả `.feature` file trong `docs/specs/bdd/`, liệt kê mọi `{UC-ID}-SC{N}`.
 2. **Tìm implementations**: Grep `@trace.implements` trong codebase, build mapping `SC-ID → file:line`.
 3. **Tìm test coverage**: Grep `@trace.verifies` trong test files, build mapping `SC-ID → test`.

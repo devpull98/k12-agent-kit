@@ -3,6 +3,8 @@ name: product-discovery
 description: Tìm hiểu và phân tích codebase/product mới trước khi bắt tay vào work. Use when onboarding vào project mới, cần hiểu 1 module cụ thể, hoặc trước khi viết spec/design.
 keywords: [product discovery, codebase, explore, tìm hiểu, onboarding, module, architecture, how does it work]
 not_for: [debug lỗi cụ thể, viết code, review PR]
+on_success: [brainstorming, spec-driven-development]
+on_failure: []
 ---
 
 # Skill: Product Discovery / Codebase Exploration
@@ -43,7 +45,7 @@ not_for: [debug lỗi cụ thể, viết code, review PR]
    - Third-party services (Kafka, Redis, MongoDB?)
    - External integrations?
 
-3. **Module Map** — Scan src/ directory structure
+3. **Module Map** — Scan source directory (xem `source_dirs` trong `project-context.yaml`, hoặc check pom.xml/package.json để xác định root)
    - How many modules? (monolith vs microservices)
    - Entry points? (Controller, API, CLI)
    - Dependencies? (which module depends on which)
@@ -190,9 +192,14 @@ docs/architecture/
 
 ---
 
+## Next Step
+
+Sau khi hoàn thành product-discovery → chuyển sang **brainstorming** (nếu cần khám phá thêm ý tưởng) hoặc **spec-driven-development** (nếu đã đủ context để viết Product Brief).
+
 ## Related Skills
 
-- [spec-driven-development](../spec-driven-development/SKILL.md) — After discovery, write BDD spec
+- [brainstorming](../brainstorming/SKILL.md) — Next: khám phá ý tưởng và thiết kế giải pháp
+- [spec-driven-development](../spec-driven-development/SKILL.md) — Next: viết Product Brief
 - [tech-docs](../tech-docs/SKILL.md) — After discovery, write detailed design
 - [debugging](../debugging/SKILL.md) — When you find bugs during exploration
 - [performance-optimization](../performance-optimization/SKILL.md) — When you spot perf risks

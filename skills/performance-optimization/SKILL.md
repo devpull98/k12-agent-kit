@@ -3,6 +3,8 @@ name: performance-optimization
 description: Đo và tối ưu hiệu năng có dữ liệu, không tối ưu theo cảm tính. Use when có báo cáo chậm, query N+1 nghi ngờ, hoặc trước khi release feature chịu tải cao.
 keywords: [performance, tối ưu, chậm, N+1, latency, profiling]
 not_for: [tối ưu code chưa có bằng chứng chậm — ưu tiên refactoring nếu mục tiêu là đọc code dễ hơn]
+on_success: [code-review]
+on_failure: [debugging]
 requires_rules:
   - _global/performance-baseline
 ---

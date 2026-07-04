@@ -3,6 +3,8 @@ name: tdd
 description: Viết test trước khi viết code implementation. Use when bắt đầu 1 task code mới, sửa bug có test case rõ ràng, hoặc khi spec đã có acceptance criteria.
 keywords: [test, tdd, unit test, acceptance criteria, write test first]
 not_for: [debugging]
+on_success: [progress-logging, code-review]
+on_failure: [debugging]
 requires_rules:
   - _global/error-handling
   - "{stack}/architecture"
@@ -16,7 +18,8 @@ requires_rules:
 - Rule áp dụng theo stack (đã khai báo ở requires_rules)
 
 # Steps
-1. Đọc spec, xác định behavior cần test.
+0. Verify `rules/{stack}/architecture.mdc` tồn tại — nếu thiếu, dừng và hướng dẫn dev copy từ `rules/_template/`.
+1. Đọc BDD spec + tech design (nếu có), xác định behavior cần test.
 2. Viết test case mô tả behavior đó (test phải fail — Red).
 3. Viết code tối thiểu để test pass (Green).
 4. Refactor code, giữ test pass, đối chiếu requires_rules để không vi phạm convention.

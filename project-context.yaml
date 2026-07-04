@@ -1,42 +1,38 @@
-# project-context.yaml — Khai báo per-project. Copy file này vào root project thật và điền thông tin.
-# Framework tự load đúng rules dựa trên file này khi session bắt đầu.
+# project-context.yaml — Khai báo per-project. Copy vào root project thật và điền thông tin.
+# Framework load file này khi session bắt đầu (hook session-start).
 
 # --- BẮT BUỘC ---
-stack: spring   # spring | laravel | golang | nodejs | react | django | flutter | ...
+stack: spring   # Dev tự tạo rules/{stack}/ nếu chưa có — copy từ rules/_template/
 
-# --- KHUYẾN NGHỊ ENTERPRISE ---
+# --- KHUYẾN NGHỊ ---
 qc_stack: qc-playwright     # qc-playwright | cypress | selenium | postman
 default_role: ""            # Dev | Tester | TechLead | "" (auto-detect)
+test_runner: ""             # junit5 | phpunit | jest | vitest | pytest | go-test — để trống = suy từ stack
 
-# --- TÙY CHỌN: Test runner (nếu không điền, framework tự suy từ stack) ---
-# test_runner: junit5   # junit5 | phpunit | jest | vitest | pytest | go-test
-
-# --- TÙY CHỌN: Domain routing (cho project multi-module hoặc multi-domain) ---
+# --- TÙY CHỌN: Domain routing ---
 domains:
   - lms
   - club
   - teacher
   - products
 
-# --- TÙY CHỌN: Module → domain mapping (giúp agent biết code nằm ở đâu) ---
+# --- TÙY CHỌN: Module → domain mapping (polyglot/monorepo — mở rộng sau) ---
 # modules:
-#   lms-api: lms
-#   lms-core: lms
-#   lms-worker: lms
-#   k12-uni-club: club
-#   k12-teacher-service: teacher
-#   k12-products: products
+#   lms-api: { stack: spring, domain: lms }
+#   k12-product-api: { stack: nodejs, domain: products }
 
-# --- TÙY CHỌN: Infrastructure context ---
-# db:
-#   - mysql
-#   - mongodb
-#   - redis
-# messaging:
-#   - kafka
-#   - rabbitmq
+# --- TÙY CHỌN: Infrastructure ---
+# db: [mysql, mongodb, redis]
+# messaging: [kafka, rabbitmq]
 
-# --- TÙY CHỌN: Đường dẫn artifact (mặc định nếu không điền) ---
+# --- TÙY CHỌN: Stack overrides cho governance scripts ---
+# Bỏ comment và điền nếu stack không có trong danh sách built-in,
+# hoặc project có cấu trúc thư mục không chuẩn.
+# source_dirs: [src, app, internal]       # thư mục chứa code (validate-sdd-gate.sh)
+# code_extensions: [java, kt, go, ts]     # extension file code (validate-trace.sh + sdd-gate)
+# exclude_dirs: [generated, proto-gen]    # thư mục bổ sung cần loại khi grep trace
+
+# --- Đường dẫn artifact (mặc định nếu không điền) ---
 paths:
   bdd_specs: docs/specs/bdd
   tech_design: docs/specs/tech-design
@@ -45,3 +41,9 @@ paths:
   progress_logs: docs/logs
   principles: docs/principles.md
   trace_dir: docs/trace
+
+# --- Governance (CI/local) ---
+# governance:
+#   sdd_gate: true
+#   trace_gate: true
+#   stack_gate: true

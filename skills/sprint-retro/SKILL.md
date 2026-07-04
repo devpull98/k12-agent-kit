@@ -3,7 +3,10 @@ name: sprint-retro
 description: Tổng hợp toàn bộ progress log và changelog trong 1 sprint thành báo cáo retro (velocity, block lặp lại, đề xuất cải thiện). Use when kết thúc sprint, cần tổng kết tiến độ nhiều feature, hoặc retro meeting cần dữ liệu thật từ log.
 keywords: [retro, retrospective, sprint, tổng kết, velocity, sprint review]
 not_for: [báo cáo tiến độ 1 task/feature đơn lẻ — dùng progress-logging]
+on_success: []
+on_failure: []
 requires_rules: []
+# Prerequisite: docs/logs/*.md phải được tạo bởi progress-logging skill trước khi chạy sprint-retro
 ---
 
 # Purpose

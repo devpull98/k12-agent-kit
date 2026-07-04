@@ -4,6 +4,8 @@ description: Trace lỗi ngược qua call stack/luồng dữ liệu để tìm 
 keywords: [root cause, trace, call stack, data flow, multi-layer, backward trace]
 not_for: [bug đơn giản 1 file đã rõ nguyên nhân]
 requires_rules: []
+on_success: [tdd]
+on_failure: []
 ---
 
 # Purpose

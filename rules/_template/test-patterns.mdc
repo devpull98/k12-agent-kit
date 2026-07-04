@@ -1,0 +1,24 @@
+---
+name: test-patterns
+scope: template
+---
+
+# Purpose
+Test patterns cho stack {STACK}. Copy vào `rules/{stack}/test-patterns.mdc` và điền runner command + convention thật.
+
+# Required
+- Test naming: `should_{expected}_when_{condition}` hoặc convention team đã chốt.
+- Mock chỉ ở boundary (DB, HTTP client, queue) — không mock logic nội bộ cùng module.
+- Mỗi test method verify scenario có `@trace.verifies: {UC-ID}-SC{N}` khi có BDD spec.
+- Chạy test trước commit: `{TEST_RUNNER_COMMAND}`
+
+# Forbidden
+- Test phụ thuộc thứ tự chạy (shared mutable state giữa test).
+- Skip/comment test để pass CI mà không có ticket.
+- Assert mơ hồ (chỉ check status 200, không check body/behavior).
+
+# Examples
+- Unit test: pure logic, không load framework context
+- Integration test: DB/API với test fixture
+- E2E test: full HTTP flow (nếu có)
+- Run command: `{TEST_RUNNER_COMMAND}` (ví dụ: `npm test`, `mvn test`, `go test ./...`)

@@ -3,6 +3,8 @@ name: code-review
 description: Review code qua 5 trục (correctness, readability, architecture, security, performance) trước khi merge, kèm quy trình request/receive review rõ ràng. Use when sắp merge PR, hoàn thành 1 task/feature, hoặc nhận feedback review cần phản hồi.
 keywords: [review, pull request, pr, code review, merge, feedback]
 not_for: []
+on_success: [trace-validation]
+on_failure: [tdd]
 requires_rules:
   - _global/security-baseline
   - _global/observability

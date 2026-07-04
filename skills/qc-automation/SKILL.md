@@ -3,6 +3,8 @@ name: qc-automation
 description: Chạy QC pipeline 6 bước từ BDD spec đến automated test. Use when tester nhận BDD spec đã duyệt và cần thiết kế + chạy test automation, hoặc khi cần đánh giá coverage trước khi merge.
 keywords: [qc, quality control, test automation, test plan, qc-analyze, qc-run, tester, kiểm thử, automation]
 not_for: [dev tự viết unit test — dùng tdd skill, debug lỗi đang xảy ra — dùng debugging]
+on_success: [trace-validation]
+on_failure: [bug-flow]
 requires_rules:
   - _global/traceability
   - "{stack}/test-patterns"
@@ -19,6 +21,8 @@ Chạy pipeline QC độc lập với dev — từ BDD spec đến automated tes
 
 # Steps
 
+0. Verify `rules/{stack}/test-patterns.mdc` tồn tại — nếu thiếu, dừng và hướng dẫn dev copy từ `rules/_template/test-patterns.mdc`.
+
 ## Bước 1 — QC Analyze
 - Đọc BDD spec, liệt kê tất cả scenarios (SC1, SC2...)
 - Xác định scope: bao nhiêu scenario cần cover, loại test nào (unit/integration/e2e)
@@ -26,7 +30,8 @@ Chạy pipeline QC độc lập với dev — từ BDD spec đến automated tes
 - Nếu có DOC_GAPS → stop, báo cáo cho dev/PO bổ sung spec trước khi tiếp tục
 
 ## Bước 2 — QC Plan
-- Lập test plan: scenario nào → test cấp nào → priority (Critical/High/Medium/Low)
+- Copy `templates/test-plan-template.md` → `docs/test-plans/{UC-ID}-test-plan.md`
+- Điền: scenario nào → test cấp nào → priority (Critical/High/Medium/Low)
 - Xác định test data cần setup
 - Xác định dependencies (mock hay real service)
 

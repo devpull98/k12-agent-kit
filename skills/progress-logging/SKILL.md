@@ -2,7 +2,9 @@
 name: progress-logging
 description: Lưu vết và báo cáo tiến độ ngay sau khi 1 task trong plan hoàn thành. Use when 1 task vừa pass verification step, hoặc user hỏi "tiến độ tới đâu rồi".
 keywords: [log, tiến độ, progress, nhật ký, report, hoàn thành task]
-not_for: [báo cáo tổng kết toàn feature sau khi ship — dùng shipping]
+not_for: [báo cáo tổng kết toàn feature sau khi ship — dùng shipping, gọi standalone khi task chưa pass verification step]
+on_success: [tdd]
+on_failure: []
 requires_rules:
   - _global/sdd-gate
 ---

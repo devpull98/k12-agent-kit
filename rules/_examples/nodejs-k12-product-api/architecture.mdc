@@ -1,0 +1,23 @@
+---
+name: architecture
+scope: nodejs-k12-product-api
+description: Ví dụ rule project-specific — KHÔNG dùng làm default framework. Copy vào project thật nếu cần.
+---
+
+# Purpose
+Convention cụ thể quan sát từ k12-product-api (Express + Sequelize/Mongoose + Redis).
+Đây là **ví dụ dev-contributed**, không phải rule mặc định của framework.
+
+# Required (project-specific)
+- Flat pattern (legacy): router/ → api/controllers/ → services/ → repositories/ → entities/
+- Modular pattern (domain mới): modules/<domain>/ với actions/<subdomain>/<verbAction>.js
+- Response qua utils/ApiResponse.js; error qua AppError + ErrorHandle middleware
+- Controller mới dùng TryCatchAsync wrapper
+- Validate qua express-validator + RequestValidation middleware
+
+# Forbidden
+- Thêm domain mới vào flat pattern khi nên dùng modules/<domain>/
+- Pattern legacy getErrorMessage trong Controller mới
+
+# Examples
+- Xem rule gốc trong git history hoặc docs/architecture/ của project k12-product-api

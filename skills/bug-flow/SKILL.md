@@ -3,6 +3,8 @@ name: bug-flow
 description: Phân loại bug và xác định hướng fix đúng. Use when tester tìm thấy lỗi sau khi chạy QC, hoặc dev nhận bug report và cần xác định root cause ở tầng nào (code, spec, env).
 keywords: [bug, bug report, lỗi, classify bug, fix bug, bug flow, phân loại lỗi]
 not_for: [debug lỗi kỹ thuật đang chạy — dùng debugging, trace nhiều layer — dùng root-cause-tracing]
+on_success: [debugging, tdd]
+on_failure: [root-cause-tracing]
 requires_rules:
   - _global/traceability
 ---

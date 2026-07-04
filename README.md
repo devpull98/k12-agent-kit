@@ -36,6 +36,7 @@ Thêm ngôn ngữ mới: chỉ tạo `rules/<stack-mới>/`, không sửa skill.
 - Đã thêm vào `router.yaml` nếu là intent phổ biến chưa?
 
 ## Skill hiện có (`skills/<name>/SKILL.md`)
+- `next-step` — orchestrator: xác định bước tiếp theo dựa trên skill vừa xong + track + trace state
 - `brainstorming` — khám phá ý định, thiết kế trước khi viết spec
 - `spec-driven-development` — viết spec có cấu trúc trước khi code
 - `writing-plans` — phân rã spec thành task nhỏ có thứ tự
@@ -50,6 +51,21 @@ Thêm ngôn ngữ mới: chỉ tạo `rules/<stack-mới>/`, không sửa skill.
 - `security-baseline` — input validation, secret, auth, SSRF, LLM output
 - `performance-baseline` — pagination, N+1, đo trước khi tối ưu
 - `observability` — structured log, correlation ID, RED metric, alert theo symptom
+
+## Context Engineering Templates (`templates/context-engineering/`)
+
+Bộ 8 template để cấu trúc và quản lý context cho agent:
+
+| File | Mục đích |
+|------|---------|
+| `01-system-prompt-template.md` | Khai báo role, scope, constraint, output format cho agent |
+| `02-few-shot-examples-template.md` | Viết ví dụ Input→Output để anchor behavior |
+| `03-claude-md-template.md` | CLAUDE.md per-project — context budget đầu session |
+| `04-session-context-card.md` | Truyền trạng thái khi continue hoặc handoff session |
+| `05-skill-input-contract.md` | Structured input trước khi gọi skill (giảm clarification loop) |
+| `06-memory-schema.md` | Schema 4 loại memory: user, feedback, project, reference |
+| `07-rag-document-schema.md` | Chunking strategy + metadata cho knowledge base / vector store |
+| `08-multi-agent-handoff.md` | Context passing giữa các agent trong pipeline |
 
 ## Agent persona (`agents/*.md`)
 - `code-reviewer` — review 5 trục, dùng cho review sâu trước merge

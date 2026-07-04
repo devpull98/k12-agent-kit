@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cd \"E:\\\\spec-driven-dev-docs-main\" && find . -type f -name \"*.md\" -o -name \"*.json\" -o -name \"*.yml\" -o -name \"*.yaml\" | head -50)"
+      "Bash(cd \"E:\\\\spec-driven-dev-docs-main\" && find . -type f -name \"*.md\" -o -name \"*.json\" -o -name \"*.yml\" -o -name \"*.yaml\" | head -50)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
