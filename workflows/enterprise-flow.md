@@ -32,10 +32,13 @@ role: all
 | 7. QC automation | Tester | qc-automation | qc_status: pass |
 | 8. Trace + Release | Lead | trace-validation, shipping | governance-check pass |
 
-## Failure loop
-1. Fail ở phase nào → quay phase gần nhất sửa nguyên nhân gốc.
-2. QC fail → `bug-flow` → fix → re-run từ bước Run của qc-automation.
-3. Governance script fail → không merge cho đến khi pass hoặc Tech Lead approve exception trong PR.
+## Failure loop — Recovery Action
+- **Product Brief/BDD/Tech Design Fail:** Gọi `brainstorming` / `bdd-specification` / `tech-docs` để điều chỉnh thiết kế.
+- **Plan Fail:** Gọi `writing-plans` để định cấu hình lại dependencies.
+- **TDD/Implement Fail:** Gọi `debugging` phân tích log để sửa code lỗi, cấm tự ý sửa lại plan.
+- **Code Review Fail:** Gọi `refactoring` để dọn dẹp code smell theo reviewer feedback.
+- **QC Fail:** (Code bug) -> `bug-flow` -> `debugging` để fix; (Test bug) -> `qc-automation` để sửa test script.
+- **Governance/Trace Fail:** Gọi `trace-validation` để đồng bộ spec drift hoặc bổ sung tag `@trace`.
 
 ## Definition of Done
 - `bash scripts/governance-check.sh` pass

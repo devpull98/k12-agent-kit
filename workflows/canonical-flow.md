@@ -71,15 +71,11 @@ bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → 
 | bdd-specification | Cần khám phá thêm domain | product-discovery |
 | tech-docs | BDD scenario thiếu / ambiguous | bdd-specification |
 | writing-plans | Spec chưa đủ chi tiết để breakdown | bdd-specification hoặc tech-docs |
-| writing-plans | Rủi ro quá cao, cần thiết kế lại | brainstorming → tech-docs |
-| validate-stack.sh | Rules stack chưa tạo / chưa đúng | copy `rules/_template/` → điền convention |
-| validate-sdd-gate.sh | Code thay đổi nhưng chưa có spec/BDD | spec-driven-development → bdd-specification |
-| tdd (test fail) | Logic sai, edge case thiếu | debugging → tdd |
-| tdd (test fail) | Kiến trúc sai hướng | tech-docs → writing-plans → tdd |
-| code-review (critical — logic) | Implementation sai spec | tdd |
-| code-review (critical — security) | Lỗ hổng bảo mật | security-review → tdd |
-| qc-automation (fail) | Code bug | bug-flow → debugging → tdd |
-| qc-automation (fail) | Spec sai / thiếu scenario | bdd-specification → tdd |
-| trace-validation (GAP) | Scenario chưa implement hoặc thiếu @trace | tdd |
-| trace-validation (DRIFT) | Spec đổi nhưng code/trace chưa cập nhật | bdd-specification → tdd |
-| shipping (rollback trigger) | Production incident sau deploy | bug-flow → hotfix track |
+## On fail — Failure Recovery Map
+
+- **Fail ở Product Brief/BDD/Tech Design:** Quay lại skill `brainstorming`/`bdd-specification`/`tech-docs` tương ứng để sửa đổi spec.
+- **Fail ở Plan:** Quay lại `writing-plans` để cấu trúc lại dependencies và rủi ro.
+- **Fail ở TDD/Implement (test fail/compile error):** Chạy phân tích logs, gọi skill `debugging` để định vị và sửa lỗi code.
+- **Fail ở Code Review:** Gọi skill `refactoring` để dọn dẹp và tối ưu mã nguồn theo feedback.
+- **Fail ở QC Automation (phát hiện bug):** Gọi `bug-flow` → `debugging` để sửa lỗi code; (phát hiện test QC lỗi) → quay lại `qc-automation` để cập nhật test script.
+- **Fail ở Trace Validation / Governance:** Chạy skill `trace-validation` để bổ sung tag `@trace` hoặc sửa spec drift.

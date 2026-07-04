@@ -21,19 +21,19 @@ brainstorming → writing-plans → tdd → review → trace → ship  `[fast-tr
 bug-flow → debugging/tdd (repro & sửa lỗi) → review → qc → trace → ship  `[hotfix]`
 
 ## Steps & gates
-| Step | Skill | Gate? | On fail → |
-|------|-------|-------|-----------|
+| Step | Skill | Gate? | On fail (Recovery Action) → |
+|------|-------|-------|----------------------------|
 | discovery | product-discovery | — | — |
-| brainstorm | brainstorming | scope + success criteria rõ | refine yêu cầu |
+| brainstorm | brainstorming | scope + success criteria rõ | brainstorm (refine yêu cầu) |
 | Product Brief | spec-driven-development | Product Brief approved | brainstorm |
 | bdd | bdd-specification | BDD approved | Product Brief |
 | tech | tech-docs | design reviewed (nếu có API/DB) | bdd |
-| plan | writing-plans | task breakdown hợp lệ | bdd/tech |
-| tdd | tdd | test pass | plan |
+| plan | writing-plans | task breakdown hợp lệ | bdd / tech |
+| tdd | tdd | test pass | debugging (sửa code lỗi) |
 | log | progress-logging | — (sau mỗi task pass) | — |
-| review | code-review | no Critical/Major | tdd |
-| qc | qc-automation | `qc_status` pass | bug-flow |
-| trace | trace-validation | no GAP blocker | tdd/review |
+| review | code-review | no Critical/Major | refactoring (sửa code smell) |
+| qc | qc-automation | `qc_status` pass | bug-flow (code bug) / qc-automation (test bug) |
+| trace | trace-validation | no GAP blocker | trace-validation (bổ sung tag trace) |
 | ship | shipping | release checklist pass | review |
 
 ## Rule vận hành
