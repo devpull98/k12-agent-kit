@@ -13,12 +13,12 @@ rules/<stack>/         rule riêng theo stack (laravel, spring, golang...)
 skills/<name>/SKILL.md frontmatter: name, description, keywords, not_for, requires_rules
 workflows/<flow>.md    step -> skill, on_fail
 router.yaml            intent -> skill, strict-first, fallback free-match
-config.yaml             set stack cho project hiện tại
+project-context.yaml    Khai báo stack, QC engine và paths cho project (config.yaml bị deprecated)
 AGENTS.md               hướng dẫn agent cách dùng router + nguyên tắc bất biến
 ```
 
 ## Cách dùng skill load đúng rule theo stack
-`requires_rules` trong skill dùng placeholder `{stack}`, resolve theo `config.yaml` lúc session-start.
+`requires_rules` trong skill dùng placeholder `{stack}`, resolve theo `project-context.yaml` lúc session-start.
 Thêm ngôn ngữ mới: chỉ tạo `rules/<stack-mới>/`, không sửa skill.
 
 ## Tránh load nhầm/thừa skill
@@ -51,6 +51,16 @@ Thêm ngôn ngữ mới: chỉ tạo `rules/<stack-mới>/`, không sửa skill.
 - `security-baseline` — input validation, secret, auth, SSRF, LLM output
 - `performance-baseline` — pagination, N+1, đo trước khi tối ưu
 - `observability` — structured log, correlation ID, RED metric, alert theo symptom
+
+## Plan Templates (`templates/`)
+
+| File | Dùng khi |
+|------|---------|
+| `plan-template.md` | Feature mới — standard/fast track |
+| `migration-plan-template.md` | DB schema, data migration, dependency upgrade |
+| `spike-template.md` | Research / POC có time-box |
+| `tech-debt-template.md` | Refactor / paydown không đổi behavior |
+| `trace-template.tsv` | Khởi tạo trace file từ BDD spec (copy khi chạy bdd-specification) |
 
 ## Context Engineering Templates (`templates/context-engineering/`)
 

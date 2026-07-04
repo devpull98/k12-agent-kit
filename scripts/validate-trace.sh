@@ -62,6 +62,17 @@ resolve_extensions() {
 STACK=$(grep -E '^stack:' "$ROOT/project-context.yaml" 2>/dev/null \
   | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1 || echo "")
 
+if [[ -z "$STACK" ]]; then
+  echo "WARN: 'stack' not set in project-context.yaml — using broad extension fallback."
+  echo "      Add 'stack: <your-stack>' or 'code_extensions: [...]' to project-context.yaml."
+  echo "      See rules/_template/ to scaffold rules for a new stack."
+  echo ""
+elif [[ ! -d "$ROOT/rules/$STACK" ]]; then
+  echo "WARN: No rules found for stack '$STACK' (rules/$STACK/ does not exist)."
+  echo "      Copy rules/_template/ to rules/$STACK/ and fill in your conventions."
+  echo ""
+fi
+
 # Build --include flags for grep from extension list
 build_include_flags() {
   local exts="$1"
@@ -168,6 +179,50 @@ validate_uc() {
   echo ""
 }
 
+# ── 5. Validate Quality Signals in Trace TSVs ────────────────────────────────
+validate_tsv_signals() {
+  local tsv_path="$ROOT/$TRACE_DIR"
+  if [[ ! -d "$tsv_path" ]]; then
+    return 0
+  fi
+
+  local tsv_fail=0
+  for tsv in "$tsv_path"/*.tsv; do
+    [[ -f "$tsv" ]] || continue
+    echo "## Checking TSV: $(basename "$tsv")"
+
+    local line_num=1
+    while IFS=$'\t' read -r sc_id sc_title implemented_by test_file dev_selftest qc_status || [[ -n "$sc_id" ]]; do
+      ((line_num++)) || true
+      [[ "$sc_id" == "sc_id" ]] && continue
+      [[ -z "$sc_id" ]] && continue
+
+      implemented_by=$(echo "$implemented_by" | xargs 2>/dev/null || echo "-")
+      test_file=$(echo "$test_file" | xargs 2>/dev/null || echo "-")
+      dev_selftest=$(echo "$dev_selftest" | xargs 2>/dev/null || echo "-")
+      qc_status=$(echo "$qc_status" | xargs 2>/dev/null || echo "-")
+
+      if [[ "$implemented_by" != "-" && "$dev_selftest" != "pass" ]]; then
+        echo "  FAIL: Line $line_num ($sc_id): implemented by '$implemented_by' but dev_selftest='$dev_selftest' (expected 'pass')"
+        tsv_fail=1
+      fi
+
+      if [[ "$test_file" != "-" && "$qc_status" != "pass" ]]; then
+        echo "  FAIL: Line $line_num ($sc_id): test file '$test_file' but qc_status='$qc_status' (expected 'pass')"
+        tsv_fail=1
+      fi
+    done < "$tsv"
+  done
+
+  if [[ $tsv_fail -eq 1 ]]; then
+    echo "FAIL: Quality signals (dev_selftest / qc_status) failed validation in TSV trace files."
+    GAP_COUNT=$((GAP_COUNT + 1))
+  else
+    echo "  OK: TSV quality signals satisfied."
+  fi
+  echo ""
+}
+
 for f in "$BDD_PATH"/*.feature; do
   [[ -f "$f" ]] || continue
   base=$(basename "$f" .feature)
@@ -177,11 +232,14 @@ for f in "$BDD_PATH"/*.feature; do
   validate_uc "$f"
 done
 
+# Chạy thêm kiểm định tín hiệu chất lượng trong file TSV
+validate_tsv_signals
+
 echo "=== Summary ==="
 echo "OK: $OK_COUNT | GAP: $GAP_COUNT | WARN: $WARN_COUNT"
 
 if [[ $GAP_COUNT -gt 0 ]]; then
-  echo "FAIL: $GAP_COUNT scenario(s) missing implementation or test coverage."
+  echo "FAIL: $GAP_COUNT scenario(s) missing implementation, test coverage or quality signals."
   exit 1
 fi
 

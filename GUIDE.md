@@ -18,22 +18,24 @@ Làm đúng thứ tự, đừng nhảy bước:
 1. **Cài plugin vào project**
    - Copy thư mục `uniclass-workflow/` (hoặc symlink) vào root project, hoặc cài như Claude Code plugin qua `.claude-plugin/plugin.json`.
 2. **Chọn stack**
-   - Mở `config.yaml`, set `stack:` đúng ngôn ngữ project (`laravel` / `spring` / `golang`, hoặc tạo stack mới — xem mục 4).
-   - Nếu project polyglot (nhiều service, nhiều ngôn ngữ): đặt 1 `config.yaml` riêng theo từng service/module, không dùng 1 `stack` chung cho cả repo.
-3. **Kiểm tra rule đã đủ chưa**
+   - Mở `project-context.yaml`, set `stack:` đúng ngôn ngữ project (`laravel` / `spring` / `golang`, hoặc tạo stack mới — xem mục 4).
+   - Nếu project polyglot (nhiều service, nhiều ngôn ngữ): đặt 1 `project-context.yaml` riêng theo từng service/module, không dùng 1 `stack` chung cho cả repo.
+3. **Cài đặt Git Hooks kiểm soát commit**
+   - Chạy lệnh `bash scripts/hooks/install-hooks.sh` để tự động kích hoạt Git Hook chặn AI-spam và kiểm soát format commit.
+4. **Kiểm tra rule đã đủ chưa**
    - Đọc `rules/<stack>/architecture.mdc` có sẵn — nếu project có convention riêng (ví dụ chuẩn đặt tên DB, chuẩn API response), thêm file rule mới trong `rules/<stack>/` trước khi code, không để skill tự bịa convention.
-4. **Tạo khung thư mục lưu vết** (nếu project chưa có)
+5. **Tạo khung thư mục lưu vết** (nếu project chưa có)
    ```
    docs/specs/      # spec từng feature
    docs/plans/       # plan từng feature
    docs/logs/        # progress log từng feature
    CHANGELOG.md      # copy từ templates/changelog-template.md
    ```
-5. **Mở Claude Code trong project**
+6. **Mở Claude Code trong project**
    - Hook `session-start` tự đọc `AGENTS.md` + `stack`, inject vào context — không cần làm gì thêm.
-6. **Bắt đầu feature đầu tiên bằng `brainstorm`**
+7. **Bắt đầu feature đầu tiên bằng `brainstorm`**
    - Không viết code ngay cả khi ý tưởng "có vẻ rõ" — đi qua `brainstorm → spec → plan` trước (xem mục 3) để có artefact spec/plan làm chuẩn cho toàn project sau này (coding style, boundaries...).
-7. **Xác nhận gate đang hoạt động**
+8. **Xác nhận gate đang hoạt động**
    - Thử yêu cầu agent code thẳng 1 feature lớn mà chưa có spec — agent phải dừng lại và yêu cầu qua `spec-driven-development` trước (theo `rules/_global/sdd-gate.mdc`). Nếu agent code luôn không hỏi, kiểm tra lại `AGENTS.md`/hook có load đúng không.
 
 ## 3. Quy trình làm 1 feature mới (gate bắt buộc)
@@ -66,7 +68,7 @@ duyệt, file plan duyệt, test pass, review pass) mới qua bước sau — đ
 
 ### Ngôn ngữ/stack mới chưa có (ví dụ Node.js, .NET)
 1. Tạo `rules/<stack-mới>/architecture.mdc` theo đúng format 4 mục (Purpose/Required/Forbidden/Examples) — copy 1 file rule có sẵn làm mẫu.
-2. Set `stack: <stack-mới>` trong `config.yaml` của project đó.
+2. Set `stack: <stack-mới>` trong `project-context.yaml` của project đó.
 3. Không cần sửa skill nào — mọi skill dùng `{stack}` placeholder sẽ tự resolve.
 
 ## 5. Skill hiện có — dùng khi nào
