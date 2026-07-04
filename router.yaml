@@ -169,6 +169,11 @@ routes:
     notes: "Spec schema trước, sau đó dùng templates/context-engineering/07-rag-document-schema.md"
     confidence: strict
 
+  - intent: "tự động thiết lập cấu hình và cài đặt dự án mới"
+    keywords: [setup, onboarding, cài đặt kit, init project, cấu hình dự án, setup framework, install framework]
+    skill: onboarding
+    confidence: strict
+
 fallback:
   mode: free-match
   scan: skills/*/SKILL.md
