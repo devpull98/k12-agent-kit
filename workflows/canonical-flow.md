@@ -66,14 +66,20 @@ bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → 
 
 | Fail tại | Root cause thường gặp | Quay về |
 |----------|-----------------------|---------|
-| bdd-specification | Requirement chưa rõ, scope mơ hồ | spec-driven-development |
+| spec-driven-development | Yêu cầu mơ hồ, chưa đủ context | product-discovery → brainstorming |
+| bdd-specification | Requirement chưa rõ, scope chưa chốt | spec-driven-development |
 | bdd-specification | Cần khám phá thêm domain | product-discovery |
-| tech-docs | BDD scenario thiếu/ambiguous | bdd-specification |
-| tdd (test fail) | Logic sai, edge case thiếu | debugging |
-| tdd (test fail) | Kiến trúc sai hướng | refactoring → tdd |
-| code-review (critical issue) | Implementation sai | tdd |
-| qc-automation (fail) | Code bug | bug-flow → tdd |
-| qc-automation (fail) | Spec sai/thiếu | bug-flow → bdd-specification |
-| trace-validation (GAP) | Scenario chưa implement | tdd |
-| trace-validation (DRIFT) | Spec đã thay đổi, trace cũ | bdd-specification → tdd |
-| shipping (rollback) | Production incident | bug-flow → hotfix track |
+| tech-docs | BDD scenario thiếu / ambiguous | bdd-specification |
+| writing-plans | Spec chưa đủ chi tiết để breakdown | bdd-specification hoặc tech-docs |
+| writing-plans | Rủi ro quá cao, cần thiết kế lại | brainstorming → tech-docs |
+| validate-stack.sh | Rules stack chưa tạo / chưa đúng | copy `rules/_template/` → điền convention |
+| validate-sdd-gate.sh | Code thay đổi nhưng chưa có spec/BDD | spec-driven-development → bdd-specification |
+| tdd (test fail) | Logic sai, edge case thiếu | debugging → tdd |
+| tdd (test fail) | Kiến trúc sai hướng | tech-docs → writing-plans → tdd |
+| code-review (critical — logic) | Implementation sai spec | tdd |
+| code-review (critical — security) | Lỗ hổng bảo mật | security-review → tdd |
+| qc-automation (fail) | Code bug | bug-flow → debugging → tdd |
+| qc-automation (fail) | Spec sai / thiếu scenario | bdd-specification → tdd |
+| trace-validation (GAP) | Scenario chưa implement hoặc thiếu @trace | tdd |
+| trace-validation (DRIFT) | Spec đổi nhưng code/trace chưa cập nhật | bdd-specification → tdd |
+| shipping (rollback trigger) | Production incident sau deploy | bug-flow → hotfix track |
