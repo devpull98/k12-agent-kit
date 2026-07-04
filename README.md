@@ -1,85 +1,168 @@
-# uniclass-workflow
+# Framework Kit — AI Agent Integration Guide
 
-Framework cho AI agent làm việc theo Spec-Driven Design, tách rõ 3 trục:
+Bộ công cụ (Framework Kit) định hướng và kiểm soát chất lượng hoạt động của AI Agent (như Claude Code, Cursor, Windsurf) dựa trên triết lý **Spec-Driven Design (SDD)**, **Quality Gates**, và **Graph-based Orchestration**.
 
-- **Rule** = static knowledge (WHAT) — coding convention, architecture theo stack
-- **Skill** = execution knowledge (HOW) — process, checklist, không hardcode convention
-- **Workflow** = navigation (WHEN/NEXT) — thứ tự skill được gọi, không chứa logic quyết định
+Framework tách biệt tri thức làm 3 trục độc lập để tối ưu hóa Context Budget và ngăn chặn AI ảo tưởng (hallucination):
+*   **Rule (WHAT)** — Kiến thức tĩnh (Naming convention, Architecture, Coding style).
+*   **Skill (HOW)** — Quy trình thực thi hành động (Checklist, các bước làm TDD, Debugging...).
+*   **Workflow (WHEN/NEXT)** — Luồng điều phối các bước đi và xử lý lỗi.
 
-## Cấu trúc
+---
+
+## 1. Triết Lý Phân Chia Trách Nhiệm (Core & Extension)
+
+Để đảm bảo bộ kit luôn tinh gọn (lean) và dễ mở rộng sang mọi techstack mà không bị phình to (bloated), framework hoạt động theo mô hình **Core Engine & Architecture Plugins**:
+
+| Kit Cung Cấp (Bắt buộc / Sẵn có) | Dev / Team Tự Viết (Theo dự án & stack) |
+| :--- | :--- |
+| **Cơ chế Phân giải Động:**<br/>Cú pháp `{stack}` và tự động nạp rules qua `requires_rules` trong Skills. | **Cấu trúc Kiến trúc (`rules/{stack}/architecture.mdc`):**<br/>Quy định layers, DI, naming cụ thể của dự án (ví dụ: Controller $\rightarrow$ Service $\rightarrow$ Repo). |
+| **Global Baselines (Chất lượng toàn cục):**<br/>Bảo mật (`security-baseline.mdc`), Traceability (`traceability.mdc`), và SDD Gate (`sdd-gate.mdc`). | **Quy chuẩn Kiểm thử (`rules/{stack}/test-patterns.mdc`):**<br/>Cách cấu hình test runner, mock data, annotations của ngôn ngữ đang dùng. |
+| **Quy trình Hành động (Stack-agnostic Skills):**<br/>Quy trình chạy TDD, BDD, Code Review, Debugging,... | **Cấu hình Runtime (`project-context.yaml`):**<br/>Khai báo stack, QC engine, source directories, và file extensions của dự án. |
+| **Templates & Format Rules:**<br/>Các file mẫu (`plan-template.md`, `principles-template.md`, `spec-template.md`...) và định dạng quy chuẩn MDC. | **Nguyên tắc Dự án (`docs/principles.md`):**<br/>Các quy định đặc thù (MUST/MUST NOT) riêng biệt của dự án hoặc của doanh nghiệp. |
+
+---
+
+## 2. Sơ Đồ Hoạt Động Tổng Thể (Workflows & Quality Gates)
+
+Dưới đây là sơ đồ tổng thể mô tả cách thức vận hành và sự phối hợp giữa **Developer/Agent**, **Specs**, **Code/Test**, và các **Quality Gates** của framework:
+
+```mermaid
+graph TD
+    %% Nodes definition %%
+    Start(["1. Nhận Ticket / Request"]) --> Route{"2. Intent Router<br/>router.yaml"}
+    
+    Route -->|Match Keyword| LoadSkill["3. Nạp Skill tương ứng<br/>skills/*/SKILL.md"]
+    Route -->|Không Match| Fallback["3. Fallback: Free Match<br/>Yêu cầu giải trình lý do"] --> LoadSkill
+    
+    LoadSkill --> LoadRules["4. Resolve {stack}<br/>Nạp Rules tĩnh tương ứng<br/>rules/global/* + rules/stack/*"]
+    
+    LoadRules --> TrackSelect{"5. Chọn Track<br/>workflows/canonical-flow.md"}
+    
+    %% Standard Track %%
+    TrackSelect -->|Standard Track| SpecPipeline["6. Spec Pipeline 3 Lớp"]
+    subgraph Spec Pipeline [Spec Pipeline]
+        Brief["Product Brief<br/>docs/specs/feature.md<br/>Cái gì? Vì sao? Boundaries"] --> BDD["Behavior - BDD Spec<br/>docs/specs/bdd/UC.feature<br/> Given-When-Then"]
+        BDD --> TechDesign["Technical Design<br/>tech-design/UC-tech.md<br/>API, DB, Concurrency"]
+    end
+    
+    SpecPipeline --> PlanBreakdown["7. Lập Kế Hoạch<br/>plan-template.md<br/>Risk, Concurrency, Tasks"]
+    PlanBreakdown --> TDDCycle["8. Vòng Lặp TDD"]
+    
+    %% Fast Track %%
+    TrackSelect -->|Fast Track<br/>Marker: [fast-track]| PlanFast["6. Lập Kế Hoạch rút gọn"]
+    PlanFast --> TDDCycle
+    
+    %% Hotfix Track %%
+    TrackSelect -->|Hotfix Track<br/>Marker: [hotfix]| BugFlow["6. Phân loại lỗi<br/>bug-flow"]
+    BugFlow --> TDDCycle
+    
+    subgraph TDD Workflow [Vòng lặp Code & Test]
+        TDDCycle --> Red["8.1 Viết Test Fail<br/>Prove-It Pattern nếu fix bug"]
+        Red --> Green["8.2 Viết code tối thiểu<br/>để test Pass"]
+        Green --> Refactor["8.3 Tối ưu hóa code<br/>Đối chiếu Rules/Architecture"]
+        Refactor --> Annotate["8.4 Gắn tag Traceability<br/>@trace.implements / @trace.verifies"]
+        Annotate --> LogProgress["8.5 Ghi progress log<br/>docs/logs/"]
+        LogProgress -->|Task tiếp theo| TDDCycle
+    end
+    
+    %% Quality Gates %%
+    TDDWorkflow --> GovernanceChecks{"9. Run Governance checks<br/>governance-check.sh"}
+    
+    subgraph Quality Gates [Hệ thống Quality Gates]
+        GovernanceChecks --> GateStack["validate-stack.sh<br/>Kiểm tra stack rules"]
+        GovernanceChecks --> GateSDD["validate-sdd-gate.sh<br/>Kiểm tra Spec/BDD có khớp code thay đổi"]
+        GovernanceChecks --> GateTrace["validate-trace.sh<br/>Kiểm tra độ phủ @trace của scenario & TSV signals"]
+    end
+    
+    GateStack -->|FAIL| FixGate["10. Quay lại step gần nhất sửa nguyên nhân gốc"] --> TDDCycle
+    GateSDD -->|FAIL| FixGate
+    GateTrace -->|FAIL| FixGate
+    
+    GateStack & GateSDD & GateTrace -->|ALL PASS| DevSelfPass["11. dev_selftest: pass"]
+    DevSelfPass --> QCRun["12. QC Automation<br/>qc-automation"]
+    QCRun -->|FAIL| BugFlow
+    QCRun -->|PASS| QCStatusPass["13. qc_status: pass"]
+    
+    QCStatusPass --> Shipping["14. Deploy / Release<br/>shipping"]
+    Shipping --> End(["15. Merge PR & Ship thành công"])
+
+    %% Styling %%
+    classDef start_end fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+    classDef subgraph_style fill:#fafafa,stroke:#bdbdbd,stroke-width:1px,stroke-dasharray: 5 5;
+    
+    class Start,End start_end;
+    class Route,TrackSelect,GovernanceChecks decision;
+    class LoadSkill,LoadRules,PlanBreakdown,Red,Green,Refactor,Annotate,LogProgress,GateStack,GateSDD,GateTrace,DevSelfPass,QCRun,QCStatusPass,Shipping,PlanFast,BugFlow process;
 ```
-rules/_global/        rule áp dụng mọi project/stack
-rules/<stack>/         rule riêng theo stack (laravel, spring, golang...)
-skills/<name>/SKILL.md frontmatter: name, description, keywords, not_for, requires_rules
-workflows/<flow>.md    step -> skill, on_fail
-router.yaml            intent -> skill, strict-first, fallback free-match
-project-context.yaml    Khai báo stack, QC engine và paths cho project (config.yaml bị deprecated)
-AGENTS.md               hướng dẫn agent cách dùng router + nguyên tắc bất biến
+
+---
+
+## 3. Các Tuyến Phát Triển (Delivery Tracks)
+
+*Single source of truth: [workflows/canonical-flow.md](file:///E:/Educa/k12-agent-kit/workflows/canonical-flow.md)*
+
+### A. Standard Track (Dành cho Feature lớn / Đổi logic)
+*   **Quy trình bắt buộc:** `Product Brief` $\rightarrow$ `BDD Spec` $\rightarrow$ `Tech Design` $\rightarrow$ `Plan` $\rightarrow$ `TDD` $\rightarrow$ `Code Review` $\rightarrow$ `QC Automation` $\rightarrow$ `Trace Validation` $\rightarrow$ `Shipping`.
+*   **Enforcement:** Mọi cổng Quality Gate đều được kích hoạt tự động.
+
+### B. Fast Track (Task < 30 phút, rủi ro thấp)
+*   **Quy trình rút gọn:** `Plan (rút gọn)` $\rightarrow$ `TDD` $\rightarrow$ `Code Review` $\rightarrow$ `Trace Validation (tối thiểu)` $\rightarrow$ `Shipping`.
+*   **Escape Hatch:** Commit message hoặc PR Title chứa thẻ `[fast-track]` để bỏ qua cổng SDD gate.
+
+### C. Hotfix Track (Sửa lỗi khẩn cấp trên Production)
+*   **Quy trình khẩn cấp:** `Bug-flow (phân loại)` $\rightarrow$ `TDD (Viết test tái hiện trước)` $\rightarrow$ `Code Review` $\rightarrow$ `QC (chạy focused)` $\rightarrow$ `Shipping`.
+*   **Escape Hatch:** Commit message hoặc PR Title chứa thẻ `[hotfix]`.
+
+---
+
+## 4. Các Vai Trò & Personas Của Agent (`agents/`)
+
+Bộ kit thiết kế sẵn các Agent Persona chuyên biệt để phân rã và kiểm định chất lượng chéo (Cross-verification):
+
+1.  **Code Reviewer (`code-reviewer.md`):** Kiểm tra mã nguồn trên 5 trục chất lượng (Kiến trúc, Hiệu năng, Bảo mật, Khả năng test, và Naming). Đóng vai trò kiểm duyệt trước khi merge.
+2.  **Tester (`tester.md`):** Đọc BDD spec, lên kịch bản test suite động, kiểm tra các trường hợp biên và Edge cases.
+3.  **Test Engineer (`test-engineer.md`):** Chuyên thiết kế cấu trúc test suite tự động, phân tích khoảng trống độ phủ test (Coverage Gap Analysis).
+4.  **Security Auditor (`security-auditor.md`):** Rà soát bảo mật tĩnh, Threat Modeling, quét OWASP Top 10 và các rò rỉ secret key.
+5.  **Web Performance Auditor (`web-performance-auditor.md`):** Audit Core Web Vitals, đo lường độ trễ (latency), N+1 queries và tối ưu hóa tài nguyên.
+
+---
+
+## 5. Quy Trình Cài Đặt và Bắt Đầu (Onboarding Checklist)
+
+Thực hiện đúng thứ tự các bước sau khi bắt đầu một dự án mới:
+
+1.  **Cài đặt Bộ Kit vào dự án:**
+    Sao chép thư mục `k12-agent-kit` vào thư mục gốc của dự án hoặc liên kết symlink qua cấu hình `.claude-plugin/plugin.json`.
+2.  **Cấu hình dự án (`project-context.yaml`):**
+    Sao chép `project-context.yaml` vào root của dự án thật và điền thông tin:
+    *   Set `stack:` đúng ngôn ngữ (ví dụ: `spring` / `laravel` / `golang`).
+    *   Khai báo `source_dirs` và `code_extensions` (nếu dự án có cấu trúc không chuẩn để scripts validate chạy động chính xác).
+3.  **Kích hoạt Git Hooks kiểm soát commit:**
+    Chạy lệnh để tự động cài đặt Git Hook chặn AI-spam và conventional commit:
+    ```bash
+    bash scripts/hooks/install-hooks.sh
+    ```
+4.  **Kiểm tra và chuẩn bị Rules Stack:**
+    *   Đọc `rules/<stack>/architecture.mdc` và `test-patterns.mdc` đã có sẵn.
+    *   Nếu stack chưa tồn tại, copy từ thư mục `rules/_template/` sang và điền các conventions cụ thể của team bạn.
+    *   Chạy kiểm tra tính hợp lệ của rules:
+        ```bash
+        bash scripts/validate-stack.sh
+        ```
+5.  **Tích hợp `CLAUDE.md` vào Root:**
+    Copy `templates/context-engineering/03-claude-md-template.md` ra thư mục gốc của dự án thật, đổi tên thành `CLAUDE.md`, điền các câu lệnh build/test/run cụ thể để Claude Code có thể đọc vị dự án ngay khi bắt đầu session.
+
+---
+
+## 6. Hệ Thống Kiểm Tra Tự Động (Quality Gates Scripts)
+
+Chạy script kiểm duyệt trước khi merge Pull Request:
+```bash
+bash scripts/governance-check.sh
 ```
-
-## Cách dùng skill load đúng rule theo stack
-`requires_rules` trong skill dùng placeholder `{stack}`, resolve theo `project-context.yaml` lúc session-start.
-Thêm ngôn ngữ mới: chỉ tạo `rules/<stack-mới>/`, không sửa skill.
-
-## Tránh load nhầm/thừa skill
-1. Router (`router.yaml`) match intent trước — strict path.
-2. Không match → fallback free-match, agent phải log lý do chọn.
-3. `not_for_skills` loại bớt khi nhiều skill overlap.
-4. Skill chỉ load đúng rule khai báo trong `requires_rules`, không tự quét `rules/`.
-
-## Checklist trước khi thêm rule/skill/workflow mới
-- Đúng trách nhiệm (rule/skill/workflow) không lẫn lộn?
-- Có trùng nội dung file khác không?
-- Rule có chứa step-by-step không (sai)?
-- Skill có hardcode convention cụ thể không (sai, phải qua requires_rules)?
-- Workflow có chứa logic theo stack không (sai)?
-- Đã thêm vào `router.yaml` nếu là intent phổ biến chưa?
-
-## Skill hiện có (`skills/<name>/SKILL.md`)
-- `next-step` — orchestrator: xác định bước tiếp theo dựa trên skill vừa xong + track + trace state
-- `brainstorming` — khám phá ý định, thiết kế trước khi viết spec
-- `spec-driven-development` — viết spec có cấu trúc trước khi code
-- `writing-plans` — phân rã spec thành task nhỏ có thứ tự
-- `tdd` — viết test trước implementation (Red-Green-Refactor + Prove-It Pattern cho bug fix)
-- `debugging` — tìm root cause có hệ thống trước khi sửa lỗi
-- `root-cause-tracing` — trace lỗi ngược qua nhiều layer/call stack
-- `code-review` — review 5 trục + quy trình request/receive feedback
-- `refactoring` — đơn giản hóa code không đổi behavior
-- `shipping` — checklist pre-launch, feature flag, rollout, rollback
-
-## Rule global bổ sung (`rules/_global/*.mdc`)
-- `security-baseline` — input validation, secret, auth, SSRF, LLM output
-- `performance-baseline` — pagination, N+1, đo trước khi tối ưu
-- `observability` — structured log, correlation ID, RED metric, alert theo symptom
-
-## Plan Templates (`templates/`)
-
-| File | Dùng khi |
-|------|---------|
-| `plan-template.md` | Feature mới — standard/fast track |
-| `migration-plan-template.md` | DB schema, data migration, dependency upgrade |
-| `spike-template.md` | Research / POC có time-box |
-| `tech-debt-template.md` | Refactor / paydown không đổi behavior |
-| `trace-template.tsv` | Khởi tạo trace file từ BDD spec (copy khi chạy bdd-specification) |
-
-## Context Engineering Templates (`templates/context-engineering/`)
-
-Bộ 8 template để cấu trúc và quản lý context cho agent:
-
-| File | Mục đích |
-|------|---------|
-| `01-system-prompt-template.md` | Khai báo role, scope, constraint, output format cho agent |
-| `02-few-shot-examples-template.md` | Viết ví dụ Input→Output để anchor behavior |
-| `03-claude-md-template.md` | CLAUDE.md per-project — context budget đầu session |
-| `04-session-context-card.md` | Truyền trạng thái khi continue hoặc handoff session |
-| `05-skill-input-contract.md` | Structured input trước khi gọi skill (giảm clarification loop) |
-| `06-memory-schema.md` | Schema 4 loại memory: user, feedback, project, reference |
-| `07-rag-document-schema.md` | Chunking strategy + metadata cho knowledge base / vector store |
-| `08-multi-agent-handoff.md` | Context passing giữa các agent trong pipeline |
-
-## Agent persona (`agents/*.md`)
-- `code-reviewer` — review 5 trục, dùng cho review sâu trước merge
-- `security-auditor` — audit bảo mật, threat modeling, OWASP
-- `test-engineer` — thiết kế test suite, phân tích coverage gap
-- `web-performance-auditor` — audit Core Web Vitals (chỉ project có frontend web)
-# k12-agent-kit
+Lệnh này sẽ kích hoạt tuần tự:
+*   `validate-stack.sh`: Đảm bảo toàn bộ quy tắc thiết kế stack đã được chuẩn bị đầy đủ.
+*   `validate-sdd-gate.sh`: Đảm bảo mọi thay đổi code đều có tài liệu Spec/BDD đi kèm (chống trôi spec).
+*   `validate-trace.sh`: Đảm bảo mọi kịch bản nghiệp vụ trong BDD đều đã được Code và Test bao phủ (đồng thời kiểm duyệt tự động các tín hiệu `dev_selftest` và `qc_status` trong file trace TSV).
