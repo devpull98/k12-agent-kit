@@ -45,11 +45,11 @@ brainstorming (rút gọn) → writing-plans (rút gọn) → tdd → code-revie
 ## Hotfix track (production incident)
 
 ```
-bug-flow (classify) → debugging/tdd (repro test trước) → code-review → qc-automation (focused) → trace-validation → shipping
+bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → qc-automation (focused) → trace-validation → shipping
 ```
 
 - Commit/PR ghi `[hotfix]`
-- Bắt buộc: test tái hiện + rollback plan trong shipping
+- Bắt buộc: test tái hiện + sửa lỗi + rollback plan trong shipping
 
 ## Gates & signals
 

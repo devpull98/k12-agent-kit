@@ -33,7 +33,7 @@ ticket → chọn track → [Product Brief → bdd → tech-docs] → writing-pl
 - **dev_selftest** pass trước khi chuyển QC
 
 ## Bug fix
-ticket bug → bug-flow → debugging/tdd → code-review → shipping
+ticket bug → bug-flow → debugging/tdd (repro & sửa lỗi) → code-review → shipping
 
 ## Dev artifacts
 - `docs/specs/{date}-{feature}.md` (Product Brief)

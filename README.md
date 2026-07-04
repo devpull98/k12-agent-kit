@@ -164,7 +164,7 @@ git commit -m "fix: update button label [fast-track]"
 **Flow:**
 ```
 bug-flow (triage) → debugging / root-cause-tracing
-  → tdd (viết repro test FAIL trước) → code-review → qc (focused) → shipping
+  → tdd (repro test & sửa lỗi) → code-review → qc (focused) → shipping
 ```
 
 **Cách kích hoạt:** Thêm tag `[hotfix]` — toàn bộ discovery pipeline bỏ qua.

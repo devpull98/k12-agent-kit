@@ -18,7 +18,7 @@ product-discovery → brainstorming → spec-driven-development → bdd-specific
 brainstorming → writing-plans → tdd → review → trace → ship  `[fast-track]`
 
 ## Flow (hotfix)
-bug-flow → debugging/tdd → review → qc → trace → ship  `[hotfix]`
+bug-flow → debugging/tdd (repro & sửa lỗi) → review → qc → trace → ship  `[hotfix]`
 
 ## Steps & gates
 | Step | Skill | Gate? | On fail → |
