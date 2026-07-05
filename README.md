@@ -287,3 +287,13 @@ Lệnh này sẽ kích hoạt tuần tự:
 *   `validate-stack.sh`: Đảm bảo toàn bộ quy tắc thiết kế stack đã được chuẩn bị đầy đủ.
 *   `validate-sdd-gate.sh`: Đảm bảo mọi thay đổi code đều có tài liệu Spec/BDD đi kèm (chống trôi spec).
 *   `validate-trace.sh`: Đảm bảo mọi kịch bản nghiệp vụ trong BDD đều đã được Code và Test bao phủ (đồng thời kiểm duyệt tự động các tín hiệu `dev_selftest` và `qc_status` trong file trace TSV).
+
+---
+
+## 7. Quy Tắc Bảo Vệ Nhánh (Branch Protection Rules)
+
+Để tránh làm hỏng các môi trường quan trọng (Production/Staging), framework thiết lập chốt chặn cứng:
+*   **Nhánh bảo vệ:** `master`, `main`, và `test`.
+*   **Quy định:** Agent và Developer **tuyệt đối không được phép commit trực tiếp** lên các nhánh này.
+*   Mọi thay đổi bắt buộc phải được thực hiện trên nhánh tính năng mới (checkout từ nhánh chính) và đưa qua Pull Request để hệ thống CI/CD kiểm duyệt trước khi merge.
+*   **Enforcement:** Git Hook `pre-commit` sẽ chặn đứng (exit 1) ngay lập tức mọi nỗ lực commit trực tiếp lên các nhánh này ở máy local của bạn.

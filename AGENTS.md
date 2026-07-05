@@ -88,6 +88,7 @@ Sau khi skill hoàn thành, agent đọc field này để biết bước tiếp 
 
 ## Nguyên tắc bất biến
 
+- AI Agent **TUYỆT ĐỐI KHÔNG** được chủ động commit hoặc đẩy mã nguồn trực tiếp lên các nhánh bảo vệ (`master`, `main`, `test`). Mọi thay đổi bắt buộc phải được thực hiện trên nhánh tính năng mới (checkout từ nhánh chính) và đưa qua Pull Request.
 - Rule không chứa workflow/step-by-step.
 - Skill không hardcode convention — luôn qua `requires_rules`.
 - Workflow không chứa logic theo stack — tham chiếu `canonical-flow.md`.
