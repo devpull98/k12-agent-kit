@@ -232,8 +232,11 @@ for f in "$BDD_PATH"/*.feature; do
   validate_uc "$f"
 done
 
-# Chạy thêm kiểm định tín hiệu chất lượng trong file TSV
+# Chạy kiểm định tín hiệu chất lượng trong file TSV
 validate_tsv_signals
+
+# Chạy kiểm định các Bug Report chưa giải quyết
+validate_open_bugs
 
 echo "=== Summary ==="
 echo "OK: $OK_COUNT | GAP: $GAP_COUNT | WARN: $WARN_COUNT"
