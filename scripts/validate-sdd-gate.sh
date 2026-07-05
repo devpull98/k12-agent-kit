@@ -112,8 +112,8 @@ fi
 
 # Track marker in commit messages
 if git log "$BASE"...HEAD --format=%s 2>/dev/null \
-    | grep -qiE '\[(fast-track|hotfix|skip-sdd)\]'; then
-  echo "SKIP: track marker found in commit message"
+    | grep -qiE '\[(fast-track|hotfix|skip-sdd|wip)\]|^(wip|WIP):'; then
+  echo "SKIP: track marker or WIP commit found"
   exit 0
 fi
 
@@ -125,6 +125,11 @@ is_code_file() {
   # Skip framework/config/doc dirs
   case "$file" in
     docs/*|templates/*|rules/*|skills/*|workflows/*|agents/*|scripts/*|.claude/*) return 1 ;;
+  esac
+  # Skip test files and test directories (do not require specs for writing tests)
+  case "$file" in
+    */test/*|*/tests/*|*/spec/*|*/__tests__/*|tests/*|spec/*|__tests__/*) return 1 ;;
+    *Test.*|*_test.*|*.test.*|*.spec.*|*Spec.*) return 1 ;;
   esac
   # Match source dir prefixes (dynamic)
   for dir in $SOURCE_DIRS; do
