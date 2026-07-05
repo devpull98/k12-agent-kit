@@ -1,11 +1,13 @@
+---
+description: Quy định về liên kết vết Traceability (implements & verifies) giữa Code, Test và BDD Scenario
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*
+---
+
 # Traceability — Quy tắc liên kết artifact → code → test
 
-## Mục đích
-Mọi code và test đều phải truy ngược được về BDD scenario. Không có scenario → không có code.
+Không áp dụng cho: fast-track, hotfix, refactor nội bộ, optimize không đổi behavior.
 
 ## @trace tags (chỉ áp dụng khi có BDD spec chính thức)
-
-Không áp dụng cho: fast-track, hotfix, refactor nội bộ, optimize không đổi behavior.
 
 ### Trong code (implementation)
 ```

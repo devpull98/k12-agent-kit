@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Git hook: pre-commit
+# Tự động kiểm duyệt chất lượng (SDD Gate, Trace Gate, Stack Rules) trước khi tạo commit.
+# Ngăn chặn AI Agent hoặc Lập trình viên bypass quy trình.
+#
+# Cài đặt:
+#   bash scripts/hooks/install-hooks.sh
+
+set -euo pipefail
+
+# Lấy thư mục gốc của repository
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+cd "$ROOT"
+
+# Cho phép bypass hoàn toàn nếu có biến môi trường GOVERNANCE_SKIP=1
+if [[ "${GOVERNANCE_SKIP:-}" == "1" ]]; then
+  exit 0
+fi
+
+echo "=== Git Pre-Commit Quality Gate ==="
+
+# 1. Kiểm tra xem có đang chạy trong track Hotfix hoặc Fast-track không.
+# Nếu tên branch chứa 'hotfix/' hoặc 'fast/' hoặc commit sắp tới có marker, cho phép bypass SDD Gate.
+BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+if [[ "$BRANCH_NAME" =~ ^(hotfix|fast)/ ]]; then
+  echo "Track marker detected in branch name ($BRANCH_NAME) — Bypassing strict SDD gate."
+  exit 0
+fi
+
+# 2. Chạy kiểm tra Stack Rules
+if [[ -f scripts/validate-stack.sh ]]; then
+  if ! bash scripts/validate-stack.sh; then
+    echo "❌ ERROR: Stack rules validation failed."
+    echo "   Vui lòng chuẩn bị rules stack của dự án trước khi commit."
+    exit 1
+  fi
+fi
+
+# 3. Chạy kiểm tra SDD Gate (Mã nguồn vs Spec)
+# Mặc định so sánh với origin/main hoặc HEAD~1
+if [[ -f scripts/validate-sdd-gate.sh ]]; then
+  # Kiểm tra xem có commit nào trong lịch sử tạm thời chưa push chứa track marker không
+  # Nếu commit message sắp tới (qua merge hoặc config) có [fast-track]/[hotfix], cho phép bypass.
+  if ! bash scripts/validate-sdd-gate.sh; then
+    echo "❌ ERROR: SDD Gate Validation Failed!"
+    echo "   Bạn đang thay đổi source code mà chưa cập nhật hoặc tạo file Spec/BDD/Plan tương ứng."
+    echo "   Yêu cầu: Chạy skill 'spec-driven-development' để viết specs trước khi commit code."
+    echo "   (Để bypass cho task nhỏ, vui lòng đặt tên branch dạng 'fast/*' hoặc commit với tag '[fast-track]' trong tin nhắn)."
+    exit 1
+  fi
+fi
+
+# 4. Chạy kiểm tra Trace Validation
+if [[ -f scripts/validate-trace.sh ]]; then
+  if ! bash scripts/validate-trace.sh; then
+    echo "❌ ERROR: Traceability Validation Failed!"
+    echo "   Phát hiện kịch bản kiểm thử (BDD Scenario) bị thiếu code hoặc thiếu test coverage tương ứng."
+    echo "   Vui lòng hoàn thiện tag @trace.implements và @trace.verifies trước khi commit."
+    exit 1
+  fi
+fi
+
+echo "✓ All pre-commit Quality Gates passed. Proceeding with commit..."
+exit 0

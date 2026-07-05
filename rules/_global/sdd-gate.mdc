@@ -1,3 +1,8 @@
+---
+description: Chốt chặn SDD Gate - Ngăn chặn Agent sửa đổi code khi chưa tạo/duyệt Product Brief và BDD Scenario
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*
+---
+
 # Required
 - Task ước tính > 30 phút implement, hoặc requirement chưa rõ: phải có **Product Brief** (spec-driven-development) và **BDD** (bdd-specification) được duyệt trước khi viết code — standard track.
 - Spec/Plan/BDD phải lưu thành file trong repo, không chỉ tồn tại trong chat.
