@@ -3,30 +3,25 @@ name: qc-flow
 role: tester
 ---
 
-# QC Flow — Quality Control Pipeline
+# QC Flow — góc nhìn Tester
 
-> **Canonical source:** `workflows/canonical-flow.md`
+> **Canonical source:** `workflows/canonical-flow.md` — flow, gates và Failure Recovery Map ở đó. File này chỉ nêu phần QC.
 
-## Flow
-BDD approved + dev_selftest pass → qc-automation (6 bước) → [bug-flow] → trace-validation → governance-check → merge-ready
-
-## Steps
-
-| Step | Skill | Gate? | On fail |
-|------|-------|-------|---------|
-| analyze | qc-automation (1-2) | ✓ no DOC_GAPS | Clarify spec |
-| design test | qc-automation (3-4) | ✓ reviewer approve | analyze |
-| run | qc-automation (5) | ✓ all pass | bug-flow |
-| report | qc-automation (6) | — | — |
-| trace | trace-validation + validate-trace.sh | ✓ no GAP | Báo dev |
-| governance | scripts/governance-check.sh | ✓ pass | Block merge |
-
-## Điều kiện bắt đầu QC
+## Điều kiện bắt đầu QC (bắt buộc đủ 3)
 - BDD spec `@trace.status: approved`
 - `dev_selftest: pass`
 - `rules/{stack}/test-patterns.mdc` tồn tại
 
-## Hai signal độc lập
-- `dev_selftest` — dev
-- `qc_status` — tester
-- **Cả hai pass trước merge**
+## qc-automation — 6 bước (chi tiết trong skill `qc-automation`)
+| Bước | Nội dung | Gate |
+|------|----------|------|
+| 1–2 analyze | phân tích BDD, phát hiện DOC_GAPS | no DOC_GAPS |
+| 3–4 design | thiết kế test case, reviewer duyệt | reviewer approve |
+| 5 run | chạy automation | all pass (fail → `bug-flow`) |
+| 6 report | báo cáo + cập nhật `qc_status` | — |
+
+Sau QC: `trace-validation` → `governance-check` → merge-ready (theo canonical).
+
+## Hai signal độc lập — cả hai pass trước merge
+- `dev_selftest` — do Dev đặt
+- `qc_status` — do Tester đặt
