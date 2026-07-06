@@ -52,9 +52,21 @@ for f in skills/*/SKILL.md; do
   done <<<"$refs"
 done
 
+# ── 4. Workflow drift guard: role-view workflow phải trỏ về canonical source ──
+# canonical-flow.md là single source of truth; các workflow khác chỉ là role-view
+# và PHẢI reference nó để tránh drift khi canonical đổi.
+for f in workflows/*.md; do
+  base=$(basename "$f")
+  [[ "$base" == "canonical-flow.md" ]] && continue
+  if ! grep -q 'canonical-flow.md' "$f"; then
+    echo "  DRIFT-RISK: $f không tham chiếu canonical-flow.md (role-view phải trỏ về canonical source)"
+    FAIL=1
+  fi
+done
+
 echo ""
 if [[ $FAIL -eq 0 ]]; then
-  echo "PASS: Mọi skill reference resolve, name khớp folder."
+  echo "PASS: Mọi skill reference resolve, name khớp folder, workflow trỏ canonical."
   exit 0
 else
   echo "FAIL: Có reference gãy hoặc name mismatch — xem trên."

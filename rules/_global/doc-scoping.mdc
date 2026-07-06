@@ -36,6 +36,7 @@ docs/specs/modules/<module>/
 docs/specs/bdd/<UC-ID>.feature              ← bdd-specification (UC-keyed, phẳng — script trace quét)
 docs/specs/tech-design/<UC-ID>-tech-design.md  ← tech-docs
 docs/trace/<UC-ID>-trace.tsv                ← trace-validation
+docs/retros/<sprint-id>.md                  ← sprint-retro (aggregate nhiều work package, không task-scoped)
 ```
 
 ## Progressive disclosure — 4 lớp context

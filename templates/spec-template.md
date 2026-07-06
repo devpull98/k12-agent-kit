@@ -4,7 +4,7 @@
 <Tại sao làm cái này, giá trị mang lại>
 
 ## Tech stack / commands
-<Stack hiện tại (xem config.yaml), command build/test/run>
+<Stack hiện tại (xem project-context.yaml), command build/test/run>
 
 ## Project structure
 <Phần code nào sẽ bị đụng tới, module/folder liên quan>

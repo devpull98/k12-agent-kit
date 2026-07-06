@@ -3,7 +3,7 @@ description: Tìm hiểu product/module → phân tích → chuyển sang workfl
 ---
 
 ## Bước 1: Discovery
-Đọc `.claude/skills/product-discovery/SKILL.md` và thực hiện quy trình discovery.
+Đọc `skills/product-discovery/SKILL.md` và thực hiện quy trình discovery.
 
 - Nếu user chỉ định module → focus vào module đó
 - Nếu không chỉ định → hỏi: Quick Scan hay Deep Dive?

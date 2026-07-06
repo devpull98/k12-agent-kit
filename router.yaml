@@ -148,7 +148,7 @@ routes:
   - intent: "thiết kế system prompt hoặc agent instruction"
     keywords: [system prompt, agent instruction, prompt template, few-shot, context engineering, agent design]
     skill: brainstorming
-    notes: "Dùng brainstorming trước, sau đó điền vào templates/context-engineering/01-system-prompt-template.md"
+    notes: "Dùng brainstorming trước, sau đó điền vào templates/context-engineering/01-system-prompt-template.md (+ templates/context-engineering/02-few-shot-examples-template.md cho ví dụ few-shot)"
     confidence: strict
 
   - intent: "quản lý context window và memory cho agent"

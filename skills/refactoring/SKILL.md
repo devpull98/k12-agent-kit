@@ -28,3 +28,4 @@ Giảm độ phức tạp của code đã hoạt động đúng, giữ behavior 
 # Output
 - Code đã đơn giản hóa, mọi test cũ pass không sửa đổi
 - Diff tách riêng khỏi thay đổi feature/bugfix, dễ review
+- Nợ kỹ thuật phát hiện nhưng ngoài scope lần này → log vào `templates/tech-debt-template.md` (backlog), không sửa lan man
