@@ -10,9 +10,11 @@ Theo dõi thay đổi của kit `uniclass-workflow`. Format theo `templates/chan
 - Validate command path trong `validate-skill-graph.sh` (section 5): `commands/*.md` phải trỏ file tồn tại, cấm `.claude/skills/` — chặn tái diễn lỗi command path chết.
 - Workflow drift-guard: role-view workflow phải tham chiếu `canonical-flow.md`.
 - `CHANGELOG.md` làm input thật cho `sprint-retro`.
+- 2 agent persona: `solution-architect` (thiết kế/ADR) và `orchestrator` (điều phối đa domain, delegate qua Task) — tổng 9 persona.
 
 ### Changed
 - Bump plugin `0.2.0 → 0.3.0`.
+- Mỏng hóa 4 role-view workflow (dev/enterprise/qc/feature): bỏ phần flow/gate/failure-map trùng, single-source về `canonical-flow.md`. Sửa drift thật (code-review fail: role-view cũ nói `refactoring`, canonical nói `tdd`).
 
 ### ⚠️ BREAKING (consumer)
 - **`validate-stack.sh`: thiếu `project-context.yaml` hoặc `stack:` rỗng → FAIL** (trước chỉ WARN). Đóng lỗ hổng onboarding, nhưng **project chưa có `project-context.yaml` sẽ bắt đầu fail `governance-check`**.
