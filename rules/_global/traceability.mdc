@@ -32,12 +32,13 @@ SC1, SC2, SC3... theo thứ tự scenario trong .feature file.
 Nếu 1 scenario được split thành nhiều test → vẫn dùng cùng SC-ID.
 
 ## Trace file (tùy chọn cho project lớn)
-Lưu tại `docs/trace/{UC-ID}.tsv`:
+Lưu tại `docs/trace/{UC-ID}-trace.tsv`. Schema 10 cột (TAB-separated), header bắt buộc:
 ```
-sc_id   sc_title        implemented_by  test_file       dev_selftest  qc_status
-SC1     Happy path      LoginService    LoginServiceTest  pass          pass
-SC2     Wrong password  LoginService    LoginServiceTest  pass          -
+uc_id       scenario_id  spec_file                          implements_tag   verifies_tag     dev_selftest  qc_status  last_updated  owner   note
+UC-LMS-001  SC1          docs/specs/bdd/UC-LMS-001.feature   UC-LMS-001-SC1   UC-LMS-001-SC1   pass          pass       2026-07-03    Dev+QA  Happy path
+UC-LMS-001  SC2          docs/specs/bdd/UC-LMS-001.feature   UC-LMS-001-SC2   -                pass          -          2026-07-03    Dev     Chưa có test verify
 ```
+Gate: có `implements_tag` (≠ `-`) → `dev_selftest` phải `pass`; có `verifies_tag` (≠ `-`) → `qc_status` phải `pass`.
 
 ## Validation
 - Local/CI: `bash scripts/validate-trace.sh`

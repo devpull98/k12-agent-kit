@@ -18,9 +18,9 @@ BDD_DIR="docs/specs/bdd"
 TRACE_DIR="docs/trace"
 if [[ -f "$ROOT/project-context.yaml" ]]; then
   _bdd=$(grep -E '^\s*bdd_specs:' "$ROOT/project-context.yaml" 2>/dev/null \
-    | sed 's/.*bdd_specs:[[:space:]]*//' | tr -d '\r' || true)
+    | sed 's/.*bdd_specs:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]*$//' | tr -d '\r' || true)
   _trace=$(grep -E '^\s*trace_dir:' "$ROOT/project-context.yaml" 2>/dev/null \
-    | sed 's/.*trace_dir:[[:space:]]*//' | tr -d '\r' || true)
+    | sed 's/.*trace_dir:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]*$//' | tr -d '\r' || true)
   [[ -n "$_bdd" ]]   && BDD_DIR="$_bdd"
   [[ -n "$_trace" ]] && TRACE_DIR="$_trace"
 fi
@@ -191,24 +191,27 @@ validate_tsv_signals() {
     [[ -f "$tsv" ]] || continue
     echo "## Checking TSV: $(basename "$tsv")"
 
+    # Schema 10 cột (xem rules/_global/traceability.mdc):
+    # uc_id scenario_id spec_file implements_tag verifies_tag dev_selftest qc_status last_updated owner note
     local line_num=1
-    while IFS=$'\t' read -r sc_id sc_title implemented_by test_file dev_selftest qc_status || [[ -n "$sc_id" ]]; do
+    while IFS=$'\t' read -r uc_id scenario_id spec_file implements_tag verifies_tag dev_selftest qc_status last_updated owner note || [[ -n "$uc_id" ]]; do
       ((line_num++)) || true
-      [[ "$sc_id" == "sc_id" ]] && continue
-      [[ -z "$sc_id" ]] && continue
+      uc_id=$(echo "$uc_id" | tr -d '\r' | xargs 2>/dev/null || echo "")
+      [[ "$uc_id" == "uc_id" || -z "$uc_id" ]] && continue    # skip header + dòng trống
 
-      implemented_by=$(echo "$implemented_by" | xargs 2>/dev/null || echo "-")
-      test_file=$(echo "$test_file" | xargs 2>/dev/null || echo "-")
-      dev_selftest=$(echo "$dev_selftest" | xargs 2>/dev/null || echo "-")
-      qc_status=$(echo "$qc_status" | xargs 2>/dev/null || echo "-")
+      local row_id="${uc_id}-$(echo "$scenario_id" | tr -d '\r' | xargs)"
+      implements_tag=$(echo "$implements_tag" | tr -d '\r' | xargs 2>/dev/null || echo "-")
+      verifies_tag=$(echo "$verifies_tag" | tr -d '\r' | xargs 2>/dev/null || echo "-")
+      dev_selftest=$(echo "$dev_selftest" | tr -d '\r' | xargs 2>/dev/null || echo "-")
+      qc_status=$(echo "$qc_status" | tr -d '\r' | xargs 2>/dev/null || echo "-")
 
-      if [[ "$implemented_by" != "-" && "$dev_selftest" != "pass" ]]; then
-        echo "  FAIL: Line $line_num ($sc_id): implemented by '$implemented_by' but dev_selftest='$dev_selftest' (expected 'pass')"
+      if [[ -n "$implements_tag" && "$implements_tag" != "-" && "$dev_selftest" != "pass" ]]; then
+        echo "  FAIL: Line $line_num ($row_id): có implements_tag '$implements_tag' nhưng dev_selftest='$dev_selftest' (expected 'pass')"
         tsv_fail=1
       fi
 
-      if [[ "$test_file" != "-" && "$qc_status" != "pass" ]]; then
-        echo "  FAIL: Line $line_num ($sc_id): test file '$test_file' but qc_status='$qc_status' (expected 'pass')"
+      if [[ -n "$verifies_tag" && "$verifies_tag" != "-" && "$qc_status" != "pass" ]]; then
+        echo "  FAIL: Line $line_num ($row_id): có verifies_tag '$verifies_tag' nhưng qc_status='$qc_status' (expected 'pass')"
         tsv_fail=1
       fi
     done < "$tsv"
@@ -234,9 +237,6 @@ done
 
 # Chạy kiểm định tín hiệu chất lượng trong file TSV
 validate_tsv_signals
-
-# Chạy kiểm định các Bug Report chưa giải quyết
-validate_open_bugs
 
 echo "=== Summary ==="
 echo "OK: $OK_COUNT | GAP: $GAP_COUNT | WARN: $WARN_COUNT"

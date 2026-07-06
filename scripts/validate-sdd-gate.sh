@@ -38,9 +38,9 @@ fi
 SPEC_DIRS="docs/specs docs/work"
 if [[ -f project-context.yaml ]]; then
   _bdd=$(grep -E '^\s*bdd_specs:' project-context.yaml 2>/dev/null \
-    | sed 's/.*bdd_specs:[[:space:]]*//' | tr -d '\r' || true)
+    | sed 's/.*bdd_specs:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]*$//' | tr -d '\r' || true)
   _tech=$(grep -E '^\s*tech_design:' project-context.yaml 2>/dev/null \
-    | sed 's/.*tech_design:[[:space:]]*//' | tr -d '\r' || true)
+    | sed 's/.*tech_design:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]*$//' | tr -d '\r' || true)
   [[ -n "$_bdd" ]]  && SPEC_DIRS="$SPEC_DIRS $_bdd"
   [[ -n "$_tech" ]] && SPEC_DIRS="$SPEC_DIRS $_tech"
 fi

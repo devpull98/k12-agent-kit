@@ -24,9 +24,11 @@ run() {
   fi
 }
 
+run "Skill graph" bash "$ROOT/scripts/validate-skill-graph.sh"
 run "Stack rules" bash "$ROOT/scripts/validate-stack.sh"
 run "SDD gate" bash "$ROOT/scripts/validate-sdd-gate.sh" ${BASE:+"$BASE"}
 run "Trace coverage" bash "$ROOT/scripts/validate-trace.sh" "$ROOT"
+run "Context state / ship gate" bash "$ROOT/scripts/validate-context-state.sh"
 
 echo ""
 if [[ $FAIL -eq 0 ]]; then

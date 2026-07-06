@@ -1,3 +1,0 @@
-# DEPRECATED — dùng project-context.yaml thay thế.
-# File này giữ lại để backward compat với hook cũ.
-stack: laravel

@@ -31,9 +31,18 @@
 - `docs/plans/*`, `docs/logs/*`, `docs/notes/features/*` — legacy flat
 - Unrelated module specs
 
-## Status
-- [ ] brainstorm
-- [ ] plan
-- [ ] in progress
-- [ ] review
-- [ ] done
+## State (machine-readable — governance + hook đọc block này)
+<!-- Mỗi skill khi hoàn thành CẬP NHẬT block này. Đây là single source of truth
+     cho handoff dev→QC→ship. scripts/validate-context-state.sh parse block này. -->
+```yaml
+phase: discovery        # discovery|spec|bdd|tech|plan|implement|review|qc|trace|ship|done
+track: standard         # standard|fast|hotfix
+last_skill: ""          # skill vừa chạy xong
+next_skill: ""          # skill kế (đọc từ on_success của last_skill)
+dev_selftest: pending   # pending|pass|fail   — dev đặt sau tdd/implement
+qc_status: pending      # pending|pass|fail|na — tester đặt sau qc-automation (na = fast/hotfix bỏ qua)
+trace: pending          # pending|pass|fail   — validate-trace.sh / trace-validation
+updated: ""             # YYYY-MM-DD
+```
+
+**Ship-ready khi:** `dev_selftest: pass` **và** `qc_status ∈ {pass, na}` **và** `trace: pass`.

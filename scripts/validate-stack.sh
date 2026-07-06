@@ -10,8 +10,6 @@ cd "$ROOT"
 STACK=""
 if [[ -f project-context.yaml ]]; then
   STACK=$(grep -E '^stack:' project-context.yaml 2>/dev/null | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1)
-elif [[ -f config.yaml ]]; then
-  STACK=$(grep -E '^stack:' config.yaml 2>/dev/null | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1)
 fi
 
 if [[ -z "$STACK" ]]; then

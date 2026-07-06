@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Inject framework context vào session khi bắt đầu.
-# Đọc project-context.yaml (ưu tiên) hoặc config.yaml (deprecated).
+# Nguồn cấu hình duy nhất: project-context.yaml.
 set -euo pipefail
 
 ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -10,13 +10,20 @@ STACK=""
 TEST_RUNNER=""
 QC_STACK=""
 
+# Đọc 1 scalar top-level từ project-context.yaml, cắt inline comment (# ...),
+# trim khoảng trắng và bỏ dấu " bao quanh (nếu có).
+cfgval() {
+  grep -E "^$1:" "$ROOT/project-context.yaml" 2>/dev/null \
+    | head -1 | sed "s/^$1:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]*$//" \
+    | tr -d '\r' | sed 's/^"\(.*\)"$/\1/'
+}
+
 if [[ -f "$ROOT/project-context.yaml" ]]; then
-  STACK=$(grep -E '^stack:' "$ROOT/project-context.yaml" 2>/dev/null | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1)
-  TEST_RUNNER=$(grep -E '^test_runner:' "$ROOT/project-context.yaml" 2>/dev/null | sed 's/test_runner:[[:space:]]*//' | tr -d '\r' | head -1 || echo "")
-  QC_STACK=$(grep -E '^qc_stack:' "$ROOT/project-context.yaml" 2>/dev/null | sed 's/qc_stack:[[:space:]]*//' | tr -d '\r' | head -1 || echo "")
-elif [[ -f "$ROOT/config.yaml" ]]; then
-  CONFIG_FILE="config.yaml (deprecated — dùng project-context.yaml)"
-  STACK=$(grep -E '^stack:' "$ROOT/config.yaml" 2>/dev/null | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1)
+  STACK=$(cfgval stack)
+  TEST_RUNNER=$(cfgval test_runner)
+  QC_STACK=$(cfgval qc_stack)
+else
+  CONFIG_FILE="(chưa có project-context.yaml — copy từ kit root và điền stack:)"
 fi
 
 AGENTS_CONTENT=$(cat "$ROOT/AGENTS.md")

@@ -13,7 +13,10 @@ Mọi artifact **thực thi** của một task/bug sống trong **một folder d
 
 ```text
 docs/work/<JIRA-KEY>-<slug>/
-  _context.md      ← ENTRY POINT bắt buộc — agent đọc file này TRƯỚC
+  _context.md      ← ENTRY POINT bắt buộc — agent đọc file này TRƯỚC.
+                     Chứa State block (phase/track/dev_selftest/qc_status/trace/next_skill)
+                     = single source of truth cho handoff dev→QC→ship.
+                     Ship gate: scripts/validate-context-state.sh parse block này.
   plan.md          ← từ writing-plans
   checklist.md     ← task breakdown, mỗi dòng traceable
   note.md          ← progress log (progress-logging) + SCARV khi ship

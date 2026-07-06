@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# UserPromptSubmit hook: đọc router.yaml, match keyword với prompt của user,
+# và GHIM gợi ý skill vào context trước khi agent trả lời (đóng gap routing).
+# Đồng thời surface work-package đang mở (phase chưa done) để agent nối tiếp flow.
+#
+# Không cưỡng chế cứng (UserPromptSubmit không chặn được Skill call) — nó tạo
+# tín hiệu mạnh + liên tục để agent không quên bước kế. Governance script mới là
+# gate cứng cuối cùng.
+set -euo pipefail
+
+ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+ROUTER="$ROOT/router.yaml"
+
+# ── Lấy prompt từ stdin (JSON của UserPromptSubmit) ──────────────────────────
+RAW="$(cat)"
+if command -v jq >/dev/null 2>&1; then
+  PROMPT=$(printf '%s' "$RAW" | jq -r '.prompt // empty' 2>/dev/null || true)
+else
+  PROMPT=$(printf '%s' "$RAW" | sed -n 's/.*"prompt"[[:space:]]*:[[:space:]]*"\(.*\)".*/\1/p' | head -1)
+fi
+[[ -z "$PROMPT" ]] && exit 0
+PROMPT_LC=$(printf '%s' "$PROMPT" | tr '[:upper:]' '[:lower:]')
+
+emit() {  # emit additionalContext JSON rồi thoát
+  local ctx="$1"
+  if command -v jq >/dev/null 2>&1; then
+    jq -n --arg c "$ctx" '{hookSpecificOutput:{hookEventName:"UserPromptSubmit",additionalContext:$c}}'
+  else
+    local esc; esc=$(printf '%s' "$ctx" | sed 's/"/\\"/g' | tr '\n' ' ')
+    printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}\n' "$esc"
+  fi
+  exit 0
+}
+
+# ── Match router.yaml ────────────────────────────────────────────────────────
+# Parse từng route: giữ intent + keywords + skill hiện tại; khi gặp skill: → test.
+MATCHES=""
+# Match theo RANH GIỚI TỪ (không substring thô) để "log" không dính "login",
+# "pr" không dính "production". norm(): chuyển ASCII punct/space → 1 space, bọc
+# 2 đầu bằng space; giữ nguyên byte UTF-8 (tiếng Việt có dấu không bị vỡ).
+[[ -f "$ROUTER" ]] && MATCHES=$(awk -v p="$PROMPT_LC" '
+  function trim(s){ gsub(/^[ \t]+|[ \t]+$/,"",s); return s }
+  function norm(s){ gsub(/[[:space:][:punct:]]+/," ",s); s=trim(s); return " " s " " }
+  BEGIN { np=norm(p) }
+  /^[[:space:]]*-[[:space:]]*intent:/ { intent=$0; sub(/.*intent:[[:space:]]*/,"",intent); gsub(/"/,"",intent); kw=""; skill=""; next }
+  /^[[:space:]]*keywords:/ { kw=$0; sub(/.*keywords:[[:space:]]*\[/,"",kw); sub(/\].*/,"",kw); next }
+  /^[[:space:]]*skill:/ {
+    skill=$0; sub(/.*skill:[[:space:]]*/,"",skill); skill=trim(skill)
+    n=split(kw, arr, ",")
+    for(i=1;i<=n;i++){ nk=norm(arr[i]); if(nk!="  " && length(nk)>2 && index(np,nk)>0){ print skill "\t" intent; break } }
+    next
+  }
+' "$ROUTER" | sort -u)
+
+# ── Work package đang mở (phase != done/"") ──────────────────────────────────
+WP=""
+shopt -s nullglob
+for f in "$ROOT"/docs/work/*/_context.md; do
+  ph=$(grep -m1 '^[[:space:]]*phase:' "$f" 2>/dev/null | sed 's/.*phase:[[:space:]]*//;s/[[:space:]]*#.*//' | tr -d '\r' | xargs || true)
+  nx=$(grep -m1 '^[[:space:]]*next_skill:' "$f" 2>/dev/null | sed 's/.*next_skill:[[:space:]]*//;s/[[:space:]]*#.*//' | tr -d '\r"' | xargs || true)
+  [[ -n "$ph" && "$ph" != "done" ]] && WP="${WP}  • ${f#$ROOT/}: phase=$ph, next_skill=${nx:-?}
+"
+done
+
+# ── Không có gì để nói thì im lặng ───────────────────────────────────────────
+[[ -z "$MATCHES" && -z "$WP" ]] && exit 0
+
+OUT="[kit] Router hint (tham khảo — vẫn kiểm bằng not_for_skills):"
+if [[ -n "$MATCHES" ]]; then
+  while IFS=$'\t' read -r sk it; do
+    [[ -z "$sk" ]] && continue
+    OUT="$OUT
+  → skill \`$sk\`  ($it)"
+  done <<<"$MATCHES"
+else
+  OUT="$OUT
+  (không route nào khớp — fallback: quét skills/*/SKILL.md, nêu lý do)"
+fi
+if [[ -n "$WP" ]]; then
+  OUT="$OUT
+
+[kit] Work package đang mở — đọc _context.md TRƯỚC, nối tiếp theo next_skill:
+$WP"
+fi
+
+emit "$OUT"

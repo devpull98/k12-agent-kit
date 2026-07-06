@@ -7,7 +7,7 @@
 | `rules/` | **Static knowledge** — WHAT | Conventions, patterns, baselines. `_global/`, `{stack}/`, `_template/`, `_examples/` |
 | `skills/` | **Execution knowledge** — HOW | Quy trình + checklist. Tham chiếu rule qua `requires_rules` |
 | `workflows/` | **Navigation** — WHEN & NEXT | `canonical-flow.md` là single source of truth |
-| `scripts/` | **Governance runtime** — ENFORCE | validate-trace, validate-sdd-gate, validate-stack, governance-check |
+| `scripts/` | **Governance runtime** — ENFORCE | validate-trace, validate-sdd-gate, validate-stack, validate-skill-graph, validate-context-state, governance-check |
 | `agents/` | **Personas** — WHO | Vai trò và output format |
 | `templates/` | **Artifact scaffolds** | Spec, BDD, PR template, ... |
 | `router.yaml` | **Intent routing** | intent → skill, strict-first + fallback |
@@ -43,10 +43,12 @@ Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/pl
 ## Governance runtime (bắt buộc trước merge)
 
 ```bash
-bash scripts/governance-check.sh          # all checks
-bash scripts/validate-sdd-gate.sh       # code ↔ spec
-bash scripts/validate-trace.sh          # BDD ↔ @trace
-bash scripts/validate-stack.sh          # stack rules exist
+bash scripts/governance-check.sh          # all checks (gồm cả 2 check dưới)
+bash scripts/validate-sdd-gate.sh         # code ↔ spec
+bash scripts/validate-trace.sh            # BDD ↔ @trace
+bash scripts/validate-stack.sh            # stack rules exist
+bash scripts/validate-skill-graph.sh      # router/on_success trỏ tới skill tồn tại (bắt dangling ref)
+bash scripts/validate-context-state.sh    # ship gate: state block đủ pass mới ship-ready
 ```
 
 Chi tiết escape hatch (fast/hotfix): `rules/_global/governance.mdc`
@@ -77,12 +79,14 @@ Project-specific convention (ví dụ k12-product-api) → `docs/principles.md` 
 ## Orchestration — bước tiếp theo sau mỗi skill
 
 Mỗi skill khai báo `on_success` và `on_failure` trong frontmatter YAML.
-Sau khi skill hoàn thành, agent đọc field này để biết bước tiếp — không cần tự đọc lại workflow file.
+Sau khi skill hoàn thành, agent **cập nhật state block trong `_context.md`** (`last_skill`, `next_skill`, `phase`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file.
 
 - **Không chắc bước tiếp theo** → gọi skill `next-step` (hoặc user hỏi "giờ làm gì?")
 - **on_success** → skill tiếp theo khi output đạt yêu cầu
 - **on_failure** → skill cần quay lại khi output không đạt / gate fail
 - **on_skip** → skip skill hiện tại (fast track) và đi thẳng sang đây
+
+> **Hook `route-hint` (UserPromptSubmit)** tự đọc `router.yaml` + work package đang mở, ghim gợi ý skill và `next_skill` vào context mỗi lượt. Đây là tín hiệu tham khảo — **không** thay việc agent kiểm `not_for_skills`. Gate cứng vẫn là script governance.
 
 ## Delivery tracks
 
@@ -96,7 +100,7 @@ Sau khi skill hoàn thành, agent đọc field này để biết bước tiếp 
 
 - Implement: `// @trace.implements: {UC-ID}-SC{N}`
 - Verify: `// @trace.verifies: {UC-ID}-SC{N}`
-- Signals: `dev_selftest` (dev) vs `qc_status` (tester) — cả hai pass trước merge
+- Signals: `dev_selftest` (dev) vs `qc_status` (tester) — lưu trong **state block của `_context.md`**, cả hai pass trước merge. Ship gate: `scripts/validate-context-state.sh`.
 - Trace dir: `docs/trace/` (xem `rules/_global/traceability.mdc`)
 
 ## Nguyên tắc bất biến
