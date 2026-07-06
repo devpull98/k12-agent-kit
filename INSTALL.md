@@ -84,8 +84,8 @@ Tùy thuộc vào IDE và quy trình làm việc của bạn, hãy chọn một 
    }
    ```
 
-3. **Cài đặt phím tắt `/feature` (Tùy chọn):**
-   Copy file `.claude/commands/feature.md` từ bộ kit vào thư mục `.claude/commands/` của dự án của bạn để kích hoạt lệnh `/feature` trực tiếp trong session.
+3. **Phím tắt `/feature`, `/product-discovery`:**
+   Đã được plugin cung cấp sẵn (thư mục `commands/` ở plugin root) — không cần copy tay. Sau khi `/plugin install uniclass-workflow`, lệnh tự xuất hiện ở session mới.
 
 ---
 

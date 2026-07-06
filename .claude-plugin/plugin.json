@@ -1,5 +1,5 @@
 {
   "name": "uniclass-workflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rule/Skill/Workflow framework với router intent-to-skill, scoped theo tech stack."
 }

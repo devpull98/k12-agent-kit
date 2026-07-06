@@ -8,7 +8,7 @@
 
 | | Command | Skill |
 |---|---|---|
-| **File** | `.claude/commands/<name>.md` | `skills/<name>/SKILL.md` (plugin root) |
+| **File** | `commands/<name>.md` (plugin root) | `skills/<name>/SKILL.md` (plugin root) |
 | **Ai gọi** | User gõ `/command-name` | Claude agent tự invoke |
 | **Nội dung** | Entry point mỏng, orchestrate skills | Chi tiết quy trình step-by-step |
 | **Discover** | Tự động (có description frontmatter) | Tự động (có frontmatter `name/description/keywords`) |
@@ -111,7 +111,7 @@ Chỉ hiểu → Done
 
 **Sync command:**
 ```bash
-cp ".claude/commands/<name>.md" "E:/k12-agent-kit/.claude/commands/"
+cp "commands/<name>.md" "E:/k12-agent-kit/commands/"
 cp "skills/<name>/SKILL.md" "E:/k12-agent-kit/skills/<name>/"
 ```
 
