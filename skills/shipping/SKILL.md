@@ -19,7 +19,7 @@ requires_rules:
 
 # Steps
 1.  **Bắt buộc kiểm tra Bug Gate (Anti-Bug Gate):** 
-    *   Quét thư mục `docs/bugs/` và các file trace TSV. 
+    *   Quét `docs/work/*/bugs.md` và các file trace TSV. 
     *   Nếu còn bất kỳ file bug nào ở trạng thái chưa sửa (`status: open/active/pending`) hoặc bất kỳ kịch bản nào trong trace TSV chưa có `qc_status: pass`, **bắt buộc phải dừng lại và không được tiến hành deploy**.
 2.  Chạy pre-launch checklist: code quality (test/build/lint pass, không console.log debug), security (theo rule security-baseline), performance cơ bản, infra (env var, migration, health check).
 3.  Nếu feature có rủi ro/chưa hoàn thiện 100%, bọc bằng feature flag — deploy code OFF trước, bật dần sau.
@@ -30,7 +30,7 @@ requires_rules:
 7. Sau khi rollout 100% ổn định, dọn dẹp feature flag và code nhánh cũ trong vòng 2 tuần. Tạo PR theo `templates/pull-request-template.md` nếu chưa có.
 8. Ngay khi rollout 100% ổn định (hoặc đã rollback), ghi 1 entry vào `CHANGELOG.md` (copy mục mới từ
    `templates/changelog-template.md` nếu file chưa có) — feature gì, thay đổi gì, có rollback không và vì sao.
-   Đây là log cấp release cho team/user đọc, khác với `docs/logs/<feature>.md` của `progress-logging` (log nội bộ từng task).
+   Đây là log cấp release cho team/user đọc, khác với `docs/work/<KEY>-<slug>/note.md` của `progress-logging` (log nội bộ từng task).
 
 # Output
 - Checklist pre-launch hoàn tất, rollback plan đã viết

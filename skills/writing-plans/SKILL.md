@@ -13,6 +13,7 @@ requires_rules:
 Chuyển spec thành plan thực thi được: task nhỏ, có thứ tự theo dependency, mỗi task tự kiểm chứng được — để TDD/implementation chạy mượt, không đoán.
 
 # Inputs
+- Work package `_context.md` của task (`docs/work/<KEY>-<slug>/_context.md`) — entry point
 - BDD spec đã duyệt (`docs/specs/bdd/{UC-ID}.feature`) — standard track
 - Tech design đã review (nếu có API/DB change)
 - Product Brief (nếu có) từ spec-driven-development
@@ -25,7 +26,7 @@ Chuyển spec thành plan thực thi được: task nhỏ, có thứ tự theo d
 4. Giới hạn quy mô: 1 task không đụng quá ~5 file; nếu lớn hơn, cắt nhỏ tiếp.
 5. Sắp thứ tự task theo dependency, chèn checkpoint sau mỗi 2-3 task (tests pass + build sạch).
 6. Tự rà soát plan: mọi phần spec có task tương ứng chưa, không còn placeholder ("TBD", "implement later"), tên hàm/biến nhất quán giữa các task.
-7. Lưu plan vào file (`docs/plans/YYYY-MM-DD-<feature>.md`), xin user duyệt trước khi chuyển sang tdd.
+7. Lưu vào work package: `docs/work/<KEY>-<slug>/plan.md` + `checklist.md`; tick trạng thái trong `_context.md`. Xin user duyệt trước khi chuyển sang tdd.
 
 # Output
 - File plan đã commit, có task list theo thứ tự, mỗi task có acceptance criteria + verification step

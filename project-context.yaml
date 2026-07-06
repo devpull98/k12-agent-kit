@@ -33,12 +33,16 @@ domains:
 # exclude_dirs: [generated, proto-gen]    # thư mục bổ sung cần loại khi grep trace
 
 # --- Đường dẫn artifact (mặc định nếu không điền) ---
+# Model: Work Package (1 task = 1 folder docs/work/<KEY>-<slug>/) + stable spec per module.
+# Xem rules/_global/doc-scoping.mdc.
 paths:
-  bdd_specs: docs/specs/bdd
+  work_dir: docs/work                 # execution: _context.md, plan.md, checklist.md, note.md, bugs.md
+  module_specs: docs/specs/modules    # stable truth per module + _index.md
+  bdd_specs: docs/specs/bdd           # UC-keyed, phẳng (script trace quét)
   tech_design: docs/specs/tech-design
   test_plans: docs/test-plans
-  bug_reports: docs/bugs
-  progress_logs: docs/logs
+  bug_reports: docs/work              # bugs.md trong work package (legacy: docs/bugs)
+  progress_logs: docs/work            # note.md trong work package (legacy: docs/logs)
   principles: docs/principles.md
   trace_dir: docs/trace
 

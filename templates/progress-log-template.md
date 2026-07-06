@@ -1,5 +1,5 @@
 # Progress log: <feature-name>
-Spec: docs/specs/<file>.md · Plan: docs/plans/<file>.md
+Lưu tại: docs/work/<KEY>-<slug>/note.md · Spec: docs/specs/modules/<module>/<spec>.md · Plan: docs/work/<KEY>-<slug>/plan.md
 
 | Task | Trạng thái | Thời gian | Verification | File đụng tới | Ghi chú |
 |---|---|---|---|---|---|

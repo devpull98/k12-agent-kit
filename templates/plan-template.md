@@ -1,7 +1,8 @@
 # Plan: <feature-name>
 
 <!-- 
-Spec gốc:       docs/specs/<file>.md
+Lưu tại:        docs/work/<KEY>-<slug>/plan.md
+Spec gốc:       docs/specs/modules/<module>/<spec>.md
 BDD spec:       docs/specs/bdd/<UC-ID>.feature
 Tech design:    docs/specs/tech-design/<UC-ID>-tech-design.md
 Track:          standard | fast | hotfix

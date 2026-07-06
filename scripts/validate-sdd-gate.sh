@@ -35,7 +35,7 @@ if ! git rev-parse --verify "$BASE" >/dev/null 2>&1; then
 fi
 
 # ── Resolve spec paths from project-context.yaml ─────────────────────────────
-SPEC_DIRS="docs/specs docs/plans"
+SPEC_DIRS="docs/specs docs/work"
 if [[ -f project-context.yaml ]]; then
   _bdd=$(grep -E '^\s*bdd_specs:' project-context.yaml 2>/dev/null \
     | sed 's/.*bdd_specs:[[:space:]]*//' | tr -d '\r' || true)
@@ -166,7 +166,7 @@ echo "Code changed: $code_changed | Spec changed: $spec_changed"
 if [[ "$code_changed" == "true" && "$spec_changed" == "false" ]]; then
   echo ""
   echo "FAIL: Source code changed without spec/BDD/plan updates."
-  echo "Required: update docs/specs/bdd/ or docs/specs/ or docs/plans/ before merge."
+  echo "Required: update docs/specs/bdd/ or docs/specs/ or docs/work/ before merge."
   echo "Escape: set FAST_TRACK=1, HOTFIX=1, or commit with [fast-track] / [hotfix] in message."
   exit 1
 fi

@@ -1,0 +1,68 @@
+# Doc Scoping — Work Package + Progressive Disclosure
+
+**Status:** ENFORCED | **Owner:** Tech Lead | **Applies to:** mọi task/bug
+
+---
+
+## Vấn đề
+Agent đọc lan man qua các flat folder (`docs/plans/`, `docs/notes/features/`, `docs/logs/`) → nhiễu context từ task khác, sai scope.
+
+## Giải pháp: 1 task = 1 Work Package
+
+Mọi artifact **thực thi** của một task/bug sống trong **một folder duy nhất**, không rải theo loại:
+
+```text
+docs/work/<JIRA-KEY>-<slug>/
+  _context.md      ← ENTRY POINT bắt buộc — agent đọc file này TRƯỚC
+  plan.md          ← từ writing-plans
+  checklist.md     ← task breakdown, mỗi dòng traceable
+  note.md          ← progress log (progress-logging) + SCARV khi ship
+  bugs.md          ← bug findings (bug-flow)
+  test-plan.md     ← qc-automation (optional)
+```
+
+**Artifact key:** `<JIRA-KEY>-<slug>`. Không có Jira → `NOJIRA-<slug>`.
+
+Stable truth (behavior/contract/architecture) **KHÔNG** nằm trong work package — nó ở tầng spec:
+
+```text
+docs/specs/modules/<module>/
+  _index.md        ← registry work items của module (link-only, không duplicate)
+  <spec>.md        ← Product Brief / behavior contract (spec-driven-development)
+
+docs/specs/bdd/<UC-ID>.feature              ← bdd-specification (UC-keyed, phẳng — script trace quét)
+docs/specs/tech-design/<UC-ID>-tech-design.md  ← tech-docs
+docs/trace/<UC-ID>-trace.tsv                ← trace-validation
+```
+
+## Progressive disclosure — 4 lớp context
+
+| Lớp | Nguồn | Khi nào đọc |
+|-----|-------|-------------|
+| 0 — Always | `CLAUDE.md`, rule `_global/*` | mọi session (auto-inject) |
+| 1 — Module | `docs/specs/modules/<module>/_index.md` + spec § liên quan | khi discover task mới |
+| 2 — Task | `docs/work/<KEY>-<slug>/_context.md` → `plan.md` → `checklist.md` | mỗi task |
+| 3 — Dependencies | file/module khác | **chỉ khi** `_context.md` khai báo |
+
+## MUST / MUST NOT
+
+- **MUST** bắt đầu mọi command (`brainstorming`, `writing-plans`, `code-review`, `shipping`...) từ `docs/work/<KEY>-<slug>/_context.md`. Chưa có → tạo `_context.md` trước (template `templates/_context.template.md`).
+- **MUST** chỉ đọc các path liệt kê trong `_context.md` (Read order).
+- **MUST NOT** `glob` `docs/plans/`, `docs/notes/features/`, `docs/logs/` hay work package của task khác để "tìm context".
+- **MUST NOT** duplicate nội dung spec vào work package — link tới `docs/specs/modules/<module>/` thay vì copy.
+
+## Legacy (deprecated — chỉ đọc khi migrate)
+
+| Legacy flat | Work Package |
+|-------------|--------------|
+| `docs/plans/<KEY>-<slug>-plan.md` | `docs/work/<KEY>-<slug>/plan.md` |
+| `docs/plans/<KEY>-<slug>-checklist.md` | `docs/work/<KEY>-<slug>/checklist.md` |
+| `docs/logs/<feature>.md` | `docs/work/<KEY>-<slug>/note.md` |
+| `docs/notes/features/<KEY>-<slug>.md` | `docs/work/<KEY>-<slug>/note.md` |
+| `docs/bugs/<KEY>.md` | `docs/work/<KEY>-<slug>/bugs.md` |
+
+Task mới: **chỉ** tạo trong `docs/work/`.
+
+---
+
+**Related:** `templates/_context.template.md`, `workflows/canonical-flow.md`, `_global/traceability.mdc`

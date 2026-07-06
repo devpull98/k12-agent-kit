@@ -22,7 +22,7 @@ routes:
     keywords: [product brief, scope, boundaries, feature spec, requirement doc, feature brief]
     skill: spec-driven-development
     not_for_skills: [bdd-specification]
-    notes: "Dùng templates/spec-template.md — output là docs/specs/{date}-{feature}.md"
+    notes: "Dùng templates/spec-template.md — output là docs/specs/modules/<module>/<spec>.md"
     confidence: strict
 
   - intent: "bước tiếp theo là gì, đang ở đâu trong flow"

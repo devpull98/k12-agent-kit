@@ -2,7 +2,7 @@
 
 ## Tổng quan
 - Số feature/story đã ship: <n>
-- Nguồn dữ liệu: docs/logs/*.md, CHANGELOG.md trong khoảng thời gian này
+- Nguồn dữ liệu: docs/work/*/note.md, CHANGELOG.md trong khoảng thời gian này
 
 ## Velocity & tiến độ
 | Feature/Story | Số task | Done | Block từng gặp | Thời gian spec→ship |

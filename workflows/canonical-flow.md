@@ -11,11 +11,13 @@ Mọi workflow khác (`feature.md`, `dev-flow.md`, `qc-flow.md`, `enterprise-flo
 
 | Lớp | Skill | Artifact | Trả lời câu hỏi |
 |-----|-------|----------|-----------------|
-| 1. Product Brief | spec-driven-development | `docs/specs/{date}-{feature}.md` | **Cái gì, vì sao, done khi nào?** (scope, boundaries) |
+| 1. Product Brief | spec-driven-development | `docs/specs/modules/<module>/<spec>.md` | **Cái gì, vì sao, done khi nào?** (scope, boundaries) |
 | 2. Behavior | bdd-specification | `docs/specs/bdd/{UC-ID}.feature` | **Hệ thống làm gì?** (Given/When/Then) |
 | 3. Technical | tech-docs | `docs/specs/tech-design/{UC-ID}-tech-design.md` | **Làm bằng gì?** (API, DB, events) |
 
 Thứ tự bắt buộc (standard track): **Product Brief → BDD → Tech Design → Plan → Implement**
+
+> **Doc scoping:** spec ổn định ở `docs/specs/modules/<module>/`; artifact thực thi (plan, checklist, note, bugs) gom vào `docs/work/<KEY>-<slug>/`, bắt đầu từ `_context.md`. Xem `rules/_global/doc-scoping.mdc`.
 
 ## Full flow (standard track)
 

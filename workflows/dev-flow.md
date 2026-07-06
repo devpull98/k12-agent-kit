@@ -36,9 +36,7 @@ ticket → chọn track → [Product Brief → bdd → tech-docs] → writing-pl
 ticket bug → bug-flow → debugging/tdd (repro & sửa lỗi) → code-review → shipping
 
 ## Dev artifacts
-- `docs/specs/{date}-{feature}.md` (Product Brief)
-- `docs/specs/bdd/{UC-ID}.feature`
-- `docs/specs/tech-design/{UC-ID}-tech-design.md`
-- `docs/plans/{date}-{feature}.md`
+- Spec (stable): `docs/specs/modules/<module>/<spec>.md` (Product Brief) · `docs/specs/bdd/{UC-ID}.feature` · `docs/specs/tech-design/{UC-ID}-tech-design.md`
+- Execution (per task): `docs/work/<KEY>-<slug>/{_context,plan,checklist,note}.md`
 - Code: `@trace.implements: {UC-ID}-SC{N}`
 - Test: `@trace.verifies: {UC-ID}-SC{N}`

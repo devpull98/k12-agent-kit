@@ -6,7 +6,7 @@ not_for: [báo cáo tiến độ 1 task/feature đơn lẻ — dùng progress-lo
 on_success: []
 on_failure: []
 requires_rules: []
-# Prerequisite: docs/logs/*.md phải được tạo bởi progress-logging skill trước khi chạy sprint-retro
+# Prerequisite: docs/work/*/note.md phải được tạo bởi progress-logging skill trước khi chạy sprint-retro
 ---
 
 # Purpose
@@ -14,12 +14,12 @@ Biến log rải rác của nhiều feature trong sprint thành 1 báo cáo tổ
 cảm tính "sprint này ổn"), dùng cho sprint review/retro của Scrum.
 
 # Inputs
-- Toàn bộ `docs/logs/*.md` có hoạt động trong khoảng thời gian sprint
+- Toàn bộ `docs/work/*/note.md` có hoạt động trong khoảng thời gian sprint
 - `CHANGELOG.md` — các entry ship trong sprint
 - Khoảng thời gian sprint cần tổng hợp (ngày bắt đầu/kết thúc)
 
 # Steps
-1. Liệt kê mọi file trong `docs/logs/` có task hoàn thành trong khoảng thời gian sprint.
+1. Liệt kê mọi file `docs/work/*/note.md` có task hoàn thành trong khoảng thời gian sprint.
 2. Với mỗi feature: đếm số task, số task done, block đã gặp (cột "Ghi chú"/"Block" trong log), thời gian từ lúc spec được duyệt tới lúc ship (đối chiếu `docs/specs/` và `CHANGELOG.md`).
 3. Đối chiếu `CHANGELOG.md` trong sprint: feature nào đã ship, feature nào rollback và lý do.
 4. Gom các block/vấn đề xuất hiện ở nhiều feature — đây là tín hiệu cần cải thiện hệ thống (rule/skill/process), không phải lỗi cá nhân.

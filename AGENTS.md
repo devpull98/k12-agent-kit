@@ -23,9 +23,22 @@ product-discovery → brainstorming → Product Brief → BDD → tech-docs → 
 
 | Spec layer | Skill | Artifact |
 |------------|-------|----------|
-| Product Brief | spec-driven-development | `docs/specs/{date}-{feature}.md` |
+| Product Brief | spec-driven-development | `docs/specs/modules/<module>/<spec>.md` |
 | Behavior | bdd-specification | `docs/specs/bdd/{UC-ID}.feature` |
 | Technical | tech-docs | `docs/specs/tech-design/{UC-ID}-tech-design.md` |
+
+## Doc scoping — Work Package (bắt buộc)
+
+**Stable truth** (behavior/contract) ở tầng module: `docs/specs/modules/<module>/`.
+**Execution** của mỗi task/bug gom vào **1 folder duy nhất**:
+
+```
+docs/work/<JIRA-KEY>-<slug>/
+  _context.md   ← ENTRY POINT — đọc TRƯỚC mọi việc
+  plan.md · checklist.md · note.md · bugs.md
+```
+
+Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/plans/`, `docs/notes/`, `docs/logs/` (legacy). Chi tiết: `rules/_global/doc-scoping.mdc`.
 
 ## Governance runtime (bắt buộc trước merge)
 
