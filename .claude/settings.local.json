@@ -7,14 +7,11 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
+      "Bash(git fetch *)",
       "Bash(bash scripts/validate-skill-graph.sh)",
       "Bash(bash scripts/validate-stack.sh)",
-      "Bash(CLAUDE_PLUGIN_ROOT=/e/k12-agent-kit bash hooks/session-start)",
-      "Bash(bash scripts/governance-check.sh)",
-      "Bash(echo \"EXIT=$?\")",
       "Bash(bash scripts/validate-context-state.sh)",
-      "Bash(git fetch *)",
-      "Bash(grep -rlie 'pre-push\\\\|protect\\\\|main' scripts/hooks)"
+      "Bash(bash scripts/governance-check.sh)"
     ]
   }
 }

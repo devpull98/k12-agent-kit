@@ -64,9 +64,28 @@ for f in workflows/*.md; do
   fi
 done
 
+# ── 5. Command path guard: commands/*.md phải trỏ file tồn tại, cấm .claude/skills ──
+# Chặn tái diễn lỗi command trỏ path chết (vd .claude/skills/ không tồn tại trong plugin).
+for f in commands/*.md; do
+  [[ -e "$f" ]] || continue
+  # 5a. cấm .claude/skills/ (layout project-local, không có trong plugin)
+  if grep -q '\.claude/skills' "$f"; then
+    echo "  BAD-PATH: $f trỏ '.claude/skills/' — plugin skills ở 'skills/' (root)"
+    FAIL=1
+  fi
+  # 5b. mọi ref skills/<x>/SKILL.md và workflows/<x>.md phải tồn tại
+  while IFS= read -r ref; do
+    [[ -z "$ref" ]] && continue
+    if [[ ! -e "$ref" ]]; then
+      echo "  DANGLING: $f trỏ '$ref' — file không tồn tại"
+      FAIL=1
+    fi
+  done < <(grep -oE '(skills/[A-Za-z0-9_-]+/SKILL\.md|workflows/[A-Za-z0-9_-]+\.md)' "$f" | sort -u)
+done
+
 echo ""
 if [[ $FAIL -eq 0 ]]; then
-  echo "PASS: Mọi skill reference resolve, name khớp folder, workflow trỏ canonical."
+  echo "PASS: Skill/workflow/command reference resolve, name khớp folder, workflow trỏ canonical."
   exit 0
 else
   echo "FAIL: Có reference gãy hoặc name mismatch — xem trên."

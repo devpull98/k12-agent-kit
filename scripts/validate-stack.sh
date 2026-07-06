@@ -1,23 +1,35 @@
 #!/usr/bin/env bash
-# Verify stack rules exist for project-context.yaml stack value.
+# Verify project-context.yaml tồn tại + khai báo stack, và stack rules có mặt.
 # Usage: ./scripts/validate-stack.sh
-# Exit 0 = OK or stack not configured; Exit 1 = stack configured but rules missing.
+# Exit 0 = OK; Exit 1 = thiếu project-context.yaml / thiếu stack / thiếu rule.
+# Escape: GOVERNANCE_SKIP=1 → bỏ qua (dùng cho repo dev kit, CI đặc thù).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-STACK=""
-if [[ -f project-context.yaml ]]; then
-  STACK=$(grep -E '^stack:' project-context.yaml 2>/dev/null | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1)
+echo "=== Stack Validation ==="
+
+if [[ "${GOVERNANCE_SKIP:-}" == "1" ]]; then
+  echo "SKIP: GOVERNANCE_SKIP=1"; exit 0
 fi
+
+# ── Gate onboarding: không có project-context.yaml → kit không resolve được {stack} ──
+if [[ ! -f project-context.yaml ]]; then
+  echo "FAIL: thiếu project-context.yaml ở root dự án."
+  echo "  → Chạy skill onboarding, hoặc copy mẫu và set 'stack:'. Kit cần file này để resolve {stack} rules."
+  echo "  → Escape tạm: GOVERNANCE_SKIP=1"
+  exit 1
+fi
+
+STACK=$(grep -E '^stack:' project-context.yaml 2>/dev/null | sed 's/stack:[[:space:]]*//;s/[[:space:]]*#.*//' | tr -d '\r' | xargs | head -1)
 
 if [[ -z "$STACK" ]]; then
-  echo "WARN: No stack configured in project-context.yaml"
-  exit 0
+  echo "FAIL: project-context.yaml chưa khai báo 'stack:' (giá trị rỗng)."
+  echo "  → Set 'stack: <spring|laravel|golang|nodejs|...>' trong project-context.yaml."
+  exit 1
 fi
 
-echo "=== Stack Validation ==="
 echo "Stack: $STACK"
 
 MISSING=0
