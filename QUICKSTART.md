@@ -1,58 +1,66 @@
-# Quickstart — plugin `uniclass-workflow`
+# Khởi tạo Dự án & Chạy thử (Quickstart Guide)
 
-> **Stack-agnostic** — dùng cho project bất kỳ (Spring / Laravel / Go / Node...). Cài chi tiết: [INSTALL.md](INSTALL.md).
-
-Plugin cài **1 lần / máy**, dùng chung mọi project. Mỗi project chỉ cần **1 file config**. Đừng lẫn 2 việc này.
+Tài liệu này giúp bạn cấu hình nhanh bộ công cụ `uniclass-workflow` trên một project mới sau khi đã hoàn thành cài đặt plugin (nếu chưa cài, vui lòng xem [INSTALL.md](file:///e:/k12-agent-kit/INSTALL.md)).
 
 ---
 
-## A. Máy mới (1 lần / máy)
+## Các bước khởi tạo dự án mới
 
-| # | Việc | Ghi chú |
-|---|------|---------|
-| 1 | Cài **Git Bash** ([Git for Windows](https://git-scm.com/download/win)) hoặc bash sẵn (macOS/Linux) | Hook `SessionStart` chạy `bash` — bắt buộc |
-| 2 | Cài **jq** (`winget install jqlang.jq` / `brew install jq` / `apt install jq` → mở lại shell) | Hook inject `AGENTS.md`; thiếu vẫn chạy fallback |
-| 3 | Cài **Claude Code** | |
-| 4 | `/plugin marketplace add devpull98/k12-agent-kit` | Trong Claude Code |
-| 5 | `/plugin install uniclass-workflow` | Lưu `~/.claude` → global |
-| 6 | `/exit` → `claude` (restart) | Cho `SessionStart` hook chạy. Check: `/plugin` thấy plugin enabled |
+Thực hiện các bước sau tại thư mục gốc (root) của dự án để kích hoạt các tính năng của framework:
 
-Thiếu Git Bash/jq → plugin cài xong vẫn **không hoạt động** (hook fail âm thầm, agent code thẳng, bỏ qua spec).
-
----
-
-## B. Project mới (mỗi project — KHÔNG cài lại plugin)
-
-Plugin đã global. Chỉ cần bật cho project:
-
-**1. Tạo `project-context.yaml` ở root** — hook đọc file này để chọn `rules/<stack>/`:
+### Bước 1: Tạo file cấu hình `project-context.yaml`
+Tạo file `project-context.yaml` tại thư mục root của dự án để AI agent nhận biết được môi trường công nghệ đang dùng:
 ```yaml
 stack: spring          # spring | laravel | golang | nodejs | <stack-của-bạn>
-test_runner: junit5    # junit5 | phpunit | jest | vitest | go-test | pytest — để trống = suy từ stack
+test_runner: junit5    # junit5 | phpunit | jest | vitest | go-test | pytest (để trống = tự suy từ stack)
 ```
 
-**2. `CLAUDE.md`** — mô tả build/test command + convention riêng của project (nguồn context chính cho agent).
-
-**3. Thư mục tài liệu (Work Package model — xem `rules/_global/doc-scoping.mdc`):**
-```
-docs/work/            # 1 task = 1 folder <KEY>-<slug>/ : _context, plan, checklist, note, bugs
-docs/specs/modules/   # stable truth per module + _index.md
-```
-
-**4. Nếu stack KHÔNG có sẵn** (`rules/<stack>/` chưa tồn tại):
-- Copy `rules/_template/architecture.mdc` + `test-patterns.mdc` → `rules/<stack>/`, điền convention.
-- Chạy `bash scripts/validate-stack.sh` — phải pass.
-- Convention RIÊNG của project → `CLAUDE.md` / `docs/principles.md` / `rules/_examples/<project>/`, KHÔNG nhét vào rule generic.
-
-**5. Restart Claude Code trong project → smoke test:** gõ yêu cầu mơ hồ (vd "thêm login OTP") → agent phải tự trigger `brainstorming` → `spec-driven-development`, **không code thẳng**. Nếu code thẳng → hook chưa chạy (check bash trong PATH, `/plugin` enabled).
+> [!NOTE]
+> Nếu dự án của bạn sử dụng một ngôn ngữ chưa được cấu hình sẵn (ngoài Spring, Laravel, Go, Node.js), hãy xem hướng dẫn tạo stack mới trong phần **Tùy biến Stack** ở [GUIDE.md](file:///e:/k12-agent-kit/GUIDE.md).
 
 ---
 
-## Tóm gọn
+### Bước 2: Tạo file chỉ dẫn ngữ cảnh `CLAUDE.md`
+Tạo file `CLAUDE.md` tại root dự án (bạn có thể copy mẫu từ `templates/context-engineering/03-claude-md-template.md`). File này chứa các chỉ dẫn về:
+- Các lệnh build, chạy test, chạy dev server của dự án.
+- Quy chuẩn code riêng biệt của dự án (nếu có).
 
-| Tình huống | Việc |
-|---|---|
-| **Máy mới** | Git Bash/bash + jq + Claude Code → `/plugin install uniclass-workflow` |
-| **Project mới (cùng máy)** | Chỉ thêm `project-context.yaml` + `CLAUDE.md` (+ `rules/<stack>/` nếu stack mới) |
+---
 
-**Stack built-in:** spring, laravel, golang, nodejs. Stack khác → copy `rules/_template/`.
+### Bước 3: Thiết lập cấu trúc thư mục lưu vết (Work Package)
+Bộ công cụ quản lý các thay đổi dựa trên cấu trúc thư mục quy chuẩn để kiểm soát dung lượng context. Hãy tạo sẵn các thư mục sau nếu dự án chưa có:
+- `docs/work/` — Nơi chứa thông tin thực thi của từng task (mỗi task là 1 thư mục riêng, ví dụ: `docs/work/JIRA-123-add-login/`).
+- `docs/specs/modules/` — Nơi lưu trữ tài liệu đặc tả (specification) ổn định của từng module nghiệp vụ trong hệ thống.
+
+---
+
+### Bước 4: Kích hoạt Git Hooks kiểm soát chất lượng
+Chạy lệnh sau để tự động cài đặt Git Hooks. Hook này giúp ngăn chặn việc commit code trực tiếp lên các nhánh bảo vệ (`main`, `master`, `test`) và chuẩn hóa nội dung commit của AI:
+```bash
+bash scripts/hooks/install-hooks.sh
+```
+
+---
+
+## Kiểm tra hoạt động (Smoke Test)
+
+Để đảm bảo mọi cấu hình và quality gate đang hoạt động bình thường, hãy thực hiện kiểm thử khói (smoke test) sau:
+
+1. Mở Claude Code trong thư mục dự án của bạn.
+2. Nhập một yêu cầu phát triển tính năng mơ hồ (Ví dụ: *"Hãy viết code thêm tính năng đăng nhập bằng OTP qua SMS"*).
+3. **Kết quả mong đợi**:
+   - AI agent **không được phép viết code ngay lập tức**.
+   - Agent phải tự động nhận diện yêu cầu, kích hoạt skill `brainstorming` để thảo luận hoặc chuyển sang `spec-driven-development` để viết tài liệu đặc tả spec trước.
+   - Nếu agent cố tình viết code ngay mà không qua spec, quy tắc bảo vệ của dự án (`rules/_global/sdd-gate.mdc`) sẽ chặn và cảnh báo agent.
+
+> [!TIP]
+> Nếu agent vẫn trực tiếp sửa code mà không thảo luận hay viết spec:
+> - Hãy kiểm tra xem plugin đã được kích hoạt chưa bằng lệnh `/plugin` trong Claude Code.
+> - Đảm bảo rằng file `project-context.yaml` đã được khai báo đúng định dạng ở thư mục root.
+> - Kiểm tra xem `bash` và `jq` có hoạt động bình thường trong terminal của bạn không.
+
+---
+
+## Bước tiếp theo
+
+Khi dự án đã được thiết lập xong và chạy smoke test thành công, hãy đọc tài liệu [GUIDE.md](file:///e:/k12-agent-kit/GUIDE.md) để hiểu sâu hơn về quy trình làm việc hàng ngày (Standard, Fast, Hotfix tracks) và cách custom rules theo đặc thù dự án.

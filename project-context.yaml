@@ -1,8 +1,8 @@
 # project-context.yaml — Khai báo per-project. Copy vào root project thật và điền thông tin.
 # Framework load file này khi session bắt đầu (hook session-start).
 
-# --- BẮT BUỘC ---
-stack: spring   # Dev tự tạo rules/{stack}/ nếu chưa có — copy từ rules/_template/
+# Dev tự tạo rules/{stack}/ nếu chưa có — copy từ rules/_template/
+stack: spring
 
 # --- KHUYẾN NGHỊ ---
 qc_stack: qc-playwright     # qc-playwright | cypress | selenium | postman

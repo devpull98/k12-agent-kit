@@ -1,43 +1,72 @@
-# Cài uniclass-workflow vào Claude Code
+# Cài đặt & Thiết lập Môi trường (Installation Guide)
 
-Có 2 cách cài: làm **plugin** (khuyến nghị, dùng được cho nhiều project) hoặc **copy thẳng vào project**
-(đơn giản, chỉ dùng cho 1 project).
+Tài liệu này hướng dẫn cách cài đặt bộ công cụ `uniclass-workflow` (thuộc repo `k12-agent-kit`) vào môi trường làm việc của bạn (Claude Code, Cursor, Windsurf...).
 
-## Cách 1 — Cài như Claude Code plugin (khuyến nghị)
+---
 
-### 1. Cài qua marketplace local (chưa publish lên marketplace công khai)
-```bash
-# Trong Claude Code, mở project bất kỳ rồi chạy:
-/plugin marketplace add "E:\Agent Workflow\uniclass-workflow"
-/plugin install uniclass-workflow
-```
-Nếu sau này push repo lên GitHub, có thể thay path local bằng URL repo:
-```bash
-/plugin marketplace add <owner>/<repo>
-/plugin install uniclass-workflow
-```
+## 1. Tiền đề (Prerequisites)
 
-### 2. Restart session
-```bash
-/exit
-claude
-```
-Hook `SessionStart` trong `hooks/hooks.json` sẽ tự chạy `hooks/session-start`, đọc `AGENTS.md` +
-`config.yaml` rồi inject vào context — không cần làm gì thêm.
+Để bộ công cụ hoạt động chính xác (đặc biệt là các hook tự động kích hoạt khi mở phiên làm việc), máy tính của bạn cần được cài đặt các công cụ sau:
 
-### 3. Kiểm tra plugin đã load
-```bash
-/plugin
-```
-Phải thấy `uniclass-workflow` trong danh sách plugin đã enable.
+1. **Git Bash** (Dành riêng cho **Windows**):
+   - Hook khởi động sử dụng môi trường `bash`.
+   - Tải và cài đặt từ [Git for Windows](https://git-scm.com/download/win). Hãy đảm bảo `bash` đã được thêm vào biến môi trường `PATH`.
+2. **jq** (Trình xử lý JSON dòng lệnh):
+   - Hook sử dụng `jq` để đọc/ghi file cấu hình dự án.
+   - **Windows**: Chạy lệnh `winget install jqlang.jq` trong PowerShell, sau đó khởi động lại terminal.
+   - **macOS**: Chạy lệnh `brew install jq`.
+   - **Linux**: Chạy lệnh `sudo apt install jq` hoặc lệnh tương đương của bản phân phối.
+3. **Claude Code** (hoặc AI IDE tương thích như Cursor, Windsurf).
 
-## Cách 2 — Copy thẳng vào 1 project cụ thể
+> [!WARNING]
+> Nếu thiếu Git Bash hoặc `jq`, các hook tự động có thể bị lỗi âm thầm, khiến AI agent không tự động nhận diện được spec/rules và bỏ qua quy trình Spec-Driven Design.
 
-Dùng khi không muốn cài plugin global, chỉ cần dùng cho 1 repo.
+---
 
-1. Copy toàn bộ thư mục `uniclass-workflow/` vào root project, đổi tên thành `.claude/uniclass-workflow/`
-   (hoặc giữ tên gốc, không bắt buộc).
-2. Trong `.claude/settings.json` của project (tạo nếu chưa có), trỏ hook session-start vào đúng path:
+## 2. Các phương thức cài đặt
+
+Tùy thuộc vào IDE và quy trình làm việc của bạn, hãy chọn một trong hai cách cài đặt dưới đây:
+
+### Cách A: Cài đặt dạng Claude Code Plugin (Khuyến nghị)
+*Phương thức này cài đặt plugin ở mức global (trong thư mục `~/.claude/`), giúp bạn sử dụng chung cho mọi dự án trên máy mà không cần copy code.*
+
+1. **Thêm và cài đặt plugin trong Claude Code:**
+   Mở Claude Code ở một thư mục bất kỳ và chạy các lệnh sau:
+   ```bash
+   /plugin marketplace add devpull98/k12-agent-kit
+   /plugin install uniclass-workflow
+   ```
+   *(Hoặc nếu bạn muốn trỏ trực tiếp vào thư mục mã nguồn đã tải về máy local)*:
+   ```bash
+   /plugin marketplace add "E:\Agent Workflow\uniclass-workflow"
+   /plugin install uniclass-workflow
+   ```
+
+2. **Khởi động lại session:**
+   Để hook `SessionStart` của plugin bắt đầu hoạt động, bạn cần thoát và mở lại Claude Code:
+   ```bash
+   /exit
+   # Mở lại Claude Code
+   claude
+   ```
+
+3. **Kiểm tra trạng thái cài đặt:**
+   Gõ lệnh sau trong Claude Code:
+   ```bash
+   /plugin
+   ```
+   Đảm bảo bạn nhìn thấy `uniclass-workflow` nằm trong danh sách các plugin đã được kích hoạt (enabled).
+
+---
+
+### Cách B: Sao chép thủ công vào Project (Dành cho Cursor, Windsurf, v.v.)
+*Dùng khi bạn không sử dụng Claude Code CLI toàn cục, hoặc muốn nhúng trực tiếp bộ công cụ vào một repository cụ thể để chạy với các AI IDE khác.*
+
+1. **Sao chép mã nguồn:**
+   Copy toàn bộ thư mục `k12-agent-kit` vào thư mục gốc (root) của dự án của bạn (ví dụ đổi tên thư mục copy thành `.claude/uniclass-workflow/`).
+   
+2. **Cấu hình hook khởi động (Chỉ cho Claude Code cục bộ):**
+   Nếu bạn vẫn dùng Claude Code nhưng muốn cấu hình theo từng project riêng lẻ, hãy tạo/chỉnh sửa file `.claude/settings.json` trong project của bạn:
    ```json
    {
      "hooks": {
@@ -54,32 +83,29 @@ Dùng khi không muốn cài plugin global, chỉ cần dùng cho 1 repo.
      }
    }
    ```
-3. Copy `.claude/commands/feature.md` từ uniclass-workflow vào `.claude/commands/` của project (để dùng
-   `/feature` ngay trong project, không cần gọi qua đường dẫn dài).
 
-## Sau khi cài — việc bắt buộc phải làm trong từng project
+3. **Cài đặt phím tắt `/feature` (Tùy chọn):**
+   Copy file `.claude/commands/feature.md` từ bộ kit vào thư mục `.claude/commands/` của dự án của bạn để kích hoạt lệnh `/feature` trực tiếp trong session.
 
-Cài plugin xong KHÔNG có nghĩa là dùng được ngay — còn 1 bước riêng cho từng project, xem
-[GUIDE.md](GUIDE.md) mục 2 "Bắt đầu 1 project mới":
+---
 
-1. Set `stack:` trong `config.yaml` (laravel/spring/golang/...).
-2. Tạo `docs/specs/`, `docs/plans/`, `docs/logs/`, `docs/retros/`, `CHANGELOG.md` nếu project chưa có.
-3. Kiểm tra `rules/<stack>/architecture.mdc` đã khớp convention thật của project, bổ sung rule riêng nếu thiếu.
+## 3. Xác minh cài đặt thành công
 
-## Kiểm tra cài đặt đúng (smoke test)
+Sau khi cài đặt xong, hãy mở dự án của bạn và chạy thử các kiểm tra tự động để xác nhận mọi thứ hoạt động:
+```bash
+# Kiểm tra các quy tắc thiết kế (stack rules) của dự án
+bash scripts/validate-stack.sh
+```
 
-Trong Claude Code, gõ thử 1 yêu cầu mơ hồ kiểu "thêm tính năng đăng nhập bằng OTP" — agent phải:
-1. Tự trigger skill `brainstorming` (không code thẳng).
-2. Sau khi thiết kế chốt, chuyển sang `spec-driven-development`, tạo file trong `docs/specs/`.
-3. Không cho phép viết code trước khi spec được bạn duyệt (theo `rules/_global/sdd-gate.mdc`).
+Tiếp tục chuyển sang tài liệu [QUICKSTART.md](file:///e:/k12-agent-kit/QUICKSTART.md) để bắt đầu cấu hình dự án mới và chạy thử nghiệm tính năng Smoke Test.
 
-Nếu agent code thẳng không qua các bước trên — kiểm tra lại:
-- Hook `SessionStart` có chạy không (`/plugin` xem plugin có enable, hoặc xem `.claude/settings.json` có đúng path).
-- `bash` có sẵn trong PATH không (hook dùng shebang `#!/usr/bin/env bash`) — trên Windows cần Git Bash/WSL.
-- `jq` có cài không (không bắt buộc, hook có fallback nếu thiếu jq nhưng output sẽ kém escape hơn).
+---
 
-## Gỡ cài đặt
+## 4. Gỡ bỏ cài đặt (Uninstall)
+
+Nếu bạn muốn gỡ cài đặt plugin global khỏi Claude Code:
 ```bash
 /plugin uninstall uniclass-workflow
 ```
-Hoặc với cách 2: xóa thư mục `.claude/uniclass-workflow/` và phần hook đã thêm trong `.claude/settings.json`.
+
+Đối với cài đặt thủ công (Cách B), bạn chỉ cần xóa thư mục `.claude/uniclass-workflow/` và phần cấu hình hook tương ứng trong `.claude/settings.json`.

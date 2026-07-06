@@ -1,137 +1,124 @@
-# Hướng dẫn dùng uniclass-workflow cho developer
+# Hướng dẫn Sử dụng & Tùy biến (Developer Guide)
 
-## 1. Framework này làm gì
-uniclass-workflow là 1 plugin Claude Code ép agent làm việc theo Spec-Driven Design: không code khi
-chưa có spec được duyệt (xem `rules/_global/sdd-gate.mdc`), và tách rõ 3 loại kiến thức để agent không
-load nhầm/load thừa context:
+Tài liệu này hướng dẫn chi tiết cách vận hành hàng ngày của developer với bộ công cụ `uniclass-workflow` và cách tùy biến, mở rộng hệ thống (như thiết lập stack mới, viết skill hoặc cấu hình rules bổ sung).
 
-| Loại | Trả lời câu hỏi | Nằm ở đâu |
+---
+
+## 1. Cơ chế hoạt động & Triết lý Core
+
+`uniclass-workflow` được thiết kế để định hướng AI agent làm việc theo quy trình **Spec-Driven Design (SDD)**: tuyệt đối không viết code khi chưa có đặc tả nghiệp vụ được duyệt. Đồng thời, bộ công cụ phân tách tri thức làm 3 lớp độc lập để tối ưu hóa Context Budget và tránh tình trạng AI bị ảo tưởng (hallucination):
+
+| Lớp Tri Thức | Câu hỏi giải quyết | Vị trí lưu trữ |
 |---|---|---|
-| Rule | Project này phải làm như thế nào? | `rules/_global/`, `rules/<stack>/` |
-| Skill | Làm task này theo quy trình nào? | `skills/<name>/SKILL.md` |
-| Workflow | Sau bước này làm gì tiếp? | `workflows/<flow>.md` |
+| **Rule (WHAT)** | Dự án/ngôn ngữ này quy chuẩn viết code như thế nào? | `rules/_global/`, `rules/<stack>/` |
+| **Skill (HOW)** | Làm loại task này theo trình tự và checklist nào? | `skills/<name>/SKILL.md` |
+| **Workflow (WHEN)** | Kết thúc bước hiện tại thì làm gì tiếp theo? | `workflows/<flow>.md` |
 
-## 2. Bắt đầu 1 project mới — checklist
+---
 
-Làm đúng thứ tự, đừng nhảy bước:
+## 2. Quy trình làm việc hàng ngày (Delivery Tracks)
 
-1. **Cài plugin vào project**
-   - Copy thư mục `uniclass-workflow/` (hoặc symlink) vào root project, hoặc cài như Claude Code plugin qua `.claude-plugin/plugin.json`.
-2. **Chọn stack**
-   - Mở `project-context.yaml`, set `stack:` đúng ngôn ngữ project (`laravel` / `spring` / `golang`, hoặc tạo stack mới — xem mục 4).
-   - Nếu project polyglot (nhiều service, nhiều ngôn ngữ): đặt 1 `project-context.yaml` riêng theo từng service/module, không dùng 1 `stack` chung cho cả repo.
-3. **Cài đặt Git Hooks kiểm soát commit**
-   - Chạy lệnh `bash scripts/hooks/install-hooks.sh` để tự động kích hoạt Git Hook chặn AI-spam và kiểm soát format commit.
-4. **Kiểm tra rule đã đủ chưa**
-   - Đọc `rules/<stack>/architecture.mdc` có sẵn — nếu project có convention riêng (ví dụ chuẩn đặt tên DB, chuẩn API response), thêm file rule mới trong `rules/<stack>/` trước khi code, không để skill tự bịa convention.
-5. **Tạo khung thư mục lưu vết** (nếu project chưa có)
+Để biết bước tiếp theo cần thực hiện là gì hoặc khi bạn/agent không chắc chắn, hãy gõ **"giờ làm gì?"** hoặc chạy lệnh `/feature` để gọi skill điều phối `next-step`.
+
+Hệ thống hỗ trợ 3 tuyến phát triển (Delivery Tracks) chính:
+
+### A. Standard Track (Dành cho tính năng mới hoặc thay đổi logic lớn)
+- **Luồng đi:** `brainstorming` $\rightarrow$ `spec-driven-development` $\rightarrow$ `bdd-specification` $\rightarrow$ `tech-docs` $\rightarrow$ `writing-plans` $\rightarrow$ Vòng lặp `tdd` (code & test) $\rightarrow$ `code-review` $\rightarrow$ `shipping`.
+- **Đặc trưng:** Bắt buộc phải viết tài liệu đặc tả nghiệp vụ (Spec/BDD) trước khi code. Lỗi sẽ bị chặn cứng bởi SDD Gate nếu cố tình code trước.
+
+### B. Fast Track (Dành cho thay đổi nhỏ, rủi ro thấp < 30 phút)
+- **Luồng đi:** Bỏ qua spec pipeline, đi thẳng từ `writing-plans` $\rightarrow$ `tdd` $\rightarrow$ `code-review`.
+- **Cách kích hoạt:** Thêm tag `[fast-track]` vào câu lệnh gửi cho agent hoặc trong commit message.
+
+### C. Hotfix Track (Sự cố sản xuất khẩn cấp)
+- **Luồng đi:** `bug-flow` (triage) $\rightarrow$ `debugging` $\rightarrow$ Viết test tái hiện lỗi (Prove-It Pattern) $\rightarrow$ `tdd` (sửa lỗi) $\rightarrow$ `shipping`.
+- **Cách kích hoạt:** Thêm tag `[hotfix]` vào câu lệnh hoặc commit message.
+
+---
+
+## 3. Cấu hình và Sử dụng theo từng Tech Stack
+
+Khi bạn khai báo `stack` trong file `project-context.yaml`, hệ thống sẽ tự động liên kết các quy chuẩn thiết kế từ thư mục `rules/<stack>/` vào ngữ cảnh của AI agent thông qua placeholder `{stack}`.
+
+### Laravel (`stack: laravel`)
+- Quy tắc áp dụng mặc định: [architecture.mdc](file:///e:/k12-agent-kit/rules/laravel/architecture.mdc) (Controller $\rightarrow$ Service $\rightarrow$ Repository, không truy vấn Eloquent trực tiếp ngoài Repository).
+- Test Runner mặc định: `phpunit`.
+
+### Spring (`stack: spring`)
+- Quy tắc áp dụng mặc định: [architecture.mdc](file:///e:/k12-agent-kit/rules/spring/architecture.mdc) (Controller $\rightarrow$ Service $\rightarrow$ Repository, sử dụng DTO riêng biệt, đặt `@Transactional` đúng phạm vi Service).
+- Test Runner mặc định: `junit5`.
+
+### Golang (`stack: golang`)
+- Quy tắc áp dụng mặc định: [architecture.mdc](file:///e:/k12-agent-kit/rules/golang/architecture.mdc) (Handler $\rightarrow$ UseCase $\rightarrow$ Repository qua interface, wrap context cho error).
+- Test Runner mặc định: `go-test`.
+
+### Node.js (`stack: nodejs`)
+- Quy tắc áp dụng mặc định: [architecture.mdc](file:///e:/k12-agent-kit/rules/nodejs/architecture.mdc) (Controller $\rightarrow$ Service $\rightarrow$ Repository / Model).
+- Test Runner mặc định: `vitest` hoặc `jest`.
+
+---
+
+## 4. Tùy biến Stack mới (Ví dụ: .NET, Python, Django...)
+
+Nếu dự án của bạn sử dụng ngôn ngữ hoặc framework chưa có sẵn trong danh sách trên, hãy tự tạo stack rule theo các bước:
+
+1. Tạo thư mục mới: `rules/<tên-stack-mới>/`.
+2. Sao chép các file rule mẫu từ thư mục `rules/_template/`:
+   ```bash
+   cp -r rules/_template rules/<tên-stack-mới>
    ```
-   docs/specs/      # spec từng feature
-   docs/plans/       # plan từng feature
-   docs/logs/        # progress log từng feature
-   CHANGELOG.md      # copy từ templates/changelog-template.md
+3. Mở các file `architecture.mdc` và `test-patterns.mdc` mới tạo và điền các quy chuẩn thiết kế, coding style, cũng như test framework thật của dự án bạn vào đó.
+4. Cập nhật `stack: <tên-stack-mới>` vào file `project-context.yaml` ở dự án của bạn.
+5. Chạy script kiểm tra hợp lệ:
+   ```bash
+   bash scripts/validate-stack.sh
    ```
-6. **Mở Claude Code trong project**
-   - Hook `session-start` tự đọc `AGENTS.md` + `stack`, inject vào context — không cần làm gì thêm.
-7. **Bắt đầu feature đầu tiên bằng `brainstorm`**
-   - Không viết code ngay cả khi ý tưởng "có vẻ rõ" — đi qua `brainstorm → spec → plan` trước (xem mục 3) để có artefact spec/plan làm chuẩn cho toàn project sau này (coding style, boundaries...).
-8. **Xác nhận gate đang hoạt động**
-   - Thử yêu cầu agent code thẳng 1 feature lớn mà chưa có spec — agent phải dừng lại và yêu cầu qua `spec-driven-development` trước (theo `rules/_global/sdd-gate.mdc`). Nếu agent code luôn không hỏi, kiểm tra lại `AGENTS.md`/hook có load đúng không.
 
-## 3. Quy trình làm 1 feature mới (gate bắt buộc)
-```
-brainstorm → spec → plan → tdd → review → ship
-```
-Xem chi tiết step → skill ở `workflows/feature.md`. Mỗi bước phải có artefact xác nhận xong (file spec
-duyệt, file plan duyệt, test pass, review pass) mới qua bước sau — đây là **gate**, không phải gợi ý.
+---
 
-- Task < 30 phút, scope tự rõ (fix 1 dòng, đổi config): được bỏ qua spec, đi thẳng `tdd`/implement.
-- Task lớn hơn: bắt buộc qua `spec-driven-development` trước, dùng `templates/spec-template.md`.
+## 5. Bản đồ các Skill hiện có
 
-## 4. Dùng theo từng ngôn ngữ
+Dưới đây là danh sách các kỹ năng (skills) được định nghĩa sẵn mà AI agent sẽ tự động kích hoạt thông qua router (`router.yaml`):
 
-### Laravel
-- `stack: laravel` trong `config.yaml`.
-- Rule áp dụng: `rules/laravel/architecture.mdc` (Controller→Service→Repository, không query Eloquent ngoài Repository).
-- Khi viết code mới, agent tự load rule này qua `requires_rules: ["{stack}/architecture"]` trong skill `tdd`, `spec-driven-development`.
-- Nếu project có convention riêng ngoài architecture (ví dụ validation, queue, event) — thêm file mới trong `rules/laravel/`, ví dụ `rules/laravel/validation.mdc`, theo đúng format Purpose/Required/Forbidden/Examples.
-
-### Spring (Java/Kotlin)
-- `stack: spring`.
-- Rule áp dụng: `rules/spring/architecture.mdc` (Controller→Service→Repository, DTO riêng, `@Transactional` ở Service).
-- Thêm rule riêng nếu cần: `rules/spring/exception-handling.mdc`, `rules/spring/testing.mdc`...
-
-### Golang
-- `stack: golang`.
-- Rule áp dụng: `rules/golang/architecture.mdc` (Handler→UseCase→Repository qua interface, error wrap context).
-- Thêm rule riêng nếu cần: `rules/golang/concurrency.mdc`, `rules/golang/error-handling.mdc`...
-
-### Ngôn ngữ/stack mới chưa có (ví dụ Node.js, .NET)
-1. Tạo `rules/<stack-mới>/architecture.mdc` theo đúng format 4 mục (Purpose/Required/Forbidden/Examples) — copy 1 file rule có sẵn làm mẫu.
-2. Set `stack: <stack-mới>` trong `project-context.yaml` của project đó.
-3. Không cần sửa skill nào — mọi skill dùng `{stack}` placeholder sẽ tự resolve.
-
-## 5. Skill hiện có — dùng khi nào
-
-| Skill | Dùng khi |
+| Tên Skill | Trường hợp sử dụng |
 |---|---|
-| `brainstorming` | Ý tưởng/feature chưa rõ, cần khám phá hướng trước khi viết spec |
-| `spec-driven-development` | Bắt đầu feature mới, cần spec được duyệt |
-| `writing-plans` | Spec đã duyệt, cần cắt task breakdown |
-| `tdd` | Viết code có test, theo Red-Green-Refactor |
-| `progress-logging` | Sau mỗi task pass test — ghi vết + báo tiến độ |
-| `debugging` | Có lỗi cụ thể cần sửa |
-| `root-cause-tracing` | Lỗi xuyên nhiều layer, cần trace ngược |
-| `code-review` | Trước khi merge PR |
-| `security-review` | Code đụng auth/input/secret/external call |
-| `performance-optimization` | Có báo cáo chậm, cần đo và tối ưu có dữ liệu |
-| `refactoring` | Đơn giản hóa code, không đổi behavior |
-| `shipping` | Chuẩn bị deploy production |
-| `sprint-retro` | Kết thúc sprint, cần tổng hợp velocity/block từ nhiều feature |
+| `brainstorming` | Phân tích yêu cầu sơ bộ khi đặc tả chưa rõ ràng. |
+| `spec-driven-development` | Viết/cập nhật tài liệu đặc tả nghiệp vụ (Spec). |
+| `bdd-specification` | Viết kịch bản kiểm thử hành vi Given-When-Then (`.feature`). |
+| `tech-docs` | Thiết kế kiến trúc kỹ thuật chi tiết (Database schema, API contracts). |
+| `writing-plans` | Lên kế hoạch thực hiện, phân rã task chi tiết (checklist.md). |
+| `tdd` | Thực hiện viết code đi kèm test (Red-Green-Refactor). |
+| `debugging` / `root-cause-tracing` | Khắc phục lỗi và tìm nguyên nhân gốc của bug. |
+| `code-review` | Rà soát chất lượng code trước khi merge PR. |
+| `shipping` | Chuẩn bị và deploy release lên môi trường kiểm thử/thực tế. |
 
-Agent không tự chọn skill cảm tính — nó tra `router.yaml` theo keyword trước (xem `AGENTS.md` mục
-"Cách agent chọn skill"). Nếu bạn thấy agent chọn sai skill liên tục cho 1 loại task, thêm route mới
-vào `router.yaml` thay vì sửa description skill.
+---
 
-## 6. Thêm skill mới khi project cần
+## 6. Viết Skill mới cho Dự án
 
-### Agent "hiểu" skill mới qua 2 lớp khác nhau (đọc kỹ trước khi viết skill)
-- **Lớp native** (Claude Code tự làm, không cần bạn cấu hình gì): quét `description` trong frontmatter
-  mọi `SKILL.md`, tự liệt kê skill khả dụng. Đây là tuyến chính — `description` phải tự đủ nghĩa.
-- **Lớp custom** (do uniclass-workflow tự định nghĩa, chỉ chạy nếu agent đọc `AGENTS.md`/`router.yaml`):
-  `keywords`, `not_for`, `requires_rules` — chỉ là tinh chỉnh thêm, KHÔNG phải cơ chế engine ép buộc.
-- Sau khi tạo skill mới, phải mở **session mới** (`/exit` rồi `claude` lại) — skill không tự xuất hiện
-  giữa session đang chạy.
+Nếu dự án có các nghiệp vụ đặc thù lặp đi lặp lại nhiều lần (ví dụ: tạo file DB migration, viết API doc, cấu hình Docker...), bạn có thể định nghĩa thêm skill mới:
 
-Khi gặp 1 loại task lặp lại nhiều lần mà chưa có skill nào khớp (ví dụ: viết migration DB, viết API
-documentation, xử lý queue job...), tạo skill mới theo 5 bước:
-
-1. Tạo `skills/<ten-skill>/SKILL.md` với frontmatter bắt buộc:
+1. **Tạo thư mục skill:**
+   Tạo `skills/<tên-skill-mới>/SKILL.md`.
+2. **Khai báo Frontmatter (Bắt buộc):**
    ```yaml
    ---
-   name: <ten-skill>
-   description: <verb> <object>. Use when <trigger cụ thể>.
-   keywords: [<từ khóa match router>]
-   not_for: [<skill dễ bị nhầm, nếu có>]
+   name: <tên-skill-mới>
+   description: <Động từ> + <Đối tượng>. Dùng khi <Điều kiện kích hoạt cụ thể>.
+   keywords: [<danh sách từ khóa để router nhận diện>]
    requires_rules:
-     - "{stack}/<rule-can-thiet>"   # chỉ ghi nếu skill phụ thuộc convention theo ngôn ngữ
+     - "{stack}/architecture" # Nếu skill cần tham chiếu đến rule của stack hiện tại
    ---
    ```
-2. Viết nội dung theo 4 mục: `# Purpose`, `# Inputs`, `# Steps`, `# Output` — không vượt 150 dòng.
-3. **Không nhúng convention cụ thể vào Steps** — nếu thấy mình đang viết "trong Laravel thì làm X", dừng
-   lại, tách phần đó ra rule riêng trong `rules/<stack>/`, rồi skill chỉ reference qua `requires_rules`.
-4. Thêm 1 route vào `router.yaml`:
+3. **Viết nội dung skill:**
+   Cấu trúc nội dung gồm 4 phần: `# Purpose`, `# Inputs`, `# Steps`, và `# Output`. Nên viết ngắn gọn và súc tích (dưới 150 dòng).
+4. **Đăng ký vào Intent Router (`router.yaml`):**
+   Thêm một cấu hình định tuyến mới vào file `router.yaml`:
    ```yaml
-   - intent: "<mô tả intent>"
-     keywords: [<keyword>]
-     skill: <ten-skill>
+   - intent: "Mô tả intent"
+     keywords: [<từ khóa>]
+     skill: <tên-skill-mới>
      confidence: strict
    ```
-5. Nếu skill này là 1 bước trong flow có sẵn (feature/bugfix), thêm vào `workflows/<flow>.md`; nếu là
-   skill độc lập (không thuộc flow nào), không cần.
-
-### Checklist trước khi merge skill mới (đối chiếu README.md mục Checklist)
-- Description có dạng `<verb> <object>. Use when ...` không?
-- Có convention cứng nhúng trong Steps không (phải chuyển ra rule)?
-- Đã thêm route vào `router.yaml` chưa?
-- Có skill nào overlap cần khai báo `not_for` không?
+5. **Khởi động lại session:**
+   Để AI agent quét và tải skill mới, hãy gõ `/exit` và mở lại phiên Claude Code.
