@@ -39,5 +39,6 @@ Sử dụng định dạng `<file_path>::<symbol_name>` để chỉ định vị
 ## Quy tắc bất biến
 - Chỉ tạo trace file khi UC-ID đến từ BDD spec đã được duyệt — không tự đặt UC-ID giả.
 - Mọi kịch bản (scenario) được định nghĩa trong BDD spec (`.feature`) phải có một dòng tương ứng trong file trace TSV (`docs/trace/{UC-ID}-trace.tsv`).
-- Khi BDD spec thay đổi $\rightarrow$ cập nhật các dòng kịch bản tương ứng trong file trace TSV.
+- **Chống Reverse Spec Drift (Kiểm tra ngược):** Mọi kịch bản khai báo trong file trace TSV bắt buộc phải tồn tại trong file BDD `.feature` tương ứng. Không để các scenario dư thừa không có trong spec.
+- **Chống kiểm định lỗi thời (Outdated Trace):** Mỗi khi sửa đổi file code (chứa `implements_tag`) hoặc file test (chứa `verifies_tag`), bạn **bắt buộc phải cập nhật** cột `last_updated` của dòng scenario tương ứng trong TSV sang ngày chỉnh sửa mới nhất. Trình kiểm duyệt `validate-trace.sh` sẽ so sánh thời gian sửa đổi thực tế của file và báo lỗi nếu file mới hơn ngày ghi nhận trong TSV.
 - Mọi đường dẫn file và tên symbol được khai báo trong TSV phải tồn tại thực tế trong codebase. Nếu đổi tên file hoặc phương thức, bắt buộc phải cập nhật lại file trace TSV.

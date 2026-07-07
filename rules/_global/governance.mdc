@@ -17,8 +17,8 @@ Format chuẩn: `{DOMAIN}-{NUMBER}` — viết hoa, số 3 chữ số, ví dụ:
 # Required
 - Trước merge PR: chạy `./scripts/governance-check.sh` (hoặc từng script trong CI).
 - `validate-stack.sh`: stack trong `project-context.yaml` phải có `rules/{stack}/architecture.mdc` và `test-patterns.mdc` (dev tự viết theo `rules/_template/`).
-- `validate-sdd-gate.sh`: thay đổi source code phải đi kèm cập nhật `docs/specs/` hoặc `docs/plans/` (trừ fast/hotfix track).
-- `validate-trace.sh`: mọi SC-ID trong BDD spec phải được khai báo đầy đủ trong file trace TSV và các file/symbol tương ứng phải tồn tại thực tế (trừ fast/hotfix không có BDD).
+- `validate-sdd-gate.sh`: thay đổi source code phải đi kèm cập nhật `docs/specs/` hoặc `docs/plans/` (trừ fast/hotfix track). Đồng thời cảnh báo nếu tỷ lệ lạm dụng escape hatch (fast-track) trong lịch sử git vượt quá 40%.
+- `validate-trace.sh`: mọi SC-ID trong BDD spec phải được khai báo đầy đủ trong file trace TSV và các file/symbol tương ứng phải tồn tại thực tế. Kiểm tra reverse spec drift (TSV -> BDD) và kiểm tra outdated trace (đối chiếu ngày sửa đổi file với `last_updated`).
 - PR phải khai báo `dev_selftest` và `qc_status` (xem `templates/pull-request-template.md`).
 
 # Delivery track escape hatches

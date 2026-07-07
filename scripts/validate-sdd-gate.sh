@@ -110,6 +110,20 @@ if [[ -z "$CHANGED" ]]; then
   exit 0
 fi
 
+# Check Escape Hatch Abuse (GAP 3)
+if [[ -n "$BASE" ]] && git rev-parse --verify "$BASE" >/dev/null 2>&1; then
+  total_commits=$(git rev-list --count "${BASE}...HEAD" 2>/dev/null || echo "0")
+  if [[ "$total_commits" -gt 3 ]]; then
+    escape_commits=$(git log --format=%s "${BASE}...HEAD" 2>/dev/null \
+      | grep -ciE '\[(fast-track|hotfix|skip-sdd|wip)\]|^(wip|WIP):' || echo "0")
+    pct=$(( escape_commits * 100 / total_commits ))
+    if [[ "$pct" -gt 40 ]]; then
+      echo "WARN: Escape hatch abuse detected! $escape_commits out of $total_commits commits ($pct%) used escape hatches."
+      echo "      Please ensure that documentation (specs/plans/tests) is kept up to date."
+    fi
+  fi
+fi
+
 # Track marker in commit messages
 if git log "$BASE"...HEAD --format=%s 2>/dev/null \
     | grep -qiE '\[(fast-track|hotfix|skip-sdd|wip)\]|^(wip|WIP):'; then

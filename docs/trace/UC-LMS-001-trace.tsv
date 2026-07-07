@@ -2,3 +2,4 @@ uc_id	scenario_id	spec_file	implements_tag	verifies_tag	dev_selftest	qc_status	l
 UC-LMS-001	SC1	docs/specs/bdd/UC-LMS-001.feature	src/AssignmentService.java::createAssignment	src/AssignmentServiceTest.java::should_createAssignment_when_inputsValid	pass	pass	2026-07-07	Dev+QA	No regression after BUG-LMS-001 fix
 UC-LMS-001	SC2	docs/specs/bdd/UC-LMS-001.feature	src/AssignmentService.java::saveAsDraft	src/AssignmentServiceTest.java::should_saveAsDraft	pass	pass	2026-07-07	Dev+QA	No regression after BUG-LMS-001 fix
 UC-LMS-001	SC3	docs/specs/bdd/UC-LMS-001.feature	src/AssignmentService.java::validateDueDate	src/AssignmentServiceTest.java::should_reject_when_dueDateInPast	pass	pass	2026-07-07	Dev+QA	BUG-LMS-001 fixed and verified
+

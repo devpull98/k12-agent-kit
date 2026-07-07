@@ -89,11 +89,14 @@ validate_uc() {
 
     local impl_val
     local verify_val
+    local last_updated_val
     impl_val=$(echo "$row" | cut -d$'\t' -f4 | xargs 2>/dev/null || echo "-")
     verify_val=$(echo "$row" | cut -d$'\t' -f5 | xargs 2>/dev/null || echo "-")
+    last_updated_val=$(echo "$row" | cut -d$'\t' -f8 | xargs 2>/dev/null || echo "")
 
     [[ -z "$impl_val" ]] && impl_val="-"
     [[ -z "$verify_val" ]] && verify_val="-"
+    last_updated_val=$(echo "$last_updated_val" | tr -d '\r' | xargs)
 
     local impl_ok=1
     local impl_msg=""
@@ -107,6 +110,14 @@ validate_uc() {
         elif ! grep -qF "$impl_symbol" "$ROOT/$impl_path"; then
           impl_ok=0
           impl_msg=" (symbol '$impl_symbol' not found in '$impl_path')"
+        else
+          # GAP 2: Check modification date vs last_updated
+          local file_mod_date=""
+          file_mod_date=$(date -r "$ROOT/$impl_path" +%Y-%m-%d 2>/dev/null || echo "")
+          if [[ -n "$file_mod_date" && -n "$last_updated_val" && "$file_mod_date" > "$last_updated_val" ]]; then
+            impl_ok=0
+            impl_msg=" (outdated trace: file modified on $file_mod_date is newer than last_updated $last_updated_val)"
+          fi
         fi
       else
         impl_ok=0
@@ -129,6 +140,14 @@ validate_uc() {
         elif ! grep -qF "$verify_symbol" "$ROOT/$verify_path"; then
           verify_ok=0
           verify_msg=" (symbol '$verify_symbol' not found in '$verify_path')"
+        else
+          # GAP 2: Check modification date vs last_updated
+          local file_mod_date=""
+          file_mod_date=$(date -r "$ROOT/$verify_path" +%Y-%m-%d 2>/dev/null || echo "")
+          if [[ -n "$file_mod_date" && -n "$last_updated_val" && "$file_mod_date" > "$last_updated_val" ]]; then
+            verify_ok=0
+            verify_msg=" (outdated trace: file modified on $file_mod_date is newer than last_updated $last_updated_val)"
+          fi
         fi
       else
         verify_ok=0
@@ -179,10 +198,23 @@ validate_tsv_signals() {
       [[ "$uc_id" == "uc_id" || -z "$uc_id" ]] && continue    # skip header + dòng trống
 
       local row_id="${uc_id}-$(echo "$scenario_id" | tr -d '\r' | xargs)"
+      scenario_id=$(echo "$scenario_id" | tr -d '\r' | xargs)
       implements_tag=$(echo "$implements_tag" | tr -d '\r' | xargs 2>/dev/null || echo "-")
       verifies_tag=$(echo "$verifies_tag" | tr -d '\r' | xargs 2>/dev/null || echo "-")
       dev_selftest=$(echo "$dev_selftest" | tr -d '\r' | xargs 2>/dev/null || echo "-")
       qc_status=$(echo "$qc_status" | tr -d '\r' | xargs 2>/dev/null || echo "-")
+
+      # GAP 4: Reverse Spec Drift (Check if scenario_id exists in BDD file)
+      local bdd_file="$ROOT/$BDD_DIR/${uc_id}.feature"
+      if [[ ! -f "$bdd_file" ]]; then
+        echo "  FAIL: Line $line_num ($row_id): Trace TSV lists UC '$uc_id' but BDD file '$bdd_file' does not exist (reverse spec drift)"
+        tsv_fail=1
+      else
+        if ! grep -qE "\b${scenario_id}\b" "$bdd_file" 2>/dev/null; then
+          echo "  FAIL: Line $line_num ($row_id): Scenario '$scenario_id' is listed in TSV but missing from BDD file '$bdd_file' (reverse spec drift)"
+          tsv_fail=1
+        fi
+      fi
 
       if [[ -n "$implements_tag" && "$implements_tag" != "-" && "$dev_selftest" != "pass" ]]; then
         echo "  FAIL: Line $line_num ($row_id): có implements_tag '$implements_tag' nhưng dev_selftest='$dev_selftest' (expected 'pass')"
@@ -197,10 +229,10 @@ validate_tsv_signals() {
   done
 
   if [[ $tsv_fail -eq 1 ]]; then
-    echo "FAIL: Quality signals (dev_selftest / qc_status) failed validation in TSV trace files."
+    echo "FAIL: Quality signals (dev_selftest / qc_status) or reverse spec drift failed validation in TSV trace files."
     GAP_COUNT=$((GAP_COUNT + 1))
   else
-    echo "  OK: TSV quality signals satisfied."
+    echo "  OK: TSV quality signals & BDD sync satisfied."
   fi
   echo ""
 }
