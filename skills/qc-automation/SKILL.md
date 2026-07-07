@@ -41,7 +41,7 @@ Chạy pipeline QC độc lập với dev — từ BDD spec đến automated tes
   - Setup / arrange
   - Action / act
   - Assertions / assert — bao gồm cả negative cases
-- Mỗi test method có `@trace.verifies: {UC-ID}-SC{N}`
+- Đăng ký test method vừa viết vào file trace TSV (cột `verifies_tag`) dưới định dạng `<đường_dẫn_test_file>::<tên_test_method>` (ví dụ: `tests/Assignment.test.ts::should_create_assignment`).
 
 ## Bước 4 — QC Review
 - Tự review test design trước khi viết code:
@@ -53,7 +53,7 @@ Chạy pipeline QC độc lập với dev — từ BDD spec đến automated tes
 - Chạy test theo stack runner (xem `{stack}/test-patterns`)
 - Ghi kết quả: PASS / FAIL / BLOCKED
 - Nếu FAIL: phân loại nguyên nhân → chuyển sang `bug-flow`
-- Cập nhật `qc_status` trong trace file (nếu có)
+- Cập nhật `qc_status` trong trace file (TSV)
 
 ## Bước 6 — QC Report
 - Tóm tắt: tổng scenario, pass/fail/blocked, coverage %
@@ -61,7 +61,8 @@ Chạy pipeline QC độc lập với dev — từ BDD spec đến automated tes
 - Next action: merge-ready / cần fix / cần clarify spec
 
 # Output
-- Test files với `@trace.verifies` tags
+- Test files với đầy đủ test cases kiểm thử kịch bản BDD
+- Đăng ký đầy đủ kịch bản và test method tương ứng vào file trace TSV (cột `verifies_tag`)
 - QC Report (pass/fail/blocked breakdown)
 - Danh sách bug cần tạo (nếu có) → dùng `bug-flow` để classify
 

@@ -10,23 +10,25 @@ requires_rules:
 ---
 
 # Purpose
-Đảm bảo mọi BDD scenario đều có code implement (`@trace.implements`) và test verify (`@trace.verifies`). Phát hiện GAP (scenario chưa implement) và DRIFT (code dùng version spec cũ).
+Đảm bảo mọi kịch bản (BDD scenario) đều được đăng ký đầy đủ và hợp lệ trong file trace TSV (`docs/trace/{UC-ID}-trace.tsv`). Phát hiện GAP (scenario chưa có mapping thực thi/test) và DRIFT (file trace hoặc spec không khớp).
 
 # Inputs
 - BDD spec files (`.feature`) — danh sách UC-ID + SC-ID
-- Code files với `@trace.implements` tags
-- Test files với `@trace.verifies` tags
+- Trace TSV files (`docs/trace/{UC-ID}-trace.tsv`)
 
 # Steps
-0. Chạy `bash scripts/validate-trace.sh` — dùng output script làm baseline, bổ sung phân tích DRIFT thủ công nếu cần.
+0. Chạy `bash scripts/validate-trace.sh` — dùng output script làm baseline.
 1. **Thu thập scenarios**: Đọc tất cả `.feature` file trong `docs/specs/bdd/`, liệt kê mọi `{UC-ID}-SC{N}`.
-2. **Tìm implementations**: Grep `@trace.implements` trong codebase, build mapping `SC-ID → file:line`.
-3. **Tìm test coverage**: Grep `@trace.verifies` trong test files, build mapping `SC-ID → test`.
+2. **Kiểm tra trace file**: Định vị file trace tương ứng `docs/trace/{UC-ID}-trace.tsv`. Nếu thiếu file → báo cáo GAP.
+3. **Đối chiếu mapping**:
+   - Kiểm tra xem từng scenario có dòng tương ứng trong file trace TSV hay không.
+   - Kiểm tra `implements_tag` (chỉ ra `<đường_dẫn_file>::<tên_phương_thức>`) và `verifies_tag` (chỉ ra `<đường_dẫn_test>::<tên_test>`).
+   - Kiểm tra xem các file vật lý và symbol khai báo có tồn tại thực tế trong codebase không.
+   - Nếu một trong hai giá trị là `-` hoặc trống → báo cáo GAP (thiếu implementation hoặc thiếu test).
 4. **Phân loại trạng thái** cho từng scenario:
-   - ✅ **OK** — có implementation + có test
-   - 🔴 **GAP** — có trong spec nhưng chưa có implementation hoặc chưa có test
-   - ⚠️ **DRIFT** — có implementation nhưng @trace trỏ UC-ID không tồn tại trong spec hiện tại (spec đã đổi)
-   - — **UNTRACKED** — code không có @trace tag nào
+   - ✅ **OK** — có mapping impl + mapping test hợp lệ, đồng thời `dev_selftest` và `qc_status` là `pass`.
+   - 🔴 **GAP** — thiếu mapping trong TSV, file/symbol không tồn tại, hoặc chất lượng chưa pass.
+   - ⚠️ **DRIFT** — scenario đã bị xóa khỏi BDD spec nhưng vẫn còn trong file trace TSV.
 5. **Tạo báo cáo** theo format:
 
 ```
@@ -34,21 +36,21 @@ requires_rules:
 
 | SC-ID | Scenario | Implementation | Test | Status |
 |-------|----------|----------------|------|--------|
-| SC1   | Happy path | LoginService:42 | LoginServiceTest:15 | ✅ OK |
-| SC2   | Wrong password | LoginService:68 | - | 🔴 GAP (no test) |
+| SC1   | Happy path | src/service/User.ts::login | tests/User.test.ts::should_login | ✅ OK |
+| SC2   | Wrong password | src/service/User.ts::login | - | 🔴 GAP (no test) |
 | SC3   | Account locked | - | - | 🔴 GAP (no impl) |
 
 Coverage: 1/3 (33%)
-Action required: SC2 cần test, SC3 chưa implement
+Action required: SC2 cần bổ sung test, SC3 chưa có code logic
 ```
 
-6. **Kết luận**: Merge-ready chỉ khi tất cả scenario có trạng thái OK.
+6. **Kết luận**: Merge-ready chỉ khi tất cả scenario có trạng thái OK và các quality signals pass.
 
 # Output
 - Trace validation report (per UC-ID hoặc per domain)
-- Danh sách hành động cụ thể: scenario nào cần impl, cần test, cần update @trace
-- Không tự sửa code — chỉ report và suggest
+- Danh sách hành động cụ thể: scenario nào cần impl, cần test, cần sửa path/symbol trong TSV
+- Không tự sửa code — chỉ report và đề xuất
 
 # Ghi chú
 - Chạy sau `qc-automation` và trước `shipping` để làm final gate.
-- Nếu project chưa có @trace tags → báo cáo tất cả là UNTRACKED và hướng dẫn dev bắt đầu tag dần.
+- Nếu project chưa có trace TSV → báo cáo tất cả scenario là GAP và yêu cầu tạo file trace từ template.

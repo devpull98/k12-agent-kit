@@ -6,7 +6,8 @@ Mô hình doc: **Work Package** (`rules/_global/doc-scoping.mdc`) — 1 task = 1
 ## Core files
 - `principles.md`: governance của project (MUST/MUST NOT, tracks, quality gates, exception log).
 
-## Stable truth — tầng spec (behavior/contract, UC-keyed, phẳng)
+## Stable truth — tầng spec/architecture (behavior/contract/architecture, phẳng)
+- `architecture/`: Tài liệu kiến trúc hệ thống và thiết kế module (`system-overview.md`, etc.).
 - `specs/modules/<module>/`: Product Brief / behavior contract (`spec-driven-development`).
 - `specs/bdd/`: BDD scenarios (`{UC-ID}.feature`).
 - `specs/tech-design/`: technical design (`{UC-ID}-tech-design.md`).
@@ -32,9 +33,7 @@ docs/work/<KEY>-<slug>/
 
 ## Minimal operating rules
 - Thay đổi behavior phải cập nhật spec/BDD trước hoặc cùng lúc code.
-- Mọi thay đổi quan trọng cần trace tags:
-  - `@trace.implements: {UC-ID}-SC{N}`
-  - `@trace.verifies: {UC-ID}-SC{N}`
+- Mọi kịch bản (scenario) trong BDD spec phải được khai báo đầy đủ trong file trace TSV (`docs/trace/{UC-ID}-trace.tsv`) với đường dẫn file/symbol cụ thể.
 - Chỉ merge khi cả `dev_selftest` và `qc_status` đều pass (ship gate: `scripts/validate-context-state.sh`).
 
 ## Suggested naming
@@ -45,5 +44,5 @@ docs/work/<KEY>-<slug>/
 
 ## Ownership
 - Tech Lead/PO: duy trì `principles.md` và phê duyệt ngoại lệ.
-- Dev: duy trì `specs/`, `tech-design/`, `work/<KEY>/note.md`, trace implements.
-- Tester: duy trì `work/<KEY>/test-plan.md`, `work/<KEY>/bugs.md`, trace verifies, `qc_status`.
+- Dev: duy trì `specs/`, `tech-design/`, `work/<KEY>/note.md`, đăng ký code/method (`implements_tag`) và cập nhật `dev_selftest` trong trace TSV.
+- Tester: duy trì `work/<KEY>/test-plan.md`, `work/<KEY>/bugs.md`, đăng ký test/method (`verifies_tag`) và cập nhật `qc_status` trong trace TSV.

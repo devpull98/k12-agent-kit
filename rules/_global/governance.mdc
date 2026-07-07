@@ -18,14 +18,14 @@ Format chuẩn: `{DOMAIN}-{NUMBER}` — viết hoa, số 3 chữ số, ví dụ:
 - Trước merge PR: chạy `./scripts/governance-check.sh` (hoặc từng script trong CI).
 - `validate-stack.sh`: stack trong `project-context.yaml` phải có `rules/{stack}/architecture.mdc` và `test-patterns.mdc` (dev tự viết theo `rules/_template/`).
 - `validate-sdd-gate.sh`: thay đổi source code phải đi kèm cập nhật `docs/specs/` hoặc `docs/plans/` (trừ fast/hotfix track).
-- `validate-trace.sh`: mọi SC-ID trong BDD spec phải có `@trace.implements` và `@trace.verifies` (trừ fast/hotfix không có BDD).
+- `validate-trace.sh`: mọi SC-ID trong BDD spec phải được khai báo đầy đủ trong file trace TSV và các file/symbol tương ứng phải tồn tại thực tế (trừ fast/hotfix không có BDD).
 - PR phải khai báo `dev_selftest` và `qc_status` (xem `templates/pull-request-template.md`).
 
 # Delivery track escape hatches
 | Track | SDD gate | Trace gate |
 |-------|----------|------------|
-| Standard | Bắt buộc spec + BDD + tech-design | Bắt buộc @trace |
-| Fast | Commit message `[fast-track]` hoặc `FAST_TRACK=1` | @trace tối thiểu nếu có BDD |
+| Standard | Bắt buộc spec + BDD + tech-design | Bắt buộc khai báo trace TSV |
+| Fast | Commit message `[fast-track]` hoặc `FAST_TRACK=1` | Khai báo trace TSV tối thiểu nếu có BDD |
 | Hotfix | Commit message `[hotfix]` hoặc `HOTFIX=1` | Bỏ qua nếu không có BDD mới |
 
 # Forbidden

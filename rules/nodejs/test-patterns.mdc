@@ -44,11 +44,8 @@ should_{expected_behavior}_when_{condition}
 - Mock: Repository, Redis, external HTTP, queue producer
 - KHÔNG mock: Service gọi Service nội bộ cùng module (dùng integration test)
 
-## @trace in tests
-```javascript
-// @trace.verifies: UC-LMS-001-SC1
-it('should_createAssignment_when_inputsValid', async () => { ... });
-```
+## Traceability in tests
+Đăng ký test case vào file trace TSV (cột `verifies_tag`) dưới dạng `<đường_dẫn_test>::<tên_test>` (ví dụ: `tests/assignment.test.js::should_createAssignment_when_inputsValid`). Không ghi trace comment trực tiếp vào mã nguồn.
 
 ## Run commands
 - All tests: `npm test`

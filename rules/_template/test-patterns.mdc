@@ -9,7 +9,7 @@ Test patterns cho stack {STACK}. Copy vào `rules/{stack}/test-patterns.mdc` và
 # Required
 - Test naming: `should_{expected}_when_{condition}` hoặc convention team đã chốt.
 - Mock chỉ ở boundary (DB, HTTP client, queue) — không mock logic nội bộ cùng module.
-- Mỗi test method verify scenario có `@trace.verifies: {UC-ID}-SC{N}` khi có BDD spec.
+- Mỗi test method verify scenario cần được đăng ký vào file trace TSV (cột `verifies_tag`) dưới định dạng `path/to/test_file::test_method` khi có BDD spec.
 - Chạy test trước commit: `{TEST_RUNNER_COMMAND}`
 
 # Forbidden

@@ -26,9 +26,13 @@ docs/work/<JIRA-KEY>-<slug>/
 
 **Artifact key:** `<JIRA-KEY>-<slug>`. Không có Jira → `NOJIRA-<slug>`.
 
-Stable truth (behavior/contract/architecture) **KHÔNG** nằm trong work package — nó ở tầng spec:
+Stable truth (behavior/contract/architecture) **KHÔNG** nằm trong work package — nó ở tầng spec/architecture:
 
 ```text
+docs/architecture/
+  system-overview.md              ← system-overview / module-overview
+  <system>-architecture.md         ← detailed design / ADR
+
 docs/specs/modules/<module>/
   _index.md        ← registry work items của module (link-only, không duplicate)
   <spec>.md        ← Product Brief / behavior contract (spec-driven-development)

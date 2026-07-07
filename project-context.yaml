@@ -29,14 +29,15 @@ domains:
 # Bỏ comment và điền nếu stack không có trong danh sách built-in,
 # hoặc project có cấu trúc thư mục không chuẩn.
 # source_dirs: [src, app, internal]       # thư mục chứa code (validate-sdd-gate.sh)
-# code_extensions: [java, kt, go, ts]     # extension file code (validate-trace.sh + sdd-gate)
-# exclude_dirs: [generated, proto-gen]    # thư mục bổ sung cần loại khi grep trace
+# code_extensions: [java, kt, go, ts]     # extension file code (validate-sdd-gate.sh)
+# exclude_dirs: [generated, proto-gen]    # thư mục bổ sung cần loại bỏ
 
 # --- Đường dẫn artifact (mặc định nếu không điền) ---
 # Model: Work Package (1 task = 1 folder docs/work/<KEY>-<slug>/) + stable spec per module.
 # Xem rules/_global/doc-scoping.mdc.
 paths:
   work_dir: docs/work                 # execution: _context.md, plan.md, checklist.md, note.md, bugs.md
+  architecture: docs/architecture     # tài liệu kiến trúc hệ thống / module
   module_specs: docs/specs/modules    # stable truth per module + _index.md
   bdd_specs: docs/specs/bdd           # UC-keyed, phẳng (script trace quét)
   tech_design: docs/specs/tech-design

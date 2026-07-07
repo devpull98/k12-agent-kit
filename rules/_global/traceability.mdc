@@ -7,45 +7,37 @@ globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*
 
 Không áp dụng cho: fast-track, hotfix, refactor nội bộ, optimize không đổi behavior.
 
-## @trace tags (chỉ áp dụng khi có BDD spec chính thức)
+# Traceability — Quy tắc liên kết BDD → TSV → Code & Test
 
-### Trong code (implementation)
-```
-// @trace.implements: {UC-ID}-SC{N}
-// @trace.implements: LOGIN-SC1
-```
-Đặt ở đầu class, method, hoặc handler thực hiện scenario đó.
+Không áp dụng cho: fast-track, hotfix, refactor nội bộ, optimize không đổi behavior.
 
-### Trong test
-```
-// @trace.verifies: {UC-ID}-SC{N}
-// @trace.verifies: LOGIN-SC1
-```
-Đặt ở đầu test class hoặc test method tương ứng.
+## Quy định về Trace (Không ghi trace tags vào mã nguồn)
 
-## UC-ID convention
-`{DOMAIN}-{TICKET}` hoặc tự đặt ngắn gọn, nhất quán trong project.
-Ví dụ: `LOGIN-01`, `LMS-SCHEDULE-02`, `CLUB-QUEST-01`.
+Để giữ code sạch và tránh drift comment, **không** ghi các tag `@trace.implements` hay `@trace.verifies` trực tiếp vào trong mã nguồn (code hoặc test files). Việc liên kết vết (traceability) được thực hiện tập trung thông qua file trace TSV.
 
-## Scenario numbering
-SC1, SC2, SC3... theo thứ tự scenario trong .feature file.
-Nếu 1 scenario được split thành nhiều test → vẫn dùng cùng SC-ID.
+## Trace file (bắt buộc khi có BDD spec chính thức)
 
-## Trace file (tùy chọn cho project lớn)
 Lưu tại `docs/trace/{UC-ID}-trace.tsv`. Schema 10 cột (TAB-separated), header bắt buộc:
 ```
 uc_id       scenario_id  spec_file                          implements_tag   verifies_tag     dev_selftest  qc_status  last_updated  owner   note
-UC-LMS-001  SC1          docs/specs/bdd/UC-LMS-001.feature   UC-LMS-001-SC1   UC-LMS-001-SC1   pass          pass       2026-07-03    Dev+QA  Happy path
-UC-LMS-001  SC2          docs/specs/bdd/UC-LMS-001.feature   UC-LMS-001-SC2   -                pass          -          2026-07-03    Dev     Chưa có test verify
+UC-LMS-001  SC1          docs/specs/bdd/UC-LMS-001.feature   src/service/Assignment.ts::createAssignment   tests/Assignment.test.ts::should_create_assignment   pass          pass       2026-07-03    Dev+QA  Happy path
+UC-LMS-001  SC2          docs/specs/bdd/UC-LMS-001.feature   src/service/Assignment.ts::createDraft        -                                                    pass          -          2026-07-03    Dev     Chưa có test verify
 ```
-Gate: có `implements_tag` (≠ `-`) → `dev_selftest` phải `pass`; có `verifies_tag` (≠ `-`) → `qc_status` phải `pass`.
+Gate:
+- Có `implements_tag` (≠ `-`) $\rightarrow$ `dev_selftest` phải `pass`.
+- Có `verifies_tag` (≠ `-`) $\rightarrow$ `qc_status` phải `pass`.
+
+## Định dạng implements_tag & verifies_tag trong TSV
+Sử dụng định dạng `<file_path>::<symbol_name>` để chỉ định vị trí code thực thi và test case kiểm thử:
+- `file_path`: Đường dẫn tương đối từ root project (ví dụ: `src/services/UserService.ts`).
+- `symbol_name`: Tên phương thức, lớp, hàm hoặc mô tả test case để script đối chiếu sự tồn tại thực tế (ví dụ: `loginUser` hoặc `should_login_successfully`).
 
 ## Validation
 - Local/CI: `bash scripts/validate-trace.sh`
 - Merge gate: `./scripts/governance-check.sh` (bao gồm trace validation)
 
 ## Quy tắc bất biến
-- Chỉ thêm @trace khi UC-ID đến từ BDD spec đã được duyệt — không tự đặt UC-ID giả.
-- Code có BDD spec mà không có @trace.implements → agent hỏi scenario nào đang implement.
-- Test không có @trace.verifies → không tính là "covered" trong qc-automation (chỉ áp dụng khi có spec).
-- Khi BDD spec thay đổi → tìm tất cả @trace.implements của UC đó, đánh giá impact trước khi merge.
+- Chỉ tạo trace file khi UC-ID đến từ BDD spec đã được duyệt — không tự đặt UC-ID giả.
+- Mọi kịch bản (scenario) được định nghĩa trong BDD spec (`.feature`) phải có một dòng tương ứng trong file trace TSV (`docs/trace/{UC-ID}-trace.tsv`).
+- Khi BDD spec thay đổi $\rightarrow$ cập nhật các dòng kịch bản tương ứng trong file trace TSV.
+- Mọi đường dẫn file và tên symbol được khai báo trong TSV phải tồn tại thực tế trong codebase. Nếu đổi tên file hoặc phương thức, bắt buộc phải cập nhật lại file trace TSV.

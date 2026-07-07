@@ -31,88 +31,6 @@ if [[ ! -d "$BDD_PATH" ]]; then
   exit 0
 fi
 
-# ── Resolve code file extensions from project-context.yaml ───────────────────
-# project-context.yaml khai báo:
-#   code_extensions: [java, kt, go, ts, tsx, js, php, py, rb, cs, swift]
-# Nếu không khai báo → fallback theo stack đã biết.
-resolve_extensions() {
-  local stack="$1"
-  # Explicit override wins
-  local ext_line
-  ext_line=$(grep -E '^\s*code_extensions:' "$ROOT/project-context.yaml" 2>/dev/null \
-    | sed 's/.*code_extensions:[[:space:]]*//' | tr -d '\r[]' || true)
-  if [[ -n "$ext_line" ]]; then
-    echo "$ext_line" | tr ',' ' ' | tr -s ' '
-    return
-  fi
-  # Stack-based fallback
-  case "$stack" in
-    spring|java)    echo "java kt" ;;
-    laravel|php)    echo "php" ;;
-    golang|go)      echo "go" ;;
-    nodejs|node)    echo "js ts tsx mjs cjs" ;;
-    django|python)  echo "py" ;;
-    rails|ruby)     echo "rb" ;;
-    dotnet|csharp)  echo "cs" ;;
-    flutter|dart)   echo "dart" ;;
-    *)              echo "java kt go js ts tsx php py rb cs" ;;  # broad fallback
-  esac
-}
-
-STACK=$(grep -E '^stack:' "$ROOT/project-context.yaml" 2>/dev/null \
-  | sed 's/stack:[[:space:]]*//' | tr -d '\r' | head -1 || echo "")
-
-if [[ -z "$STACK" ]]; then
-  echo "WARN: 'stack' not set in project-context.yaml — using broad extension fallback."
-  echo "      Add 'stack: <your-stack>' or 'code_extensions: [...]' to project-context.yaml."
-  echo "      See rules/_template/ to scaffold rules for a new stack."
-  echo ""
-elif [[ ! -d "$ROOT/rules/$STACK" ]]; then
-  echo "WARN: No rules found for stack '$STACK' (rules/$STACK/ does not exist)."
-  echo "      Copy rules/_template/ to rules/$STACK/ and fill in your conventions."
-  echo ""
-fi
-
-# Build --include flags for grep from extension list
-build_include_flags() {
-  local exts="$1"
-  local flags=()
-  for ext in $exts; do
-    flags+=("--include=*.$ext")
-  done
-  echo "${flags[*]}"
-}
-
-# Build --include flags for test files
-build_test_include_flags() {
-  local exts="$1"
-  local flags=()
-  for ext in $exts; do
-    # Common test file naming patterns across stacks
-    flags+=("--include=*Test.$ext" "--include=*_test.$ext" "--include=*.test.$ext" "--include=*.spec.$ext")
-  done
-  echo "${flags[*]}"
-}
-
-CODE_EXTS=$(resolve_extensions "$STACK")
-INCLUDE_ALL=$(build_include_flags "$CODE_EXTS")
-INCLUDE_TEST=$(build_test_include_flags "$CODE_EXTS")
-
-# Resolve exclude dirs from project-context.yaml (default + user-defined)
-EXCLUDE_DIRS_DEFAULT="node_modules vendor .git target build dist __pycache__ .gradle"
-EXCLUDE_EXTRA=$(grep -E '^\s*exclude_dirs:' "$ROOT/project-context.yaml" 2>/dev/null \
-  | sed 's/.*exclude_dirs:[[:space:]]*//' | tr -d '\r[]' | tr ',' ' ' || true)
-EXCLUDE_DIRS="$EXCLUDE_DIRS_DEFAULT $EXCLUDE_EXTRA"
-
-build_exclude_flags() {
-  local flags=""
-  for d in $EXCLUDE_DIRS; do
-    flags="$flags --exclude-dir=$d"
-  done
-  echo "$flags"
-}
-EXCLUDE_FLAGS=$(build_exclude_flags)
-
 # ── Validation ────────────────────────────────────────────────────────────────
 shopt -s globstar nullglob 2>/dev/null || true
 
@@ -121,8 +39,8 @@ OK_COUNT=0
 WARN_COUNT=0
 
 echo "=== Trace Validation ==="
-echo "Stack: ${STACK:-unknown} | Extensions: $CODE_EXTS"
 echo "BDD: $BDD_PATH"
+echo "Trace Dir: $TRACE_DIR"
 echo ""
 
 validate_uc() {
@@ -146,35 +64,96 @@ validate_uc() {
     return
   fi
 
+  local tsv_file="$ROOT/$TRACE_DIR/${uc_id}-trace.tsv"
+  if [[ ! -f "$tsv_file" ]]; then
+    echo "  FAIL: Trace TSV file missing: $tsv_file"
+    for sc in "${sc_ids[@]}"; do
+      echo "  ${uc_id}-${sc}: GAP (no trace TSV)"
+      ((GAP_COUNT++)) || true
+    done
+    echo ""
+    return
+  fi
+
   for sc in "${sc_ids[@]}"; do
     local tag="${uc_id}-${sc}"
+    
+    local row
+    row=$(grep -E "^${uc_id}[[:space:]]+${sc}[[:space:]]" "$tsv_file" | tr -d '\r' | head -1 || echo "")
+    
+    if [[ -z "$row" ]]; then
+      echo "  $tag: GAP (no entry in trace TSV)"
+      ((GAP_COUNT++)) || true
+      continue
+    fi
 
-    # shellcheck disable=SC2086
-    impl_count=$(grep -r $INCLUDE_ALL $EXCLUDE_FLAGS \
-      -l "@trace\.implements:.*${tag}" "$ROOT" 2>/dev/null | wc -l | tr -d ' ')
+    local impl_val
+    local verify_val
+    impl_val=$(echo "$row" | cut -d$'\t' -f4 | xargs 2>/dev/null || echo "-")
+    verify_val=$(echo "$row" | cut -d$'\t' -f5 | xargs 2>/dev/null || echo "-")
 
-    # Test files: try narrow test-file pattern first, then broad
-    # shellcheck disable=SC2086
-    verify_count=$(grep -r $INCLUDE_TEST $EXCLUDE_FLAGS \
-      -l "@trace\.verifies:.*${tag}" "$ROOT" 2>/dev/null | wc -l | tr -d ' ')
+    [[ -z "$impl_val" ]] && impl_val="-"
+    [[ -z "$verify_val" ]] && verify_val="-"
 
-    if [[ "$verify_count" == "0" ]]; then
-      # shellcheck disable=SC2086
-      verify_count=$(grep -r $INCLUDE_ALL $EXCLUDE_FLAGS \
-        -l "@trace\.verifies:.*${tag}" "$ROOT" 2>/dev/null | wc -l | tr -d ' ')
+    local impl_ok=1
+    local impl_msg=""
+    if [[ "$impl_val" != "-" && -n "$impl_val" ]]; then
+      if [[ "$impl_val" == *"::"* ]]; then
+        local impl_path="${impl_val%%::*}"
+        local impl_symbol="${impl_val##*::}"
+        if [[ ! -f "$ROOT/$impl_path" ]]; then
+          impl_ok=0
+          impl_msg=" (file '$impl_path' not found)"
+        elif ! grep -qF "$impl_symbol" "$ROOT/$impl_path"; then
+          impl_ok=0
+          impl_msg=" (symbol '$impl_symbol' not found in '$impl_path')"
+        fi
+      else
+        impl_ok=0
+        impl_msg=" (invalid format, expected path::symbol)"
+      fi
+    else
+      impl_ok=0
+      impl_msg=" (no mapping)"
+    fi
+
+    local verify_ok=1
+    local verify_msg=""
+    if [[ "$verify_val" != "-" && -n "$verify_val" ]]; then
+      if [[ "$verify_val" == *"::"* ]]; then
+        local verify_path="${verify_val%%::*}"
+        local verify_symbol="${verify_val##*::}"
+        if [[ ! -f "$ROOT/$verify_path" ]]; then
+          verify_ok=0
+          verify_msg=" (file '$verify_path' not found)"
+        elif ! grep -qF "$verify_symbol" "$ROOT/$verify_path"; then
+          verify_ok=0
+          verify_msg=" (symbol '$verify_symbol' not found in '$verify_path')"
+        fi
+      else
+        verify_ok=0
+        verify_msg=" (invalid format, expected path::symbol)"
+      fi
+    else
+      verify_ok=0
+      verify_msg=" (no mapping)"
     fi
 
     local status="OK"
-    if [[ "$impl_count" == "0" && "$verify_count" == "0" ]]; then
-      status="GAP (no impl, no test)"; ((GAP_COUNT++)) || true
-    elif [[ "$impl_count" == "0" ]]; then
-      status="GAP (no impl)";          ((GAP_COUNT++)) || true
-    elif [[ "$verify_count" == "0" ]]; then
-      status="GAP (no test)";          ((GAP_COUNT++)) || true
+    if [[ $impl_ok -eq 0 && $verify_ok -eq 0 ]]; then
+      status="GAP (impl error${impl_msg}, test error${verify_msg})"
+      ((GAP_COUNT++)) || true
+    elif [[ $impl_ok -eq 0 ]]; then
+      status="GAP (impl error${impl_msg})"
+      ((GAP_COUNT++)) || true
+    elif [[ $verify_ok -eq 0 ]]; then
+      status="GAP (test error${verify_msg})"
+      ((GAP_COUNT++)) || true
     else
       ((OK_COUNT++)) || true
     fi
-    echo "  $tag: impl=$impl_count test=$verify_count → $status"
+
+    echo "  $tag: impl='$impl_val' test='$verify_val' → $status"
   done
   echo ""
 }

@@ -98,9 +98,9 @@ Sau khi skill hoàn thành, agent **cập nhật state block trong `_context.md`
 
 ## Traceability
 
-- Implement: `// @trace.implements: {UC-ID}-SC{N}`
-- Verify: `// @trace.verifies: {UC-ID}-SC{N}`
-- Signals: `dev_selftest` (dev) vs `qc_status` (tester) — lưu trong **state block của `_context.md`**, cả hai pass trước merge. Ship gate: `scripts/validate-context-state.sh`.
+- Không ghi trace tag trực tiếp vào mã nguồn (code/test).
+- Mối liên kết vết (traceability) được khai báo tập trung trong file trace TSV `docs/trace/{UC-ID}-trace.tsv` dưới định dạng `đường_dẫn_file::tên_phương_thức`.
+- Signals: `dev_selftest` (dev) vs `qc_status` (tester) — lưu trong **state block của `_context.md`** và cập nhật trong file trace TSV, cả hai pass trước merge. Ship gate: `scripts/validate-context-state.sh`.
 - Trace dir: `docs/trace/` (xem `rules/_global/traceability.mdc`)
 
 ## Nguyên tắc bất biến

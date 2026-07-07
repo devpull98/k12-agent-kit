@@ -57,8 +57,8 @@ graph TD
         TDDCycle --> Red["8.1 Viết Test Fail\nProve-It Pattern nếu fix bug"]
         Red --> Green["8.2 Viết code tối thiểu\nđể test Pass"]
         Green --> Refactor2["8.3 Tối ưu hóa code\nĐối chiếu Rules/Architecture"]
-        Refactor2 --> Annotate["8.4 Gắn tag Traceability\n@trace.implements / @trace.verifies"]
-        Annotate --> LogProgress["8.5 Ghi progress log\ndocs/logs/"]
+        Refactor2 --> Annotate["8.4 Cập nhật Trace TSV\nĐăng ký path::symbol vào TSV"]
+        Annotate --> LogProgress["8.5 Ghi progress log\nnote.md trong work package"]
     end
 
     LogProgress -->|Task tiếp theo| TDDCycle
@@ -67,7 +67,7 @@ graph TD
     subgraph QualityGates ["Hệ thống Quality Gates"]
         GovernanceChecks --> GateStack["validate-stack.sh\nKiểm tra stack rules"]
         GovernanceChecks --> GateSDD["validate-sdd-gate.sh\nKiểm tra Spec/BDD khớp code"]
-        GovernanceChecks --> GateTrace["validate-trace.sh\nKiểm tra @trace & TSV signals"]
+        GovernanceChecks --> GateTrace["validate-trace.sh\nKiểm tra TSV & Symbol tồn tại"]
     end
 
     GateStack -->|FAIL| FixGate["10. Quay lại step gần nhất\nsửa nguyên nhân gốc"]
@@ -187,7 +187,7 @@ git commit -m "fix: resolve null pointer in payment service [hotfix]"
 
 Bộ kit thiết kế sẵn các Agent Persona chuyên biệt để phân rã và kiểm định chất lượng chéo (Cross-verification):
 
-1.  **Developer (`developer.md`):** Hiện thực hóa feature từ spec — lập kế hoạch, parallel execution, TDD, gắn @trace tags, cập nhật `dev_selftest`.
+1.  **Developer (`developer.md`):** Hiện thực hóa feature từ spec — lập kế hoạch, parallel execution, TDD, cập nhật mapping trace TSV, cập nhật `dev_selftest`.
 2.  **Debugger (`debugger.md`):** Phân tích log, trace call stack qua nhiều layer, xác định root cause và sửa lỗi theo Prove-It Pattern.
 3.  **Code Reviewer (`code-reviewer.md`):** Kiểm tra mã nguồn trên 5 trục chất lượng (Kiến trúc, Hiệu năng, Bảo mật, Khả năng test, và Naming). Đóng vai trò kiểm duyệt trước khi merge.
 4.  **Tester (`tester.md`):** Đọc BDD spec, lên kịch bản test suite động, kiểm tra các trường hợp biên và Edge cases.
@@ -218,7 +218,7 @@ bash scripts/governance-check.sh
 Lệnh này sẽ kích hoạt tuần tự:
 *   `validate-stack.sh`: Đảm bảo toàn bộ quy tắc thiết kế stack đã được chuẩn bị đầy đủ.
 *   `validate-sdd-gate.sh`: Đảm bảo mọi thay đổi code đều có tài liệu Spec/BDD đi kèm (chống trôi spec).
-*   `validate-trace.sh`: Đảm bảo mọi kịch bản nghiệp vụ trong BDD đều đã được Code và Test bao phủ (đồng thời kiểm duyệt tự động các tín hiệu `dev_selftest` và `qc_status` trong file trace TSV).
+*   `validate-trace.sh`: Đảm bảo mọi kịch bản nghiệp vụ trong BDD đều đã được khai báo và khớp với file/symbol thực tế (đồng thời kiểm duyệt tự động các tín hiệu `dev_selftest` và `qc_status` trong file trace TSV).
 
 ---
 

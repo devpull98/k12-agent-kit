@@ -36,7 +36,7 @@ Tạo BDD specification làm nguồn sự thật chung giữa dev và tester —
    # @trace.status: draft
    ```
 6. **Lưu** vào `docs/specs/bdd/{UC-ID}.feature` (hoặc theo cấu trúc project).
-7. **Tạo trace file**: Copy `templates/trace-template.tsv` → `docs/trace/{UC-ID}-trace.tsv`. Điền `sc_id` và `sc_title` theo danh sách scenario vừa viết. Để `implemented_by`, `test_file`, `dev_selftest`, `qc_status` là `-` — dev và tester tự cập nhật sau.
+7. **Tạo trace file**: Copy `templates/trace-template.tsv` → `docs/trace/{UC-ID}-trace.tsv`. Điền `sc_id` và `sc_title` theo danh sách scenario vừa viết. Để `implements_tag`, `verifies_tag`, `dev_selftest`, `qc_status` là `-` — dev và tester tự cập nhật sau.
 8. **Xin review**: Hỏi dev + tester xem scenario có đủ, có đo được không trước khi chốt.
 
 # Output

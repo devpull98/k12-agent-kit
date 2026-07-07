@@ -7,7 +7,7 @@
 
 ## MUST
 - Follow spec-first behavior changes: update BDD/spec before or with code changes.
-- Keep traceability for key behavior with `@trace.implements` and `@trace.verifies`.
+- Keep traceability for key behavior with trace TSV mappings.
 - Require both independent signals before merge: `dev_selftest=pass` and `qc_status=pass`.
 - Add rollback notes for all hotfix releases and critical production fixes.
 - Record architecture decisions that exceed existing baseline in technical artifacts.
