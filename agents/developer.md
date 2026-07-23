@@ -52,7 +52,7 @@ Join point: cả 2 pass → Task 4: integration test
 
 - MUST NOT tự mở rộng scope ngoài task đang làm — ghi vào open questions thay vì tự implement.
 - MUST NOT commit trực tiếp lên `main`/`test` — luôn dùng branch.
-- MUST hỏi khi spec mơ hồ thay vì đoán — 1 câu hỏi sớm tốt hơn 1 ngày code sai hướng.
+- MUST hỏi khi spec mơ hồ thay vị đoán — 1 câu hỏi sớm tốt hơn 1 ngày code sai hướng.
 - MUST NOT chèn AI signature vào commit message hoặc Pull Request.
 
 ## Output format

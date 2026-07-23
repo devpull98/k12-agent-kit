@@ -1,32 +1,37 @@
 ---
-name: code-review
-description: Review code qua 5 trục (correctness, readability, architecture, security, performance) trước khi merge, kèm quy trình request/receive review rõ ràng. Use when sắp merge PR, hoàn thành 1 task/feature, hoặc nhận feedback review cần phản hồi.
-keywords: [review, pull request, pr, code review, merge, feedback]
-not_for: []
-on_success: [trace-validation]
-on_failure: [tdd]
+name: review-code-pr
+priority: MEDIUM
+triggers:
+  - IF: Lập trình viên chuẩn bị đẩy mã nguồn hoặc gửi Pull Request (PR) yêu cầu review.
+    THEN: Kích hoạt skill này để đánh giá chất lượng.
 requires_rules:
   - _global/security-baseline
   - _global/observability
+  - _global/performance-baseline
+  - _global/error-handling
 ---
 
-# Purpose
-Đảm bảo mọi thay đổi được đánh giá đa chiều trước khi vào main, và feedback review được xử lý bằng kỹ thuật chứ không bằng đồng ý hình thức.
+# Problem
+Review hời hợt bỏ lọt lỗi bảo mật, code bẩn, hoặc lỗi logic nghiêm trọng lên nhánh chính.
 
-# Inputs
-- Diff/PR cần review (hoặc code mới hoàn thành)
-- Spec/task gốc làm chuẩn đối chiếu
+# Rules & Knowledge
 
-# Steps
-1. Đọc spec/task trước để hiểu mục tiêu thay đổi.
-2. Đọc test trước code — test thể hiện intent và coverage thật.
-3. Đánh giá theo 5 trục: Correctness (đúng spec, edge case, error path), Readability (đặt tên, độ phức tạp), Architecture (theo pattern hiện có, không lặp code, ranh giới module), Security (theo rule security-baseline), Performance (N+1, unbounded fetch, pagination).
-4. Gắn severity rõ ràng cho mỗi finding: Critical (block merge) / Required / Nit / Optional / FYI — không để tất cả thành "bắt buộc".
-5. Khi đề xuất review (requesting): cung cấp mô tả ngắn, plan/requirement gốc, base/head SHA hoặc diff cụ thể — không kèm toàn bộ lịch sử session.
-6. Khi nhận review (receiving): đọc hết feedback trước khi phản hồi, diễn giải lại yêu cầu bằng lời mình, verify với codebase thật trước khi sửa — không đồng ý hình thức ("bạn đúng rồi!"), không sửa mù theo feedback sai.
-7. Nếu feedback không rõ hoặc có vẻ sai kỹ thuật: hỏi lại hoặc phản biện có lý do kỹ thuật, không im lặng làm theo.
-8. Approve khi thay đổi rõ ràng cải thiện codebase, dù chưa hoàn hảo — không block vì khác gu cá nhân.
+## 1. Gác cổng an toàn (Quy tắc)
+*   **IF** Nhánh code chưa chạy thành công toàn bộ test suite (`dev_selftest` chưa pass):
+    *   **THEN** Từ chối duyệt (REJECT) PR ngay lập tức.
+*   **IF** Phát hiện vi phạm quy tắc toàn cục (như N+1 query, unboxing không an toàn, log/secret bị lộ):
+    *   **THEN** Yêu cầu sửa đổi và chỉ ra file:line vi phạm.
 
-# Output
-- Review verdict: Approve / Request changes, kèm finding theo severity
-- Mọi Critical/Required đã được xử lý hoặc giải thích lý do defer
+## Bad vs Good
+*   **Bad (Review chung chung):**
+    "Code trông ổn, đã merge." -> Bỏ lọt lỗi null unboxing gây crash job tuần sau.
+*   **Good (Review chi tiết, chỉ ra lỗi cụ thể kèm luật đối chiếu):**
+    "Yêu cầu sửa đổi tại `CourseService.java#L45`: Đang unbox `totalScore` kiểu `Integer` sang `int` trực tiếp. Cần thêm null check để tránh NPE (vi phạm `rules/_global/error-handling.mdc`)."
+
+# Checklist
+- [ ] Kiểm tra trạng thái build và test suite của PR.
+- [ ] Quét diff để kiểm tra lỗi bảo mật (hardcoded secrets).
+- [ ] Đối chiếu với các quy tắc performance-baseline và error-handling.
+
+# Output Expectation
+- PR Review Report chỉ rõ: Trạng thái (Approved / Change Requested) kèm danh sách lỗi chi tiết theo dòng code (file:line).

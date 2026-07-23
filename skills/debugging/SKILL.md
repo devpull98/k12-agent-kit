@@ -1,33 +1,39 @@
 ---
-name: debugging
-description: Tìm root cause có hệ thống trước khi sửa lỗi, qua quy trình reproduce -> localize -> fix root cause -> guard. Use when test fail, build lỗi, behavior không đúng kỳ vọng, hoặc gặp bug/exception bất kỳ.
-keywords: [debug, bug, fix, lỗi, error, exception, test failure, root cause]
-not_for: [tdd cho feature mới chưa có bug]
-on_success: [tdd]
-on_failure: [root-cause-tracing]
+name: reproduce-and-fix-bug
+priority: CRITICAL
+triggers:
+  - IF: Hệ thống có bug, test case bị fail, hoặc crash log xuất hiện trên production.
+    THEN: Kích hoạt skill này để sửa lỗi.
 requires_rules:
   - _global/error-handling
 ---
 
-# Purpose
-Sửa đúng nguyên nhân gốc thay vì vá triệu chứng — dừng việc đoán, dùng quy trình triage có thứ tự.
+# Problem
+Sửa bug mò mẫm không có bằng chứng, làm gãy các tính năng cũ (regression).
 
-# Inputs
-- Mô tả lỗi / log / stack trace
-- Khả năng reproduce (steps, môi trường)
+# Rules & Knowledge
 
-# Steps
-1. STOP: ngừng thêm feature mới, giữ nguyên evidence (log, output lỗi, repro steps).
-2. Reproduce lỗi ổn định. Nếu không reproduce được, thu thập thêm log/instrumentation tại từng layer trước khi đoán.
-3. Localize: xác định layer lỗi xảy ra (UI/API/DB/build tool/external service/test sai). Dùng `git bisect` nếu là regression.
-4. Reduce: tạo minimal reproduction — bỏ bớt phần không liên quan tới khi rõ root cause.
-5. Tìm root cause bằng cách hỏi "vì sao" tới khi chạm nguyên nhân thật, không dừng ở nơi triệu chứng xuất hiện. Nếu cần trace ngược qua nhiều lớp gọi, dùng kỹ thuật ở skill root-cause-tracing.
-6. Viết 1 test tái hiện đúng bug đó (test phải fail trước khi fix) — theo skill tdd.
-7. Sửa đúng root cause, 1 thay đổi/lần, không bundle thêm refactor "tiện tay".
-8. Verify: test cụ thể pass, full suite không regression, build sạch, kiểm tra lại scenario gốc end-to-end.
-9. Nếu đã thử ≥3 fix mà vẫn lỗi mới ở chỗ khác: dừng, nghi vấn kiến trúc, escalate cho user thay vì tiếp tục đoán.
+## 1. Nguyên lý Prove-It (Quy tắc)
+*   **IF** Chưa viết được Unit Test hoặc Integration Test mô phỏng lỗi chạy **FAIL**:
+    *   **THEN** Nghiêm cấm sửa bất kỳ dòng code logic nào.
 
-# Output
-- Root cause được xác định và ghi lại rõ ràng
-- Test regression fail-trước/pass-sau fix
-- Toàn bộ suite pass, không bug mới phát sinh
+## 2. Bản fix tối giản (Quy tắc)
+*   **IF** Triển khai code sửa lỗi:
+    *   **THEN** Chỉ sửa đúng root cause, không tiện tay refactor phần code không liên quan.
+
+## Bad vs Good
+*   **Bad (Sửa code chay không test, sửa lan man gây lỗi hồi quy):**
+    Sửa trực tiếp hàm logic, đoán do biến Null rồi deploy thử lên staging kiểm tra.
+*   **Good (Prove-It Pattern):**
+    1. Viết test case `testUserTrophyNull()` -> Run -> **FAIL**.
+    2. Sửa đúng dòng NPE trong class cần fix.
+    3. Run test case -> **PASS**. Run full test suite -> **PASS**.
+
+# Checklist
+- [ ] Viết test tái hiện lỗi thành công (phải chạy FAIL trước khi sửa code).
+- [ ] Xác định nguyên nhân gốc rễ (file:line) và ghi vào report.
+- [ ] Chạy lại toàn bộ test suite để đảm bảo không gãy tính năng cũ.
+
+# Output Expectation
+- 1 file test mới hoặc test case mới verify lỗi đã được sửa.
+- Báo cáo ngắn gọn: Triệu chứng (Symptom) -> Nguyên nhân (Root Cause) -> Bản vá (Fix).

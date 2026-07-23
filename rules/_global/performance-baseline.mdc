@@ -1,6 +1,7 @@
 ---
 name: performance-baseline
 scope: global
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*
 ---
 
 # Purpose
@@ -8,10 +9,13 @@ Quy tắc hiệu năng tối thiểu áp dụng cho mọi stack — chống các
 
 # Required
 - List endpoint phải có pagination, không trả toàn bộ bảng không giới hạn.
-- Truy vấn liên quan (N+1) phải dùng join/eager-load, không query trong loop.
+- Truy vấn liên quan (N+1) phải dùng join/eager-load hoặc Bulk Query (`IN` clause), không query trong loop.
+- **Database Projection**: Chỉ truy vấn những trường/cột thực sự cần thiết (ví dụ: ID, Type, Score) thay vì nạp toàn bộ thực thể (Heavy Payload) khi xử lý số lượng bản ghi lớn.
+- **Context Object Reuse**: Tận dụng các đối tượng đã được truy vấn ở lớp ngoài/caller để truyền vào lớp trong, tránh việc truy vấn lại cùng bản ghi nhiều lần trong một vòng đời request.
 - Mọi thay đổi liên quan hiệu năng phải có số đo trước/sau (profiling), không tối ưu khi chưa có evidence.
 
 # Preferred
+- **Coalescing Gate**: Đối với các tác vụ ghi/rebuild dữ liệu đồng thời cao điểm (ví dụ: rebuild bảng xếp hạng), áp dụng cơ chế khóa tạm thời (Lock) kết hợp cờ báo cập nhật (Dirty flag) để gom hàng loạt trigger trùng lặp về một luồng xử lý duy nhất.
 - Cache dữ liệu đọc nhiều, ít đổi (config, lookup table) với TTL hợp lý.
 - Dùng index cho cột thường filter/sort.
 - Với UI: ảnh có kích thước rõ ràng, lazy-load phần dưới fold, code-splitting cho route nặng.
@@ -19,6 +23,7 @@ Quy tắc hiệu năng tối thiểu áp dụng cho mọi stack — chống các
 # Forbidden
 - Tối ưu khi chưa đo (premature optimization) làm tăng độ phức tạp không cần thiết.
 - Fetch toàn bộ dataset rồi filter/sort ở application layer khi DB có thể làm việc đó.
+- Nạp toàn bộ Object/Document nặng (chứa các trường danh sách, mô tả dài, JSON lớn) vào RAM khi chỉ cần phân loại hoặc định dạng cơ bản.
 - Đồng bộ hóa (blocking) các tác vụ I/O nặng trên main thread/request thread khi có thể làm async.
 
 # Examples
