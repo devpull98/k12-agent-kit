@@ -71,7 +71,7 @@ bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → 
 - **Fail ở TDD/Implement (test fail/compile error):** Gọi skill `debugging` để định vị và sửa lỗi code.
 - **Fail ở Code Review (logic):** Quay lại `tdd` sửa implementation. Fail do security → gọi `security-review` → `tdd`.
 - **Fail ở QC Automation:** Bug code → `bug-flow` → `debugging` → `tdd`. Spec sai/thiếu → `bdd-specification` → `tdd`.
-- **Fail ở Trace Validation / Governance:** Gọi `trace-validation` để bổ sung `@trace` hoặc sửa spec drift. Script fail → xem bảng chi tiết bên dưới.
+- **Fail ở Trace Validation / Governance:** Gọi `trace-validation` để cập nhật ánh xạ file trace TSV hoặc sửa spec drift. Script fail → xem bảng chi tiết bên dưới.
 
 ### Chi tiết theo từng điểm fail
 
@@ -91,6 +91,6 @@ bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → 
 | code-review (critical — security) | Lỗ hổng bảo mật | security-review → tdd |
 | qc-automation (fail) | Code bug | bug-flow → debugging → tdd |
 | qc-automation (fail) | Spec sai / thiếu scenario | bdd-specification → tdd |
-| trace-validation (GAP) | Scenario chưa implement hoặc thiếu @trace | tdd |
+| trace-validation (GAP) | Scenario chưa implement hoặc thiếu ánh xạ TSV | tdd |
 | trace-validation (DRIFT) | Spec đổi nhưng code/trace chưa cập nhật | bdd-specification → tdd |
 | shipping (rollback trigger) | Production incident sau deploy | bug-flow → hotfix track |
