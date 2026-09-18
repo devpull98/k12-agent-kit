@@ -7,6 +7,7 @@ on_success: [writing-plans]
 on_failure: [bdd-specification]
 requires_rules:
   - _global/traceability
+  - _global/solid
   - "{stack}/architecture"
 ---
 
@@ -33,13 +34,14 @@ Tạo tài liệu thiết kế kỹ thuật làm contract giữa dev và các b�
 4. **Thiết kế Events / Messages** (nếu có Kafka/RabbitMQ):
    - Topic name, message schema, producer/consumer
    - Idempotency consideration
-5. **Thêm @trace metadata**:
+5. **Ranh giới SOLID (trước khi code):** trong mục Module/Layer map, ghi port (interface) vs adapter; cấm use case phụ thuộc ORM/HTTP cụ thể. Một use case một lý do đổi — notification/mapping không nhét chung class persist.
+6. **Thêm @trace metadata**:
    ```
    # @trace.uc_id: {UC-ID}
    # @trace.bdd_version: 1.0
    ```
-6. **Lưu** vào `docs/specs/tech-design/{UC-ID}-tech-design.md` — copy `templates/tech-design-template.md` làm starting point.
-7. **Review**: Dev lead hoặc tech lead xem trước khi code.
+7. **Lưu** vào `docs/specs/tech-design/{UC-ID}-tech-design.md` — copy `templates/tech-design-template.md` làm starting point.
+8. **Review**: Dev lead hoặc tech lead xem trước khi code.
 
 # Output
 - File tech-design với API contract + DB changes + event definitions

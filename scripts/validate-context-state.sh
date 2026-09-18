@@ -22,6 +22,36 @@ fi
 # Đọc 1 field trong YAML state block (fenced ```yaml ... ```) của 1 file.
 field() { grep -m1 "^[[:space:]]*$2:" "$1" 2>/dev/null | sed "s/^[[:space:]]*$2:[[:space:]]*//" | sed 's/[[:space:]]*#.*//' | tr -d '\r"' | xargs || true; }
 
+# Artifact hygiene: _context/plan là index, không phải nhật ký (doc-scoping).
+FORBIDDEN_HEADINGS='^#{1,6}[[:space:]]*(Session|Changelog|Nhật ký|Tóm tắt phiên|Progress|Handoff note|Working notes|What we did|Implementation notes)\b'
+
+hygiene() {
+  local ctx="$1" dir plan lines plines fail=0
+  dir="$(dirname "$ctx")"
+  plan="$dir/plan.md"
+  lines=$(wc -l < "$ctx" | tr -d ' \r')
+  if [[ "$lines" -gt 90 ]]; then
+    echo "   ✗ _context.md quá dài ($lines > 90 dòng) — recap/spec copy phải ở spec hoặc note.md"
+    fail=1
+  fi
+  if [[ -f "$plan" ]]; then
+    plines=$(wc -l < "$plan" | tr -d ' \r')
+    if [[ "$plines" -gt 250 ]]; then
+      echo "   ✗ plan.md quá dài ($plines > 250 dòng) — không nhồi recap sau mỗi task"
+      fail=1
+    fi
+    if grep -Eiq "$FORBIDDEN_HEADINGS" "$plan"; then
+      echo "   ✗ plan.md có heading nhật ký cấm — chuyển sang note.md"
+      fail=1
+    fi
+  fi
+  if grep -Eiq "$FORBIDDEN_HEADINGS" "$ctx"; then
+    echo "   ✗ _context.md có heading nhật ký cấm — chỉ được patch YAML state"
+    fail=1
+  fi
+  return $fail
+}
+
 check_one() {
   local f="$1" fail=0
   local phase track dev qc trace
@@ -30,6 +60,7 @@ check_one() {
 
   echo "── $f"
   echo "   phase=$phase track=$track | dev_selftest=$dev qc_status=$qc trace=$trace"
+  hygiene "$f" || fail=1
 
   # Chỉ enforce khi package tuyên bố đang/đã tới ship.
   case "$phase" in
@@ -74,6 +105,6 @@ if [[ $FAIL -eq 0 ]]; then
   echo "PASS: state OK."
   exit 0
 else
-  echo "FAIL: có package chưa ship-ready — xem trên. Escape: FAST_TRACK=1 / HOTFIX=1 / GOVERNANCE_SKIP=1"
+  echo "FAIL: hygiene hoặc ship-ready — xem trên. Escape: FAST_TRACK=1 / HOTFIX=1 / GOVERNANCE_SKIP=1"
   exit 1
 fi

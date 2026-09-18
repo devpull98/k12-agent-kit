@@ -80,7 +80,8 @@ if [[ -n "$WP" ]]; then
   OUT="$OUT
 
 [kit] Work package đang mở — đọc _context.md TRƯỚC, nối tiếp theo next_skill:
-$WP"
+$WP
+[kit] Hygiene: sau skill chỉ PATCH yaml trong _context + tick plan/checklist; 1 dòng note.md. Cấm rewrite/recap _context hoặc plan."
 fi
 
 emit "$OUT"

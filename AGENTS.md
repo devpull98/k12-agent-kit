@@ -55,7 +55,7 @@ Chi tiết escape hatch (fast/hotfix): `rules/_global/governance.mdc`
 
 ## Stack rules — dev tự viết per stack
 
-Framework ship **reference stacks** (spring, laravel, golang, nodejs) + **template** (`rules/_template/`).
+Framework ship **reference stacks** (spring, laravel, golang, nodejs) + **template** (`rules/_template/`). Implement (`tdd`) đọc `rules/_global/solid.mdc` + `rules/_global/clean-code.mdc` — layer đúng chưa đủ; test xanh chưa xong nếu God service, tên mơ hồ, hàm dài, magic number.
 
 **`rules/_examples/`** — Convention cụ thể của từng project thật (không phải rule generic). Ví dụ: `rules/_examples/nodejs-k12-product-api/architecture.mdc` chứa convention riêng của service đó. Agent đọc file này khi làm việc với đúng project đó — không áp dụng chéo sang project khác.
 
@@ -79,7 +79,7 @@ Project-specific convention (ví dụ k12-product-api) → `docs/principles.md` 
 ## Orchestration — bước tiếp theo sau mỗi skill
 
 Mỗi skill khai báo `on_success` và `on_failure` trong frontmatter YAML.
-Sau khi skill hoàn thành, agent **cập nhật state block trong `_context.md`** (`last_skill`, `next_skill`, `phase`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file.
+Sau khi skill hoàn thành, agent **chỉ patch YAML state** trong `_context.md` (`last_skill`, `next_skill`, `phase`, `updated`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file. **Không** append recap vào `_context.md`/`plan.md`; nhật ký 1 dòng → `note.md` (`progress-logging`). Chi tiết: `rules/_global/doc-scoping.mdc` § Artifact hygiene.
 
 - **Không chắc bước tiếp theo** → gọi skill `next-step` (hoặc user hỏi "giờ làm gì?")
 - **on_success** → skill tiếp theo khi output đạt yêu cầu

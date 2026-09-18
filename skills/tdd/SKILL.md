@@ -7,6 +7,8 @@ on_success: [progress-logging, code-review]
 on_failure: [debugging]
 requires_rules:
   - _global/error-handling
+  - _global/solid
+  - _global/clean-code
   - "{stack}/architecture"
 ---
 
@@ -21,12 +23,13 @@ requires_rules:
 0. Verify `rules/{stack}/architecture.mdc` tồn tại — nếu thiếu, dừng và hướng dẫn dev copy từ `rules/_template/`.
 1. Đọc BDD spec + tech design (nếu có), xác định behavior cần test.
 2. Viết test case mô tả behavior đó (test phải fail — Red).
-3. Viết code tối thiểu để test pass (Green).
-4. Refactor code, giữ test pass, đối chiếu requires_rules để không vi phạm convention.
+3. Viết code tối thiểu để test pass (Green) — được phép xấu, **chưa được coi là xong**.
+4. Refactor **bắt buộc** trước khi đóng task: đối chiếu `_global/solid` + `_global/clean-code` + `{stack}/architecture`. God class / `new` infra / tên mơ hồ / hàm dài / magic number / nest 3+ → sửa, giữ test xanh. Không skip vì “feature nhỏ”.
 5. Lặp lại cho behavior tiếp theo.
 6. Với bug fix (Prove-It Pattern): viết test tái hiện đúng bug trước (phải fail xác nhận bug tồn tại), rồi mới sửa code, test pass xác nhận đã fix và chặn regression.
 
 # Output
 - Test file + implementation file tương ứng
 - Toàn bộ test pass, không có test bị skip/comment
+- Diff không vi phạm `_global/solid.mdc` và `_global/clean-code.mdc` — nợ ngoài scope ghi tech-debt + ticket, không im lặng
 - Sau khi 1 task trong plan pass toàn bộ test: gọi tiếp `progress-logging` để ghi vết, không tự coi là xong khi chưa log.

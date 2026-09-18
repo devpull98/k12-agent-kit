@@ -1,5 +1,9 @@
 # <JIRA-KEY> — <Human-readable title>
 
+<!-- Index + YAML state only. After each skill: PATCH the yaml block.
+     Do NOT append recap/changelog/session notes (those go to note.md).
+     Keep this file ≤ 90 lines. -->
+
 ## Classification
 - **Type:** feature | bug | perf | refactor
 - **Module:** <module-name>

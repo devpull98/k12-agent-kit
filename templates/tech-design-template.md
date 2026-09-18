@@ -110,12 +110,13 @@ CREATE INDEX idx_{table}_{col} ON {table}({col});
 ---
 
 ## 8. Module / Layer map
-<!-- Với project multi-module: code nằm ở đâu -->
-| Layer | Module / File | Trách nhiệm |
-|-------|--------------|-------------|
-| Controller | {module}/controller/ | Nhận request, validate |
-| Service | {module}/service/ | Business logic |
-| Repository | {module}/repository/ | Data access |
+<!-- Port vs adapter. Use case không phụ thuộc ORM/HTTP cụ thể (_global/solid DIP). -->
+| Layer | Module / File | Trách nhiệm | Phụ thuộc |
+|-------|--------------|-------------|-----------|
+| Controller / Handler | {module}/controller/ | HTTP in/out, map DTO | Use case port |
+| Use case | {module}/service/ | Một lý do đổi (SRP) | Port repo/clock/mail |
+| Port | {module}/.../port | Interface | không |
+| Adapter | {module}/repository/ | ORM / HTTP client | Port + driver |
 
 ---
 
@@ -134,3 +135,4 @@ CREATE INDEX idx_{table}_{col} ON {table}({col});
 - [ ] Timeout và Retry của External Call đã được cấu hình hợp lý chưa?
 - [ ] Cột NOT NULL mới đã có migration script cho dữ liệu lịch sử chưa?
 - [ ] Rate limit và Cache TTL đã được thiết kế chưa?
+- [ ] SOLID: use case không dính ORM/HTTP; port/adapter đã tách; không God service?

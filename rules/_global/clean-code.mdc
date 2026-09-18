@@ -1,0 +1,48 @@
+---
+name: clean-code
+scope: global
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*
+---
+
+# Purpose
+Quy tắc đọc/sửa được trên **diff mới**. Không thay SOLID (`_global/solid.mdc`) — SOLID = ranh giới type/dependency; clean code = tên, kích thước, control flow, comment.
+
+Áp dụng code **vừa đụng**. Không rewrite file lân cận vì “cho sạch”; vi phạm mới = sửa hoặc tech-debt có ticket.
+
+# Required
+
+- **Tên nói ý định:** hàm/biến/type là động từ hoặc danh từ nghiệp vụ (`isDueInPast`, `AssignmentRepository`). Cấm `data`, `temp`, `obj`, `info`, `handle`, `x2`.
+- **Hàm ngắn, một mức trừu tượng:** ~một màn hình; không mix “lấy HTTP” với “tính due date” trong cùng hàm. Guard clause / early return, không nest 3+ cấp.
+- **Không magic:** số/chuỗi nghiệp vụ (`400`, `"DRAFT"`, TTL) thành hằng/enum đặt tên. Exception: `0`, `1`, `-1` trong loop/index rõ nghĩa.
+- **DRY có não:** lặp policy nghiệp vụ → một chỗ. Không gộp hai luồng “na ná” thành abstraction mơ hồ (Rule of Three: lần 3 mới extract nếu chưa rõ tên).
+- **Comment = vì sao:** bất thường, constraint, trade-off. Xóa code comment-out. Không comment lại đúng những gì identifier đã nói.
+- **Boy Scout trên diff:** file đã mở thì bỏ dead code, import thừa, biến không dùng trong phạm vi thay đổi.
+
+# Preferred
+
+- Một hàm một mức: orchestrate gọi hàm đặt tên, không viết tiểu thuyết trong `if`.
+- Boolean: `if (isPublished)` chứ không `if (status == 1)` nếu domain có tên.
+- Cùng style với linter/formatter của repo (prettier, checkstyle, gofmt…) — không invent format riêng trong PR.
+- Test tên behavior: `rejects_past_due_date`, không `test1`.
+
+# Forbidden
+
+- Hàm > ~40 dòng hoặc > ~4 tham số mà không có lý do (dùng object tham số / tách bước).
+- Flag `boolean doX` để một hàm làm hai việc.
+- `TODO`/`FIXME` trong code mới mà không có ticket; `console.log` / `print` debug lên nhánh chính.
+- Tên sai (Hungarian, prefix `I` giả, typo copy) “sẽ đổi sau”.
+- Nested callback/promise pyramid khi stack đã có async/await hoặc equivalent.
+
+# Smell → hướng
+
+| Smell | Hướng |
+|-------|--------|
+| Tên không đọc thành câu nghiệp vụ | Đặt lại trước khi merge |
+| Nest `if` 3+ | Early return / tách hàm |
+| Cùng 8 dòng copy 2 file | Extract khi có tên domain rõ |
+| Comment `// tăng i` / block `#ifdef` chết | Xóa; git giữ lịch sử |
+| Hàm vừa I/O vừa tính toán | Tách; tính toán thuần dễ test |
+
+# Examples
+- `if (dueDate.isBefore(clock.today())) throw invalidDueDate()` — không `if (d < x) throw e`.
+- `const ASSIGNMENT_STATUS = { DRAFT: 'DRAFT', PUBLISHED: 'PUBLISHED' }` — không so sánh `"pub"` rải rác.

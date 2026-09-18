@@ -7,6 +7,7 @@ on_success: [tdd]
 on_failure: [bdd-specification, tech-docs]
 requires_rules:
   - _global/sdd-gate
+  - _global/doc-scoping
 ---
 
 # Purpose
@@ -26,8 +27,10 @@ Chuyển spec thành plan thực thi được: task nhỏ, có thứ tự theo d
 4. Giới hạn quy mô: 1 task không đụng quá ~5 file; nếu lớn hơn, cắt nhỏ tiếp.
 5. Sắp thứ tự task theo dependency, chèn checkpoint sau mỗi 2-3 task (tests pass + build sạch).
 6. Tự rà soát plan: mọi phần spec có task tương ứng chưa, không còn placeholder ("TBD", "implement later"), tên hàm/biến nhất quán giữa các task.
-7. Lưu vào work package: `docs/work/<KEY>-<slug>/plan.md` + `checklist.md`; tick trạng thái trong `_context.md`. Xin user duyệt trước khi chuyển sang tdd.
+7. Lưu vào work package: `docs/work/<KEY>-<slug>/plan.md` + `checklist.md`; patch YAML state trong `_context.md` (không copy spec vào `_context`). Xin user duyệt trước khi chuyển sang tdd.
+8. Plan là artifact **cố định**: session sau chỉ tick AC. Cần đổi scope → replan có chủ đích, không “tổng hợp lại” sau mỗi task.
 
 # Output
 - File plan đã commit, có task list theo thứ tự, mỗi task có acceptance criteria + verification step
 - Checkpoint rõ ràng giữa các phase
+- `_context.md` vẫn là index (≤ 90 dòng), không chứa bản tóm tắt plan

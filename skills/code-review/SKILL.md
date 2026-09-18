@@ -9,6 +9,9 @@ requires_rules:
   - _global/observability
   - _global/performance-baseline
   - _global/error-handling
+  - _global/solid
+  - _global/clean-code
+  - "{stack}/architecture"
 ---
 
 # Problem
@@ -19,8 +22,8 @@ Review hời hợt bỏ lọt lỗi bảo mật, code bẩn, hoặc lỗi logic 
 ## 1. Gác cổng an toàn (Quy tắc)
 *   **IF** Nhánh code chưa chạy thành công toàn bộ test suite (`dev_selftest` chưa pass):
     *   **THEN** Từ chối duyệt (REJECT) PR ngay lập tức.
-*   **IF** Phát hiện vi phạm quy tắc toàn cục (như N+1 query, unboxing không an toàn, log/secret bị lộ):
-    *   **THEN** Yêu cầu sửa đổi và chỉ ra file:line vi phạm.
+*   **IF** Phát hiện vi phạm quy tắc toàn cục (như N+1 query, unboxing không an toàn, log/secret bị lộ, God service, use case `new` infra):
+    *   **THEN** Yêu cầu sửa đổi và chỉ ra file:line + rule (`_global/solid.mdc` / `_global/clean-code.mdc` / `{stack}/architecture`).
 
 ## Bad vs Good
 *   **Bad (Review chung chung):**
@@ -31,7 +34,7 @@ Review hời hợt bỏ lọt lỗi bảo mật, code bẩn, hoặc lỗi logic 
 # Checklist
 - [ ] Kiểm tra trạng thái build và test suite của PR.
 - [ ] Quét diff để kiểm tra lỗi bảo mật (hardcoded secrets).
-- [ ] Đối chiếu với các quy tắc performance-baseline và error-handling.
+- [ ] Đối chiếu performance-baseline, error-handling, **SOLID**, **clean-code** (tên/hàm/nest/magic trên **diff**, không audit cả repo).
 
 # Output Expectation
 - PR Review Report chỉ rõ: Trạng thái (Approved / Change Requested) kèm danh sách lỗi chi tiết theo dòng code (file:line).

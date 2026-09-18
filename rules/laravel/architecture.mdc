@@ -8,6 +8,8 @@ Kiến trúc tầng cho project Laravel.
 
 # Required
 - Controller chỉ gọi Service, không gọi trực tiếp Eloquent Model.
+- SOLID: tuân `rules/_global/solid.mdc`.
+- Clean code: tuân `rules/_global/clean-code.mdc`.
 - Service chỉ gọi Repository, không tự query DB.
 - Business logic nằm ở Service, không nằm ở Controller hoặc Model.
 

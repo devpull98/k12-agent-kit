@@ -8,6 +8,7 @@ Lưu tại: docs/work/<KEY>-<slug>/note.md · Spec: docs/specs/modules/<module>/
 | Task 3: <tên> | pending | | | | |
 
 ## Tóm tắt tiến độ
+<!-- Chỉ 3 bullet. Không viết đoạn văn. Không copy sang _context.md / plan.md. -->
 - Hoàn thành: 1/3 task
 - Đang làm: Task 2
 - Block/vấn đề: <nếu có, ghi rõ>

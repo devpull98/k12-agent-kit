@@ -1,12 +1,15 @@
 # Plan: <feature-name>
 
-<!-- 
+<!--
 Lưu tại:        docs/work/<KEY>-<slug>/plan.md
 Spec gốc:       docs/specs/modules/<module>/<spec>.md
 BDD spec:       docs/specs/bdd/<UC-ID>.feature
 Tech design:    docs/specs/tech-design/<UC-ID>-tech-design.md
 Track:          standard | fast | hotfix
 Estimated size: XS (<2h) | S (<1d) | M (<3d) | L (<1w) | XL (>1w)
+
+Viết 1 lần khi writing-plans. Sau mỗi task: chỉ tick [x] AC — không rewrite,
+không append recap. Nhật ký → note.md. Giữ ≤ 250 dòng.
 -->
 
 ---

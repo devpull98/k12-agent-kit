@@ -8,6 +8,8 @@ Kiến trúc tầng cho project {STACK}. Copy file này vào `rules/{stack}/arch
 
 # Required
 - HTTP/API layer chỉ gọi Service/UseCase — không truy cập DB trực tiếp.
+- SOLID: tuân `rules/_global/solid.mdc` (SRP trên use case, DIP qua port; không God service).
+- Clean code: tuân `rules/_global/clean-code.mdc` (tên, hàm ngắn, không magic/nest sâu).
 - Business logic nằm ở Service/UseCase — không nằm ở HTTP handler hoặc Controller.
 - Truy cập DB qua Repository (hoặc ORM wrapper tương đương), expose interface để mock trong test.
 - DTO/request-response riêng — không trả entity/model trực tiếp ra API.

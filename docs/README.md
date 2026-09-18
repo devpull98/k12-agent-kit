@@ -17,10 +17,10 @@ Mô hình doc: **Work Package** (`rules/_global/doc-scoping.mdc`) — 1 task = 1
 ## Execution — Work Package (mỗi task/bug gom vào 1 folder)
 ```
 docs/work/<KEY>-<slug>/
-  _context.md    ← ENTRY POINT bắt buộc (State block cho ship gate)
-  plan.md        ← writing-plans
+  _context.md    ← ENTRY POINT: index + YAML state (≤90 dòng, không nhật ký)
+  plan.md        ← writing-plans (viết 1 lần; sau task chỉ tick AC)
   checklist.md   ← task breakdown, mỗi dòng traceable
-  note.md        ← progress-logging + SCARV khi ship
+  note.md        ← progress-logging (1 dòng/task) + SCARV khi ship
   bugs.md        ← bug-flow findings
   test-plan.md   ← qc-automation (optional)
 ```

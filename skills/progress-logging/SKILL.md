@@ -7,6 +7,7 @@ on_success: [tdd]
 on_failure: []
 requires_rules:
   - _global/sdd-gate
+  - _global/doc-scoping
 ---
 
 # Purpose
@@ -20,11 +21,14 @@ mà không cần tự hỏi lại — tránh mất dấu khi 1 feature có nhi�
 # Steps
 1. Xác nhận task vừa xong đã pass verification step (test/build/manual check) — chưa pass thì KHÔNG log là "done".
 2. Nếu chưa có file log cho task này, tạo từ `templates/progress-log-template.md` tại `docs/work/<KEY>-<slug>/note.md`.
-3. Cập nhật đúng 1 dòng của task đó: trạng thái (`done`), timestamp, lệnh verification + kết quả, file đã đụng tới.
-4. Cập nhật mục "Tóm tắt tiến độ" (số task done/tổng, task đang làm tiếp theo, block nếu có).
-5. Commit file log cùng lúc với code của task đó (không tách riêng commit).
-6. Báo lại ngay cho user 1-2 câu: task nào vừa xong, còn bao nhiêu task, có block gì không.
+3. Cập nhật đúng 1 dòng của task đó trong `note.md`: trạng thái (`done`), timestamp, lệnh verification + kết quả, file đã đụng tới.
+4. Cập nhật mục "Tóm tắt tiến độ" (3 bullet: done/tổng, đang làm, block) — không viết đoạn văn.
+5. Trong `plan.md` + `checklist.md`: chỉ tick `[x]` AC của task vừa xong. Không sửa mô tả, không thêm heading.
+6. Trong `_context.md`: chỉ patch YAML (`last_skill: progress-logging`, `next_skill`, `updated`). Không append recap.
+7. Commit file log cùng lúc với code của task đó (không tách riêng commit).
+8. Báo lại ngay cho user 1-2 câu: task nào vừa xong, còn bao nhiêu task, có block gì không.
 
 # Output
 - File `docs/work/<KEY>-<slug>/note.md` được cập nhật, khớp với task list trong plan
 - 1 câu báo cáo ngắn cho user: "X/Y task done, đang làm Task <tên>, [không có block / block: ...]"
+- `_context.md` / `plan.md` không dài thêm ngoài tick + YAML patch

@@ -52,12 +52,31 @@ docs/retros/<sprint-id>.md                  ← sprint-retro (aggregate nhiều 
 | 2 — Task | `docs/work/<KEY>-<slug>/_context.md` → `plan.md` → `checklist.md` | mỗi task |
 | 3 — Dependencies | file/module khác | **chỉ khi** `_context.md` khai báo |
 
+## Artifact hygiene — `_context` / `plan` không phải nhật ký
+
+Sau mỗi skill/task, agent **cập nhật chỗ đứng**, không **viết lại câu chuyện**. File phình vì copy spec, session recap, hoặc paste chat → nhiễu context window.
+
+| File | Vai trò | Sau mỗi task/skill được phép | Cấm |
+|------|---------|------------------------------|-----|
+| `_context.md` | Index + YAML state | Patch **chỉ** field trong fenced `yaml` (`phase`, `last_skill`, `next_skill`, `dev_selftest`, `qc_status`, `trace`, `updated`). Sửa Spec anchor / Read order / Dependencies **chỉ khi** path thật sự đổi. | Append heading mới, recap session, paste chat, copy spec/BDD/tech, changelog |
+| `plan.md` | Task list cố định (viết 1 lần lúc `writing-plans`) | Tick `[x]` acceptance / đánh dấu task done. Không đổi mô tả, không thêm task trừ khi user yêu cầu replan. | Viết lại plan, thêm mục “đã làm”, paste diff, tóm tắt implementation |
+| `checklist.md` | Tick-list | Tick dòng tương ứng | Narrative |
+| `note.md` | Nhật ký tiến độ | **Đúng 1 dòng bảng** + 3 bullet Tóm tắt (`done/tổng`, đang làm, block) | Essay; không copy sang `_context`/`plan` |
+
+**Giới hạn kích thước (enforce: `scripts/validate-context-state.sh`):**
+- `_context.md` ≤ **90 dòng** (template ~50). Cần dài hơn → sai chỗ: nội dung phải nằm ở spec/`note.md`.
+- `plan.md` ≤ **250 dòng**. Task mới cắt nhỏ, không nhồi recap.
+
+**Heading cấm** trong `_context.md` và `plan.md` (mọi ngôn ngữ/casing): `Session`, `Changelog`, `Nhật ký`, `Tóm tắt phiên`, `Progress`, `Handoff note`, `Working notes`, `What we did`, `Implementation notes`.
+
 ## MUST / MUST NOT
 
 - **MUST** bắt đầu mọi command (`brainstorming`, `writing-plans`, `code-review`, `shipping`...) từ `docs/work/<KEY>-<slug>/_context.md`. Chưa có → tạo `_context.md` trước (template `templates/_context.template.md`).
 - **MUST** chỉ đọc các path liệt kê trong `_context.md` (Read order).
+- **MUST** sau mỗi skill: patch YAML state trong `_context.md` rồi dừng — không rewrite file.
 - **MUST NOT** `glob` `docs/plans/`, `docs/notes/features/`, `docs/logs/` hay work package của task khác để "tìm context".
 - **MUST NOT** duplicate nội dung spec vào work package — link tới `docs/specs/modules/<module>/` thay vì copy.
+- **MUST NOT** dùng `_context.md` hoặc `plan.md` làm progress log (dùng `note.md`).
 
 ## Legacy (deprecated — chỉ đọc khi migrate)
 

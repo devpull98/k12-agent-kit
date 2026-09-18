@@ -8,6 +8,8 @@ Kiến trúc tầng cho project Golang (theo clean/hexagonal architecture phổ 
 
 # Required
 - Handler (HTTP layer) chỉ gọi UseCase/Service interface, không gọi trực tiếp DB hoặc package khác.
+- SOLID: tuân `rules/_global/solid.mdc` (usecase không import handler; adapter ở repository).
+- Clean code: tuân `rules/_global/clean-code.mdc`.
 - Business logic nằm ở `internal/usecase` hoặc `internal/service`, không nằm ở `internal/handler`.
 - Truy cập DB qua `internal/repository`, expose qua interface để mock được trong test.
 - Error trả về phải wrap context (`fmt.Errorf("...: %w", err)`), không trả lỗi trần.
