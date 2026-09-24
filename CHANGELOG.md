@@ -5,6 +5,15 @@ Theo dõi thay đổi của kit `uniclass-workflow`. Format theo `templates/chan
 
 ## [Unreleased]
 
+### Added
+- Work-package hygiene v2: Non-goals / Trade-offs / Task Matrix + Verification bắt buộc trong `templates/plan-template.md`; Constraints mirror trong `_context.template.md`.
+- Compact-on-DONE: `progress-logging` + `shipping` thu gọn Working notes; `note.md` template tách ephemeral vs RCA.
+- `validate-context-state.sh`: enforce Non-goals + Verification trên plan có task; fail nếu Working notes còn nội dung khi `phase` ∈ {ship, done}.
+
+### Changed
+- `rules/_global/doc-scoping.mdc`: bảng SoT vs Work Log; relative links bắt buộc; compact-on-DONE.
+- Demo `docs/work/UC-LMS-001-teacher-create-assignment/` align template mới (mẫu đúng cho agent copy).
+
 ## [0.3.0] - 2026-07-06
 ### Added
 - Validate command path trong `validate-skill-graph.sh` (section 5): `commands/*.md` phải trỏ file tồn tại, cấm `.claude/skills/` — chặn tái diễn lỗi command path chết.

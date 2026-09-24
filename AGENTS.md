@@ -38,7 +38,7 @@ docs/work/<JIRA-KEY>-<slug>/
   plan.md · checklist.md · note.md · bugs.md
 ```
 
-Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/plans/`, `docs/notes/`, `docs/logs/` (legacy). Chi tiết: `rules/_global/doc-scoping.mdc`.
+Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/plans/`, `docs/notes/`, `docs/logs/` (legacy). Plan dùng **Task Matrix + Non-goals + lệnh Verification**; khi DONE thu gọn Working notes (`compact-on-DONE`). Chi tiết: `rules/_global/doc-scoping.mdc`.
 
 ## Governance runtime (bắt buộc trước merge)
 

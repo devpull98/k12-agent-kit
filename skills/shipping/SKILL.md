@@ -31,8 +31,13 @@ requires_rules:
 8. Ngay khi rollout 100% ổn định (hoặc đã rollback), ghi 1 entry vào `CHANGELOG.md` (copy mục mới từ
    `templates/changelog-template.md` nếu file chưa có) — feature gì, thay đổi gì, có rollback không và vì sao.
    Đây là log cấp release cho team/user đọc, khác với `docs/work/<KEY>-<slug>/note.md` của `progress-logging` (log nội bộ từng task).
+9. **Compact-on-DONE (work package):** trước khi set `phase: ship|done`:
+   - `note.md`: xóa / trống section Working notes; chỉ giữ Task Matrix mirror + RCA kiến trúc (nếu có).
+   - `plan.md` / `_context.md`: không nhận working log; Non-goals + Task Matrix Status giữ nguyên.
+   - Chạy `bash scripts/validate-context-state.sh docs/work/<KEY>-<slug>/_context.md`.
 
 # Output
 - Checklist pre-launch hoàn tất, rollback plan đã viết
 - Deploy theo giai đoạn có giám sát, hoặc rollback đã thực hiện nếu vượt ngưỡng
 - `CHANGELOG.md` đã có entry cho lần ship này
+- Work package đã compact (Working notes sạch) trước ship-ready

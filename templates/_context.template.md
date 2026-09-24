@@ -11,17 +11,25 @@
 - **Artifact key:** `<JIRA-KEY>-<slug>`
 
 ## Spec anchor
-- **File:** docs/specs/modules/<module>/<spec-file>.md
+- **File:** [docs/specs/modules/<module>/<spec-file>.md](../specs/modules/<module>/<spec-file>.md)
 - **Sections:** §X.Y, §Z (list only sections needed — not full spec)
+
+## Constraints (this drop)
+
+<!-- ≤5 hàng. Scope cấm / non-goal của đúng work package này. Chi tiết → plan.md -->
+
+| Cấm / giới hạn | Lý do |
+|----------------|-------|
+| <vd: không đổi schema public> | <1 câu> |
 
 ## Read order (ONLY — do not glob elsewhere)
 1. `_context.md` (this file)
-2. `plan.md`
+2. `plan.md` — Task Matrix + Non-goals
 3. `checklist.md`
 4. Spec sections listed above
 
 ## Dependencies (read if touching these areas)
-- **Code:** `<module-path>/ClassName.ext`
+- **Code:** [`<module-path>/ClassName.ext`](../../<module-path>/ClassName.ext)
 - **Cross-module:** `<other-module>` — reason
 - **Rules:** `rules/{stack}/<pattern>.mdc` — if perf/cache involved
 

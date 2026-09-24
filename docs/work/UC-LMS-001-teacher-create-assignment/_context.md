@@ -11,19 +11,26 @@
 - **Artifact key:** `UC-LMS-001-teacher-create-assignment`
 
 ## Spec anchor
-- **BDD:** `docs/specs/bdd/UC-LMS-001.feature` (SC1, SC2, SC3)
-- **Tech design:** `docs/specs/tech-design/UC-LMS-001-tech-design.md`
-- **Trace:** `docs/trace/UC-LMS-001-trace.tsv`
+- **BDD:** [docs/specs/bdd/UC-LMS-001.feature](../../specs/bdd/UC-LMS-001.feature) (SC1, SC2, SC3)
+- **Tech design:** [docs/specs/tech-design/UC-LMS-001-tech-design.md](../../specs/tech-design/UC-LMS-001-tech-design.md)
+- **Trace:** [docs/trace/UC-LMS-001-trace.tsv](../../trace/UC-LMS-001-trace.tsv)
+
+## Constraints (this drop)
+
+| Cấm / giới hạn | Lý do |
+|----------------|-------|
+| Đổi API shape ngoài `201` / `400 INVALID_DUE_DATE` | Contract BDD khóa |
+| Soft-delete / notify khi publish | Ngoài SC1–SC3 |
 
 ## Read order (ONLY — do not glob elsewhere)
 1. `_context.md` (this file)
-2. `plan.md`
+2. `plan.md` — Task Matrix + Non-goals
 3. `checklist.md`
 4. `test-plan.md` · `bugs.md` · `note.md`
 5. Spec anchors ở trên
 
 ## Dependencies (read if touching these areas)
-- **Code:** service layer tạo assignment (validate `dueDate` trước khi persist)
+- **Code:** service layer tạo assignment (validate `dueDate` trước persist)
 - **Rules:** `rules/{stack}/architecture.mdc`, `rules/{stack}/test-patterns.mdc`
 
 ## Impact radius

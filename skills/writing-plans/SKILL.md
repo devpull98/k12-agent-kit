@@ -23,14 +23,18 @@ Chuyển spec thành plan thực thi được: task nhỏ, có thứ tự theo d
 # Steps
 1. Đọc spec ở chế độ read-only; map dependency graph giữa các phần (DB → API → UI...).
 2. Cắt theo vertical slice (một luồng hoàn chỉnh end-to-end mỗi task), tránh cắt theo layer ngang.
-3. Copy `templates/plan-template.md`; với mỗi task điền: mô tả ngắn, acceptance criteria (checklist cụ thể, đo được), verification step (lệnh test/build/manual check), file dự kiến đụng tới, dependency.
+3. Copy `templates/plan-template.md`. Điền **bắt buộc**:
+   - `## Non-goals / Restrictions` — việc cấm trong đợt này (bảng).
+   - `## Trade-offs` — quyết định chọn/bỏ + why (bảng; có thể 1–3 hàng).
+   - `## Task Matrix` — mỗi hàng: Task ID · Component · Status · **Verification (lệnh copy-run)** · relative links tới code/spec.
+   - Task details slim (≤6 dòng/task): Files (markdown links), Dep, AC, Verify (trùng Matrix), Rollback.
 4. Giới hạn quy mô: 1 task không đụng quá ~5 file; nếu lớn hơn, cắt nhỏ tiếp.
-5. Sắp thứ tự task theo dependency, chèn checkpoint sau mỗi 2-3 task (tests pass + build sạch).
-6. Tự rà soát plan: mọi phần spec có task tương ứng chưa, không còn placeholder ("TBD", "implement later"), tên hàm/biến nhất quán giữa các task.
-7. Lưu vào work package: `docs/work/<KEY>-<slug>/plan.md` + `checklist.md`; patch YAML state trong `_context.md` (không copy spec vào `_context`). Xin user duyệt trước khi chuyển sang tdd.
-8. Plan là artifact **cố định**: session sau chỉ tick AC. Cần đổi scope → replan có chủ đích, không “tổng hợp lại” sau mỗi task.
+5. Sắp thứ tự task theo dependency; mixed mode → ASCII/Mermaid ngắn (không 3–4 đoạn văn).
+6. Tự rà: mọi phần spec có task tương ứng; không placeholder ("TBD"); mọi task có Verify cmd cụ thể (vd. `mvn -pl :mod test -Dtest=FooTest`, `npm test -- path`); Non-goals không trùng scope đang làm.
+7. Lưu `docs/work/<KEY>-<slug>/plan.md` + `checklist.md`; patch Constraints (≤5 hàng) + YAML state trong `_context.md` (không copy spec). Xin user duyệt trước khi chuyển sang tdd.
+8. Plan là artifact **cố định**: session sau chỉ đổi Status / tick AC. Cần đổi scope → replan có chủ đích, không “tổng hợp lại” sau mỗi task.
 
 # Output
-- File plan đã commit, có task list theo thứ tự, mỗi task có acceptance criteria + verification step
-- Checkpoint rõ ràng giữa các phase
-- `_context.md` vẫn là index (≤ 90 dòng), không chứa bản tóm tắt plan
+- `plan.md` có Non-goals + Trade-offs + Task Matrix; mỗi task có Verification copy-run được
+- Checkpoint rõ giữa các phase (mixed)
+- `_context.md` vẫn là index (≤ 90 dòng), có Constraints mirror Non-goals chính

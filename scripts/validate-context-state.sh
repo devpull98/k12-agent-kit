@@ -25,10 +25,30 @@ field() { grep -m1 "^[[:space:]]*$2:" "$1" 2>/dev/null | sed "s/^[[:space:]]*$2:
 # Artifact hygiene: _context/plan là index, không phải nhật ký (doc-scoping).
 FORBIDDEN_HEADINGS='^#{1,6}[[:space:]]*(Session|Changelog|Nhật ký|Tóm tắt phiên|Progress|Handoff note|Working notes|What we did|Implementation notes)\b'
 
+# plan.md có task → MUST có Non-goals/Restrictions + Verification (lệnh copy-run).
+plan_structure() {
+  local plan="$1" fail=0
+  # Heuristic: có Task Matrix hoặc heading Task → coi là plan có task breakdown.
+  if ! grep -Eiq '^#{1,6}[[:space:]]*(Task Matrix|Task [0-9]|T[0-9]+:)' "$plan" \
+     && ! grep -Eiq '^\|[[:space:]]*Task ID[[:space:]]*\|' "$plan"; then
+    return 0
+  fi
+  if ! grep -Eiq '^#{1,6}[[:space:]]*(Non-goals|Restrictions)\b' "$plan"; then
+    echo "   ✗ plan.md thiếu ## Non-goals / Restrictions — ghi việc cấm đợt này"
+    fail=1
+  fi
+  if ! grep -Eiq 'Verification|^\*\*Verify:\*\*' "$plan"; then
+    echo "   ✗ plan.md thiếu Verification — mỗi task cần lệnh copy-run được"
+    fail=1
+  fi
+  return $fail
+}
+
 hygiene() {
-  local ctx="$1" dir plan lines plines fail=0
+  local ctx="$1" dir plan note lines plines fail=0
   dir="$(dirname "$ctx")"
   plan="$dir/plan.md"
+  note="$dir/note.md"
   lines=$(wc -l < "$ctx" | tr -d ' \r')
   if [[ "$lines" -gt 90 ]]; then
     echo "   ✗ _context.md quá dài ($lines > 90 dòng) — recap/spec copy phải ở spec hoặc note.md"
@@ -44,10 +64,30 @@ hygiene() {
       echo "   ✗ plan.md có heading nhật ký cấm — chuyển sang note.md"
       fail=1
     fi
+    plan_structure "$plan" || fail=1
   fi
   if grep -Eiq "$FORBIDDEN_HEADINGS" "$ctx"; then
     echo "   ✗ _context.md có heading nhật ký cấm — chỉ được patch YAML state"
     fail=1
+  fi
+  # Compact-on-DONE: khi ship/done, Working notes trong note.md phải trống (không còn bullet/paragraph sau heading).
+  local phase
+  phase=$(field "$ctx" phase)
+  if [[ -f "$note" && ( "$phase" == "ship" || "$phase" == "done" ) ]]; then
+    if awk '
+      BEGIN { insec=0; dirty=0 }
+      /^#{1,6}[[:space:]]*Working notes/ { insec=1; next }
+      /^#{1,6}[[:space:]]/ {
+        if (insec) { exit (dirty ? 0 : 1) }
+      }
+      insec && /^[[:space:]]*$/ { next }
+      insec && /^[[:space:]]*<!--/ { next }
+      insec && NF { dirty=1; exit 0 }
+      END { if (insec) exit (dirty ? 0 : 1); exit 1 }
+    ' "$note"; then
+      echo "   ✗ note.md còn Working notes khi phase=$phase — compact-on-DONE (xem doc-scoping)"
+      fail=1
+    fi
   fi
   return $fail
 }
