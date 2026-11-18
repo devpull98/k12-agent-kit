@@ -79,7 +79,15 @@ done < <(wl_fm_table id title type status priority modules created updated close
 # Không thêm file mới vào thư mục legacy (so với base)
 BASE="${1:-}"
 if [[ -z "$BASE" ]]; then
-  for b in origin/main main origin/master master; do git rev-parse --verify "$b" >/dev/null 2>&1 && { BASE="$b"; break; }; done
+  # Chọn nhánh gốc GẦN HEAD nhất (ít commit chênh nhất) — repo có thể có origin/main bỏ hoang
+  # trong khi trunk thật là master (hoặc ngược lại); lấy theo thứ tự cố định sẽ báo nhầm.
+  best_n=""
+  for b in origin/HEAD origin/main origin/master origin/develop main master develop; do
+    git rev-parse --verify -q "$b" >/dev/null 2>&1 || continue
+    mb=$(git merge-base "$b" HEAD 2>/dev/null) || continue
+    n=$(git rev-list --count "$mb"..HEAD 2>/dev/null || echo 999999)
+    if [[ -z "$best_n" || "$n" -lt "$best_n" ]]; then best_n=$n; BASE="$b"; fi
+  done
 fi
 if [[ -n "$BASE" ]] && git rev-parse --verify "$BASE" >/dev/null 2>&1; then
   added=$(git diff --name-only --diff-filter=A "$BASE"...HEAD -- docs/plans docs/features docs/test-plans docs/notes docs/logs docs/bugs 2>/dev/null || true)

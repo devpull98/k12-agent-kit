@@ -393,7 +393,8 @@ cmd_migrate() {
       local anymd; anymd=$(ls "$WORK_DIR/$d"/*.md 2>/dev/null | head -1 || true)
       [[ -n "$anymd" ]] && title=$(grep -m1 '^# ' "$anymd" | sed 's/^# //' | tr -d '\r')
     fi
-    title=$(printf '%s' "${title:-$d}" | sed -E 's/^[A-Z][A-Z0-9-]* *(—|-|:) *//' | tr -d '"|' | cut -c1-90)
+    # Bỏ tiền tố key/slug cũ: "NOJIRA-first-join-trophy — First-Join…" / "EDC-123: …" / "_context — …"
+    title=$(printf '%s' "${title:-$d}" | sed -E 's/^[^ ]+ +— +//; s/^[A-Z][A-Z0-9]*-[0-9]+ *(:|-) *//' | tr -d '"|' | cut -c1-90)
 
     # ── type ──
     local ttext=""; [[ -f "$f" ]] && ttext=$(legacy_field "$f" Type)
