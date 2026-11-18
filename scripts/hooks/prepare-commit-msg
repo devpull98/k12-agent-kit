@@ -35,6 +35,17 @@ awk '/^[[:space:]]*$/{blank++; next} {for(i=0;i<blank;i++) print ""; blank=0; pr
   "$tmpfile" > "$COMMIT_MSG_FILE" || true
 rm -f "$tmpfile"
 
+# ── 1b. Gắn trailer Work-Item từ tên branch <type>/<ID>-<slug> ────────────────
+# Để `bash scripts/work.sh history <ID> --git` truy được mọi commit của 1 work item.
+BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null || true)
+if [[ "$COMMIT_SOURCE" != "commit" && "$BRANCH_NAME" =~ ^[a-z]+/([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*-[0-9]+)(-|$) ]]; then
+  WORK_ITEM="${BASH_REMATCH[1]}"
+  if ! grep -v '^#' "$COMMIT_MSG_FILE" | grep -qE "(^Work-Item:|(^|[^A-Z0-9-])${WORK_ITEM}([^0-9]|$))"; then
+    git interpret-trailers --in-place --trailer "Work-Item: $WORK_ITEM" "$COMMIT_MSG_FILE" 2>/dev/null \
+      || printf '\nWork-Item: %s\n' "$WORK_ITEM" >> "$COMMIT_MSG_FILE"
+  fi
+fi
+
 # ── 2. Skip nếu đang amend hoặc message đã có nội dung từ -m flag ─────────────
 [[ "$COMMIT_SOURCE" == "commit" ]] && exit 0
 

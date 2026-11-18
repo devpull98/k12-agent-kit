@@ -74,7 +74,7 @@ Trả lời chính xác "bước tiếp theo là gì" mà không cần agent t�
 # Steps
 
 1. **Xác định skill vừa xong** — hỏi nếu chưa rõ: "Bạn vừa hoàn thành skill nào?"
-2. **Xác định track** — đọc từ trace file (`current_track`) hoặc hỏi: "Đang chạy standard / fast / hotfix?"
+2. **Xác định track + vị trí** — đọc frontmatter `_context.md` của item (`track`, `phase`, `status`, `next_skill`); item theo branch hiện tại `<type>/<ID>-…`. Chưa có item → gọi `work-tracker` tạo trước.
 3. **Tra lookup table** theo `on_success` hoặc `on_failure`.
 4. **Kiểm tra precondition** của next skill:
    - Nếu next = `bdd-specification` → spec còn `[NEEDS CLARIFICATION]` không? (`bash scripts/validate-spec-clarity.sh`)

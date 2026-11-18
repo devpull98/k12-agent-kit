@@ -26,6 +26,7 @@ run() {
 
 run "Skill graph" bash "$ROOT/scripts/validate-skill-graph.sh"
 run "Stack rules" bash "$ROOT/scripts/validate-stack.sh"
+run "Work items" bash "$ROOT/scripts/validate-work-items.sh" ${BASE:+"$BASE"}
 run "Spec clarity" bash "$ROOT/scripts/validate-spec-clarity.sh"
 run "SDD gate" bash "$ROOT/scripts/validate-sdd-gate.sh" ${BASE:+"$BASE"}
 run "Trace coverage" bash "$ROOT/scripts/validate-trace.sh" "$ROOT"

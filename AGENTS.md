@@ -33,12 +33,15 @@ product-discovery → brainstorming → Product Brief → clarify → BDD → te
 **Execution** của mỗi task/bug gom vào **1 folder duy nhất**:
 
 ```
-docs/work/<JIRA-KEY>-<slug>/
-  _context.md   ← ENTRY POINT — đọc TRƯỚC mọi việc
+docs/modules.yaml          ← registry module (key, PREFIX, code paths)
+docs/work/INDEX.md         ← BOARD sinh tự động: đang chạy · bug mở · lịch sử theo module
+docs/work/<ID>-<slug>/     ← 1 work item (ID = Jira key hoặc <PREFIX>-<NNN>, cấm NOJIRA)
+  _context.md   ← ENTRY POINT — frontmatter = id/type/status/modules/links + state
   plan.md · checklist.md · note.md · bugs.md
 ```
 
-Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/plans/`, `docs/notes/`, `docs/logs/` (legacy). Chi tiết: `rules/_global/doc-scoping.mdc`.
+- Tạo item: `bash scripts/work.sh new <type> <module> "<title>"` · chuyển bước: `work.sh set <ID> status=… phase=…` · board: `work.sh index` · lịch sử: `work.sh history <module|ID> --git` (skill `work-tracker`).
+- Agent **chỉ đọc path liệt kê trong `_context.md`**; tra cứu chéo qua `INDEX.md`/`history`, KHÔNG glob package khác hay `docs/plans/`, `docs/notes/`, `docs/logs/` (legacy). Chi tiết: `rules/_global/work-items.mdc`, `rules/_global/doc-scoping.mdc`.
 
 ## Governance runtime (bắt buộc trước merge)
 
@@ -46,6 +49,7 @@ Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/pl
 bash scripts/governance-check.sh          # all checks (gồm cả 2 check dưới)
 bash scripts/validate-sdd-gate.sh         # code ↔ spec
 bash scripts/validate-spec-clarity.sh     # spec không còn [NEEDS CLARIFICATION]
+bash scripts/validate-work-items.sh       # frontmatter work item, module registry, cấm file legacy mới
 bash scripts/validate-trace.sh            # BDD ↔ @trace
 bash scripts/validate-stack.sh            # stack rules exist
 bash scripts/validate-skill-graph.sh      # router/on_success trỏ tới skill tồn tại (bắt dangling ref)
@@ -82,7 +86,7 @@ Project-specific convention (ví dụ k12-product-api) → `docs/principles.md` 
 ## Orchestration — bước tiếp theo sau mỗi skill
 
 Mỗi skill khai báo `on_success` và `on_failure` trong frontmatter YAML.
-Sau khi skill hoàn thành, agent **cập nhật state block trong `_context.md`** (`last_skill`, `next_skill`, `phase`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file.
+Sau khi skill hoàn thành, agent **cập nhật frontmatter `_context.md`** qua `work.sh set` (`status`, `phase`, `last_skill`, `next_skill`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file.
 
 - **Không chắc bước tiếp theo** → gọi skill `next-step` (hoặc user hỏi "giờ làm gì?")
 - **on_success** → skill tiếp theo khi output đạt yêu cầu

@@ -97,6 +97,7 @@ Dưới đây là danh sách các kỹ năng (skills) được định nghĩa s�
 | `code-review` | Rà soát chất lượng code trước khi merge PR. |
 | `shipping` | Chuẩn bị và deploy release lên môi trường kiểm thử/thực tế. |
 | `writing-skills` | Viết/sửa skill của kit đúng contract + pressure-test. |
+| `work-tracker` | Work item có ID (như GitHub issue): tạo, đổi status, board `docs/work/INDEX.md`, bug đang mở, lịch sử module/feature, migrate package cũ. |
 
 ---
 

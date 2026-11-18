@@ -31,7 +31,8 @@ requires_rules:
 9. Sau khi rollout 100% ổn định, dọn dẹp feature flag và code nhánh cũ trong vòng 2 tuần. Tạo PR theo `templates/pull-request-template.md` nếu chưa có.
 10. Ngay khi rollout 100% ổn định (hoặc đã rollback), ghi 1 entry vào `CHANGELOG.md` (copy mục mới từ
    `templates/changelog-template.md` nếu file chưa có) — feature gì, thay đổi gì, có rollback không và vì sao.
-   Đây là log cấp release cho team/user đọc, khác với `docs/work/<KEY>-<slug>/note.md` của `progress-logging` (log nội bộ từng task).
+   Đây là log cấp release cho team/user đọc, khác với `docs/work/<ID>-<slug>/note.md` của `progress-logging` (log nội bộ từng task).
+11. Đóng work item: `bash scripts/work.sh set <ID> status=done phase=done prs=[#<PR>]` (rollback → `status=blocked` + tạo item bug `--fixes <ID>`), chạy `bash scripts/work.sh index`.
 
 # Output
 - Checklist pre-launch hoàn tất, rollback plan đã viết

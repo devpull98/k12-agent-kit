@@ -19,7 +19,7 @@ cảm tính "sprint này ổn"), dùng cho sprint review/retro của Scrum.
 - Khoảng thời gian sprint cần tổng hợp (ngày bắt đầu/kết thúc)
 
 # Steps
-1. Liệt kê mọi file `docs/work/*/note.md` có task hoàn thành trong khoảng thời gian sprint.
+1. Lấy danh sách item từ `docs/work/INDEX.md` (chạy `bash scripts/work.sh index` trước): item `closed` trong sprint, item còn `in-progress/blocked` (⚠ stale), bug mở/đóng theo module (`bash scripts/work.sh history <module>`). Chỉ mở `note.md` của các item đó — không glob toàn bộ.
 2. Với mỗi feature: đếm số task, số task done, block đã gặp (cột "Ghi chú"/"Block" trong log), thời gian từ lúc spec được duyệt tới lúc ship (đối chiếu `docs/specs/` và `CHANGELOG.md`).
 3. Đối chiếu `CHANGELOG.md` trong sprint: feature nào đã ship, feature nào rollback và lý do.
 4. Gom các block/vấn đề xuất hiện ở nhiều feature — đây là tín hiệu cần cải thiện hệ thống (rule/skill/process), không phải lỗi cá nhân.

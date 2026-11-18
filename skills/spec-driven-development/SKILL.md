@@ -24,7 +24,7 @@ Tạo **feature Product Brief** (lớp spec 1/3): định nghĩa cái gì đư�
 3. Tập trung **WHAT/WHY**, không viết HOW (framework, API, schema để dành cho `tech-docs`).
 4. Chỗ nào không suy ra được từ yêu cầu → đánh dấu `[NEEDS CLARIFICATION: <câu hỏi cụ thể>]` thay vì đoán (tối đa 3 marker quan trọng nhất; phần còn lại dùng default hợp lý và ghi vào Assumptions).
 5. Quy đổi yêu cầu mơ hồ ("nhanh hơn", "tốt hơn") thành success criteria cụ thể, đo được, không phụ thuộc công nghệ.
-6. Lưu spec (stable truth) vào `docs/specs/modules/<module>/<spec>.md` và thêm entry vào `docs/specs/modules/<module>/_index.md`. Tạo work package `docs/work/<KEY>-<slug>/_context.md` (từ `templates/_context.template.md`) với Spec anchor trỏ về file spec vừa lưu. Commit. Xem `rules/_global/doc-scoping.mdc`.
+6. Lưu spec (stable truth) vào `docs/specs/modules/<module>/<spec>.md` và thêm entry vào `docs/specs/modules/<module>/_index.md`. Nếu chưa có work item: `bash scripts/work.sh new feature <module> "<title>"` (skill `work-tracker`) — điền Spec anchor trỏ về file spec vừa lưu. Commit. Xem `rules/_global/doc-scoping.mdc`.
 7. Xin user review và duyệt spec trước khi sang bước Plan/Tasks.
 8. Sau khi Product Brief được duyệt: còn marker `[NEEDS CLARIFICATION]` hoặc feature rủi ro cao → **clarify-spec**; không → **bdd-specification** (standard track) hoặc writing-plans (fast track).
 9. Coi spec là tài liệu sống: khi quyết định/scope đổi, sửa spec trước, rồi mới sửa code. Gỡ điểm mơ hồ bằng cách sửa đúng section trong file, không chạy lại cả pipeline.

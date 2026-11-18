@@ -9,6 +9,7 @@
 set -euo pipefail
 
 ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+PROJ="${CLAUDE_PROJECT_DIR:-$PWD}"   # project đang mở (docs/work, git) — khác plugin root
 ROUTER="$ROOT/router.yaml"
 
 # ── Lấy prompt từ stdin (JSON của UserPromptSubmit) ──────────────────────────
@@ -26,7 +27,8 @@ emit() {  # emit additionalContext JSON rồi thoát
   if command -v jq >/dev/null 2>&1; then
     jq -n --arg c "$ctx" '{hookSpecificOutput:{hookEventName:"UserPromptSubmit",additionalContext:$c}}'
   else
-    local esc; esc=$(printf '%s' "$ctx" | sed 's/"/\\"/g' | tr '\n' ' ')
+    # JSON-escape thủ công, giữ xuống dòng (\n) — xem hooks/session-start.
+    local esc; esc=$(printf '%s' "$ctx" | tr -d '\r' | awk '{ gsub(/\\/,"\\\\"); gsub(/"/,"\\\""); gsub(/\t/,"\\t"); printf "%s\\n", $0 }')
     printf '{"hookSpecificOutput":{"hookEventName":"UserPromptSubmit","additionalContext":"%s"}}\n' "$esc"
   fi
   exit 0
@@ -53,14 +55,32 @@ MATCHES=""
 ' "$ROUTER" | sort -u)
 
 # ── Work package đang mở (phase != done/"") ──────────────────────────────────
-WP=""
+# Ưu tiên item khớp branch hiện tại (<type>/<ID>-<slug>); còn lại chỉ item đang chạy
+# (status in-progress|blocked|review|qc|ready), tối đa 5 — repo có hàng chục package thì
+# liệt kê hết chỉ là nhiễu.
+WP=""; WP_N=0
+BR=$(git -C "$PROJ" symbolic-ref --short HEAD 2>/dev/null || true)
+BR_ID=""; [[ "$BR" =~ ^[a-z]+/([A-Z][A-Z0-9]*(-[A-Z][A-Z0-9]*)*-[0-9]+)(-|$) ]] && BR_ID="${BASH_REMATCH[1]}"
+fmv() { grep -m1 "^[[:space:]]*$2:" "$1" 2>/dev/null | sed "s/^[[:space:]]*$2:[[:space:]]*//;s/[[:space:]]#.*//" | tr -d '\r"' | xargs 2>/dev/null || true; }
 shopt -s nullglob
-for f in "$ROOT"/docs/work/*/_context.md; do
-  ph=$(grep -m1 '^[[:space:]]*phase:' "$f" 2>/dev/null | sed 's/.*phase:[[:space:]]*//;s/[[:space:]]*#.*//' | tr -d '\r' | xargs || true)
-  nx=$(grep -m1 '^[[:space:]]*next_skill:' "$f" 2>/dev/null | sed 's/.*next_skill:[[:space:]]*//;s/[[:space:]]*#.*//' | tr -d '\r"' | xargs || true)
-  [[ -n "$ph" && "$ph" != "done" ]] && WP="${WP}  • ${f#$ROOT/}: phase=$ph, next_skill=${nx:-?}
-"
+for f in "$PROJ"/docs/work/*/_context.md; do
+  id=$(fmv "$f" id); st=$(fmv "$f" status); ph=$(fmv "$f" phase); nx=$(fmv "$f" next_skill)
+  line="  • ${f#$PROJ/}: ${id:+$id }status=${st:-?} phase=${ph:-?} next_skill=${nx:-?}"
+  if [[ -n "$BR_ID" && "$id" == "$BR_ID" ]]; then
+    WP="  ★ (branch hiện tại) ${line#  • }
+$WP"; continue
+  fi
+  if [[ -n "$st" ]]; then
+    case "$st" in in-progress|blocked|review|qc|ready) ;; *) continue ;; esac
+  else
+    [[ -z "$ph" || "$ph" == "done" ]] && continue   # legacy chưa có status
+  fi
+  (( WP_N >= 5 )) && continue
+  WP="${WP}${line}
+"; WP_N=$((WP_N+1))
 done
+[[ -n "$WP" ]] && WP="${WP}  (board đầy đủ: docs/work/INDEX.md)
+"
 
 # ── Không có gì để nói thì im lặng ───────────────────────────────────────────
 [[ -z "$MATCHES" && -z "$WP" ]] && exit 0

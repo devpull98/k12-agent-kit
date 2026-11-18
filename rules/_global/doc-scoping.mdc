@@ -12,11 +12,12 @@ Agent đọc lan man qua các flat folder (`docs/plans/`, `docs/notes/features/`
 Mọi artifact **thực thi** của một task/bug sống trong **một folder duy nhất**, không rải theo loại:
 
 ```text
-docs/work/<JIRA-KEY>-<slug>/
+docs/work/INDEX.md ← BOARD sinh tự động (work.sh index) — tra tiến độ/bug/lịch sử ở đây
+docs/work/<ID>-<slug>/
   _context.md      ← ENTRY POINT bắt buộc — agent đọc file này TRƯỚC.
-                     Chứa State block (phase/track/dev_selftest/qc_status/trace/next_skill)
-                     = single source of truth cho handoff dev→QC→ship.
-                     Ship gate: scripts/validate-context-state.sh parse block này.
+                     Frontmatter = work item (id/type/status/modules/links) + state
+                     (phase/dev_selftest/qc_status/trace/next_skill) — xem _global/work-items.mdc.
+                     Ship gate: scripts/validate-context-state.sh đọc frontmatter.
   plan.md          ← từ writing-plans
   checklist.md     ← task breakdown, mỗi dòng traceable
   note.md          ← progress log (progress-logging) + SCARV khi ship
@@ -24,7 +25,7 @@ docs/work/<JIRA-KEY>-<slug>/
   test-plan.md     ← qc-automation (optional)
 ```
 
-**Artifact key:** `<JIRA-KEY>-<slug>`. Không có Jira → `NOJIRA-<slug>`.
+**Artifact key:** `<ID>-<slug>` — ID = Jira key, hoặc `<MODULE-PREFIX>-<NNN>` cấp bởi `bash scripts/work.sh new` (cấm `NOJIRA-*` cho item mới). Chi tiết: `rules/_global/work-items.mdc`.
 
 Stable truth (behavior/contract/architecture) **KHÔNG** nằm trong work package — nó ở tầng spec/architecture:
 
@@ -49,7 +50,8 @@ docs/retros/<sprint-id>.md                  ← sprint-retro (aggregate nhiều 
 |-----|-------|-------------|
 | 0 — Always | `CLAUDE.md`, rule `_global/*` | mọi session (auto-inject) |
 | 1 — Module | `docs/specs/modules/<module>/_index.md` + spec § liên quan | khi discover task mới |
-| 2 — Task | `docs/work/<KEY>-<slug>/_context.md` → `plan.md` → `checklist.md` | mỗi task |
+| 2 — Task | `docs/work/<ID>-<slug>/_context.md` → `plan.md` → `checklist.md` | mỗi task |
+| — Tra cứu | `docs/work/INDEX.md`, `bash scripts/work.sh history <module\|ID>` | cần lịch sử/tiến độ — thay vì mở package khác |
 | 3 — Dependencies | file/module khác | **chỉ khi** `_context.md` khai báo |
 
 ## MUST / MUST NOT
@@ -69,7 +71,7 @@ docs/retros/<sprint-id>.md                  ← sprint-retro (aggregate nhiều 
 | `docs/notes/features/<KEY>-<slug>.md` | `docs/work/<KEY>-<slug>/note.md` |
 | `docs/bugs/<KEY>.md` | `docs/work/<KEY>-<slug>/bugs.md` |
 
-Task mới: **chỉ** tạo trong `docs/work/`.
+Task mới: **chỉ** tạo trong `docs/work/` qua `bash scripts/work.sh new`. Thêm file mới vào thư mục legacy → `validate-work-items.sh` FAIL. Migrate: `bash scripts/work.sh migrate`.
 
 ---
 

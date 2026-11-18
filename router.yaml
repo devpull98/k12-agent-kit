@@ -147,6 +147,12 @@ routes:
     not_for_skills: [refactoring]
     confidence: strict
 
+  - intent: "quản lý work item: tạo task/bug có ID, board tiến độ, bug đang mở, lịch sử module"
+    keywords: [work item, issue, board, bug đang mở, open bugs, lịch sử module, module history, history, tạo task, migrate work, nojira, đang làm gì]
+    skill: work-tracker
+    not_for_skills: [progress-logging, sprint-retro]
+    confidence: strict
+
   - intent: "ghi log tiến độ / báo cáo task vừa xong"
     keywords: [log, tiến độ, progress, nhật ký, báo cáo, hoàn thành task]
     skill: progress-logging

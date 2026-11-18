@@ -1,0 +1,64 @@
+# Work Items — Issue tracking trong repo
+
+**Status:** ENFORCED (`scripts/validate-work-items.sh`) | **Owner:** Tech Lead | **Applies to:** mọi task/bug/perf
+
+---
+
+## Vấn đề
+Work package có folder nhưng metadata là text tự do → không trả lời được: *đang chạy gì? bug nào còn mở? module X đã qua những thay đổi/bug nào?* `NOJIRA-<slug>` không có số để link, grep commit hay nhắc tên.
+
+## Mô hình
+Mỗi work package `docs/work/<ID>-<slug>/` là **1 work item** (≈ 1 GitHub issue). Frontmatter YAML của `_context.md` là **source of truth**; board `docs/work/INDEX.md` là **view sinh tự động** (không sửa tay).
+
+### ID
+| Trường hợp | ID | Ví dụ |
+|------------|----|-------|
+| Có Jira | Jira key | `EDC-5681` |
+| Không Jira | `<PREFIX>-<NNN>` — prefix của module chính trong `docs/modules.yaml`, số tăng dần | `SOCKETIO-012` |
+
+- Folder = `<ID>-<slug>` (slug ascii kebab-case). ID **bất biến** — đổi scope thì tạo item mới + `supersedes`.
+- Cấm `NOJIRA-*` cho item mới. Cấp ID bằng `bash scripts/work.sh new` (không tự đánh số tay).
+
+### Frontmatter (phẳng — `key: value`, list `[a, b]`)
+| Field | Bắt buộc | Giá trị |
+|-------|----------|---------|
+| `id`, `title` | ✓ | như trên |
+| `type` | ✓ | `feature · bug · perf · refactor · security · chore · spike` |
+| `status` | ✓ | `backlog · todo · in-progress · blocked · review · qc · ready · done · cancelled` |
+| `priority` | ✓ | `P0 · P1 · P2 · P3` |
+| `modules` | ✓ | ≥1 key trong `docs/modules.yaml` |
+| `created`, `updated` | ✓ | `YYYY-MM-DD`; `closed` bắt buộc khi `done/cancelled` |
+| `phase` | | `discovery · spec · bdd · tech · plan · implement · review · qc · trace · ship · done` |
+| `fixes`, `relates_to`, `supersedes`, `prs` | | ID item khác / PR — tạo đồ thị lịch sử |
+| `dev_selftest`, `qc_status`, `trace`, `last_skill`, `next_skill` | | ship gate + orchestration (thay state block cũ) |
+
+**Status ≠ phase:** status = trạng thái kiểu issue (để board/người đọc), phase = vị trí trong canonical flow (để agent). Đổi qua `bash scripts/work.sh set <ID> status=… phase=…` — tự cập nhật `updated`/`closed`.
+
+### Module registry — `docs/modules.yaml`
+`key, prefix, title, paths, aliases, spec_dir, owner`. `paths` nối work item với `git log` của code module. Thêm module = sửa registry trong cùng PR.
+
+### Bug
+| Phát hiện khi | Ghi ở đâu | ID |
+|---------------|-----------|----|
+| Đang làm item (review/QC, trước merge) | `bugs.md` của item đó, heading `## <ID>-B<n> — …` + dòng `**Status:**`, `**Severity:**` | `SOCKETIO-012-B1` |
+| Item đã `done` / production | Work item **mới** `type: bug`, `fixes: [<ID gốc>]` | `SOCKETIO-019` |
+
+→ "Bug đang mở" trên board gom cả hai nguồn; lịch sử 1 feature thấy luôn các bug `fixes` nó.
+
+### Git
+- Branch: `<feat|fix|perf|refactor|chore>/<ID>-<slug>`.
+- Commit: hook `prepare-commit-msg` tự thêm trailer `Work-Item: <ID>` từ tên branch → `work.sh history <ID> --git`.
+- PR title chứa `<ID>`; thêm số PR vào `prs:`.
+
+## MUST / MUST NOT
+- **MUST** tạo item bằng `work.sh new` trước khi bắt đầu việc (kể cả perf/bug nhỏ — fast track vẫn cần item).
+- **MUST** cập nhật `status/phase` khi chuyển bước và chạy `work.sh index` trước commit.
+- **MUST** tra lịch sử bằng `docs/work/INDEX.md` / `work.sh history` — **MUST NOT** glob mở từng package khác.
+- **MUST NOT** thêm file mới vào `docs/plans|features|test-plans|notes|logs|bugs` (gate FAIL).
+- **MUST NOT** để output điều tra/report của 1 task trong `docs/architecture/` — nơi đó chỉ chứa overview sống của hệ thống.
+
+## Migrate repo cũ
+`bash scripts/work.sh migrate` (dry-run, báo cáo) → duyệt → `--apply` trên nhánh riêng. Trong lúc chuyển đổi đặt `work_items_strict: false` trong `project-context.yaml` (thiếu frontmatter = WARN).
+
+---
+**Related:** `rules/_global/doc-scoping.mdc`, `templates/_context.template.md`, `templates/modules.template.yaml`, `skills/work-tracker/SKILL.md`

@@ -4,6 +4,8 @@
 set -euo pipefail
 
 ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+PROJ="${CLAUDE_PROJECT_DIR:-$PWD}"   # project đang mở — config/principles đọc từ đây, fallback plugin root
+CFG="$PROJ/project-context.yaml"; [[ -f "$CFG" ]] || CFG="$ROOT/project-context.yaml"
 
 CONFIG_FILE="project-context.yaml"
 STACK=""
@@ -13,12 +15,12 @@ QC_STACK=""
 # Đọc 1 scalar top-level từ project-context.yaml, cắt inline comment (# ...),
 # trim khoảng trắng và bỏ dấu " bao quanh (nếu có).
 cfgval() {
-  grep -E "^$1:" "$ROOT/project-context.yaml" 2>/dev/null \
+  grep -E "^$1:" "$CFG" 2>/dev/null \
     | head -1 | sed "s/^$1:[[:space:]]*//; s/[[:space:]]*#.*$//; s/[[:space:]]*$//" \
     | tr -d '\r' | sed 's/^"\(.*\)"$/\1/'
 }
 
-if [[ -f "$ROOT/project-context.yaml" ]]; then
+if [[ -f "$CFG" ]]; then
   STACK=$(cfgval stack)
   TEST_RUNNER=$(cfgval test_runner)
   QC_STACK=$(cfgval qc_stack)
@@ -31,8 +33,9 @@ AGENTS_CONTENT=$(cat "$ROOT/AGENTS.md")
 # Stack rules check
 STACK_STATUS=""
 if [[ -n "$STACK" ]]; then
-  ARCH="$ROOT/rules/$STACK/architecture.mdc"
-  TEST_PAT="$ROOT/rules/$STACK/test-patterns.mdc"
+  RULES_BASE="$PROJ"; [[ -d "$PROJ/rules/$STACK" ]] || RULES_BASE="$ROOT"
+  ARCH="$RULES_BASE/rules/$STACK/architecture.mdc"
+  TEST_PAT="$RULES_BASE/rules/$STACK/test-patterns.mdc"
   if [[ -f "$ARCH" && -f "$TEST_PAT" ]]; then
     STACK_STATUS="Stack rules: OK (rules/$STACK/)"
   else
@@ -47,7 +50,7 @@ fi
 
 # Principles
 PRINCIPLES=""
-if [[ -f "$ROOT/docs/principles.md" ]]; then
+if [[ -f "$PROJ/docs/principles.md" ]]; then
   PRINCIPLES="Project principles: docs/principles.md (MUST follow)"
 fi
 

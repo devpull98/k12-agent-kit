@@ -23,7 +23,8 @@ mà không cần tự hỏi lại — tránh mất dấu khi 1 feature có nhi�
 3. Cập nhật đúng 1 dòng của task đó: trạng thái (`done`), timestamp, lệnh verification + kết quả, file đã đụng tới.
 4. Cập nhật mục "Tóm tắt tiến độ" (số task done/tổng, task đang làm tiếp theo, block nếu có).
 5. Commit file log cùng lúc với code của task đó (không tách riêng commit).
-6. Báo lại ngay cho user 1-2 câu: task nào vừa xong, còn bao nhiêu task, có block gì không.
+6. Cập nhật work item: `bash scripts/work.sh set <ID> status=<in-progress|blocked|…> last_skill=… next_skill=…` rồi `bash scripts/work.sh index` — commit `INDEX.md` cùng lúc.
+7. Báo lại ngay cho user 1-2 câu: task nào vừa xong, còn bao nhiêu task, có block gì không.
 
 # Output
 - File `docs/work/<KEY>-<slug>/note.md` được cập nhật, khớp với task list trong plan

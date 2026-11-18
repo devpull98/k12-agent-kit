@@ -20,7 +20,7 @@ Biến skill từ "gợi ý" thành **quy trình bắt buộc**. Nếu có ≥1%
 User nói "bỏ qua TDD lần này" → làm theo user, ghi lý do vào `_context.md`. Agent tự thấy "không cần TDD" → **không được**.
 
 # Steps (trước mỗi phản hồi)
-1. Có work package đang mở? → đọc `docs/work/<KEY>-<slug>/_context.md` TRƯỚC, nối tiếp `next_skill`.
+1. Có work item cho việc này? (branch `<type>/<ID>-…` hoặc `docs/work/INDEX.md`) → đọc `docs/work/<ID>-<slug>/_context.md` TRƯỚC, nối tiếp `next_skill`. Chưa có → `work-tracker` tạo item trước khi làm.
 2. Khớp intent với `router.yaml` (hook `route-hint` đã gợi ý — vẫn tự kiểm `not_for_skills`).
 3. Chọn skill theo thứ tự: **process skill trước** (brainstorming, debugging, clarify-spec) → **execution skill sau** (tdd, executing-plans, tech-docs).
    - "Làm feature X" → brainstorming trước, không nhảy vào code.
@@ -28,7 +28,7 @@ User nói "bỏ qua TDD lần này" → làm theo user, ghi lý do vào `_contex
 4. Load skill (Skill tool), **thông báo**: "Đang dùng skill `<name>` để <mục đích>".
 5. Skill có checklist → tạo todo cho TỪNG mục, làm tuần tự.
 6. Trước khi tuyên bố xong bất cứ thứ gì → `verification-before-completion`.
-7. Xong skill → cập nhật state block `_context.md` (`last_skill`, `next_skill`, `phase`) theo `on_success`.
+7. Xong skill → `bash scripts/work.sh set <ID> status=… phase=… last_skill=… next_skill=…` theo `on_success`, rồi `work.sh index`.
 
 # Red flags — dừng lại, bạn đang tự biện hộ
 

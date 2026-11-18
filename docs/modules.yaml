@@ -1,0 +1,9 @@
+# Module registry của reference example (xem templates/modules.template.yaml)
+modules:
+  - key: lms
+    prefix: LMS
+    title: "Learning Management — assignment, lesson, grading"
+    paths: [src/]
+    aliases: [lms-api, assignment]
+    spec_dir: docs/specs/modules/lms
+    owner: ""

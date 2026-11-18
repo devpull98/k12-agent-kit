@@ -5,6 +5,29 @@ Theo dõi thay đổi của kit `uniclass-workflow`. Format theo `templates/chan
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-18
+Tổ chức tài liệu kiểu "GitHub Issues trong repo" — dựa trên khảo sát 2 project thật (k12-backend-java: 52 package, ~30 không parse được state, 39 `NOJIRA`; k12-product-api).
+
+### Added
+- `rules/_global/work-items.mdc` — mô hình work item: ID (Jira key hoặc `<PREFIX>-<NNN>`), frontmatter phẳng có enum (type/status/priority/phase), `modules` theo registry, link `fixes/relates_to/supersedes/prs`, quy ước bug 2 nơi, branch/commit chứa ID.
+- `scripts/work.sh` — `new` (cấp ID, slug bỏ dấu), `set` (validate enum, tự `updated/closed`), `index` (board `docs/work/INDEX.md`: đang chạy + stale, bug đang mở, backlog, lịch sử theo module), `list`, `history <module|ID> [--git]`, `migrate [--apply]` (dry-run mặc định; map type/status/module/ngày từ git; gợi ý xử lý `docs/plans/*`, report trong `docs/architecture/`).
+- `scripts/validate-work-items.sh` (gắn vào `governance-check.sh`) — frontmatter/enum/ID trùng/module lạ/closed; cấm file mới trong thư mục legacy; WARN stale >14 ngày và `INDEX.md` lỗi thời. `work_items_strict: false` cho giai đoạn migrate.
+- `templates/modules.template.yaml`, skill `work-tracker`, route mới.
+- Hook `prepare-commit-msg`: tự thêm trailer `Work-Item: <ID>` từ branch `<type>/<ID>-<slug>`.
+
+### Changed
+- `templates/_context.template.md`: frontmatter thay state block (ship gate đọc được cả 2). `bug-report-template.md`: heading `## <ID>-B<n>` + `Status/Severity` máy đọc được.
+- Skill `progress-logging`, `bug-flow`, `shipping`, `spec-driven-development`, `sprint-retro`, `next-step`, `onboarding`, `using-kit` dùng `work.sh` thay vì sửa tay.
+- Hook `route-hint`: chỉ hiện item đang chạy (tối đa 5) + item của branch hiện tại, thay vì mọi package chưa `done`.
+- Reference example `UC-LMS-001` chuyển sang frontmatter; thêm `docs/modules.yaml`, `docs/work/INDEX.md`.
+
+### Fixed
+- Hook `session-start`/`route-hint` đọc `project-context.yaml`, `docs/work`, `docs/principles.md` từ **plugin root** thay vì project đang mở → nay dùng `CLAUDE_PROJECT_DIR` (fallback plugin root).
+- `route-hint` fallback không-jq bẹp xuống dòng.
+
+### ⚠️ BREAKING (consumer)
+- `governance-check` thêm gate **Work items**: package thiếu frontmatter / module không có trong `docs/modules.yaml` → FAIL. Lộ trình: tạo `docs/modules.yaml` → `work_items_strict: false` → `bash scripts/work.sh migrate` (duyệt) → `--apply` trên nhánh riêng → bỏ `work_items_strict`.
+
 ## [0.4.0] - 2026-11-18
 Tham chiếu: obra/superpowers (kỷ luật thực thi) + github/spec-kit (chất lượng spec).
 
