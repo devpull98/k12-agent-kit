@@ -108,8 +108,9 @@ graph TD
 **Flow:**
 ```
 product-discovery → brainstorming → spec-driven-development
-  → bdd-specification → tech-docs → writing-plans
-  → (tdd → progress-logging) × n
+  → clarify-spec → bdd-specification → tech-docs → writing-plans
+  → spec-analyze
+  → executing-plans  [mỗi task: tdd → review 2 tầng → progress-logging]
   → code-review → qc-automation → trace-validation → shipping
 ```
 
@@ -120,9 +121,12 @@ product-discovery → brainstorming → spec-driven-development
 | Khám phá yêu cầu | `"khám phá yêu cầu"` hoặc `"product discovery"` |
 | Viết Product Brief | `"viết Product Brief cho <tính năng>"` |
 | Viết BDD spec | `"viết BDD spec cho <UC-ID>"` |
+| Làm rõ spec | `"clarify spec"` hoặc `"làm rõ spec <UC-ID>"` |
 | Thiết kế kỹ thuật | `"tech design cho <UC-ID>"` |
 | Lập kế hoạch task | `"lập kế hoạch"` hoặc `"writing plans"` |
-| Implement (TDD) | `"bắt đầu TDD task <n>"` |
+| Kiểm nhất quán spec ↔ plan | `"spec analyze"` |
+| Implement cả plan | `"thực thi plan"` (inline) hoặc `"thực thi plan bằng subagent"` |
+| Implement 1 task (TDD) | `"bắt đầu TDD task T00<n>"` |
 | Review code | `"review code"` |
 | Chạy QC | `"qc automation"` |
 | Validate trace | `"validate trace"` |
@@ -141,7 +145,7 @@ bash scripts/governance-check.sh
 
 **Flow:**
 ```
-brainstorming (rút gọn) → writing-plans → tdd → code-review → trace-validation → shipping
+brainstorming (rút gọn) → writing-plans → executing-plans (inline) / tdd → code-review → trace-validation → shipping
 ```
 
 **Cách kích hoạt:** Thêm tag `[fast-track]` vào commit message hoặc PR title — SDD gate tự động bỏ qua.

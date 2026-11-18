@@ -16,6 +16,21 @@ size: M
 parallel_safe: true   # true nếu các task độc lập có thể chạy song song
 ---
 
+## Principles Check (gate — điền TRƯỚC task list)
+
+<!-- Đối chiếu docs/principles.md. Vi phạm MUST mà không có justification → dừng, không lập task. -->
+
+| Principle (docs/principles.md) | Tuân thủ? | Ghi chú |
+|--------------------------------|-----------|---------|
+| <MUST ...> | ✅ / ❌ | |
+
+### Complexity Tracking (chỉ điền khi có vi phạm được chấp nhận)
+
+| Vi phạm | Vì sao cần | Phương án đơn giản hơn đã loại vì |
+|---------|-----------|-----------------------------------|
+
+---
+
 ## Risk Assessment
 
 | Risk | Likelihood | Impact | Mitigation |
@@ -45,9 +60,9 @@ mixed:      một số block tuần tự, một số block song song
 ```
 Dependency graph (chỉ điền khi mode = mixed):
 
-  [Task 1] ──→ [Task 3]
-  [Task 2] ──→ [Task 3] ──→ [Task 5 (deploy)]
-  [Task 4] ──────────────→ [Task 5]
+  [T001] ──→ [T003]
+  [T002] ──→ [T003] ──→ [T005 (deploy)]
+  [T004] ──────────────→ [T005]
 ```
 
 ---
@@ -56,26 +71,38 @@ Dependency graph (chỉ điền khi mode = mixed):
 
 <!--
 Mỗi task: scope rõ ràng, 1 người / 1 agent làm được hoàn chỉnh.
+ID ổn định T001, T002... (chèn thêm dùng T002a — không đánh số lại).
+[P] = chạy song song được (khác file, không phụ thuộc task chưa xong).
+Covers: FR/SC mà task hiện thực — skill spec-analyze tính coverage từ đây.
+Steps: bước 2–5 phút theo nhịp TDD, path chính xác, không "xử lý tương tự".
 Dependency: "none" nếu có thể bắt đầu ngay.
 -->
 
-### Task 1: <tên — động từ + danh từ>
+### T001: <tên — động từ + danh từ>
 
-- **Mode:** sequential after [none] | parallel with [Task X]
+- **Covers:** FR-001, SC1
+- **Mode:** sequential after [none] | parallel with [T00X]
 - **Mô tả:** <1-2 câu — làm gì, kết quả là gì>
-- **File dự kiến:** `<path>`
-- **Dependency:** none | Task N phải xong trước
+- **File dự kiến:** `<path chính xác>` (create | modify | test)
+- **Dependency:** none | T00N phải xong trước
+- **Steps:**
+  1. Viết test fail `<path test>::<tên test>` cho <behavior>
+  2. Chạy `<lệnh>` → kỳ vọng FAIL: `<thông điệp lỗi>`
+  3. Implement tối thiểu `<Class.method(signature)>`
+  4. Chạy `<lệnh>` → kỳ vọng PASS
+  5. Commit `<type>(<scope>): <message>`
 - **Acceptance criteria:**
   - [ ] <tiêu chí 1 — đo được, không mơ hồ>
   - [ ] <tiêu chí 2>
-- **Verification:** `<lệnh test/build/check cụ thể>`
+- **Verification:** `<lệnh test/build/check cụ thể>` → <output kỳ vọng>
 - **Rollback nếu fail:** <revert file / drop migration / turn off flag>
 
 ---
 
-### Task 2: <tên>
+### T002 [P]: <tên>
 
-- **Mode:** parallel with [Task 1]
+- **Covers:** FR-002, SC2
+- **Mode:** parallel with [T001]
 - **Mô tả:**
 - **File dự kiến:** `<path>`
 - **Dependency:** none
@@ -88,21 +115,23 @@ Dependency: "none" nếu có thể bắt đầu ngay.
 
 ### Sync checkpoint (chỉ cần khi mode = mixed)
 
-> Chờ Task 1 + Task 2 xong trước khi bắt đầu Task 3+
+> Chờ T001 + T002 xong trước khi bắt đầu T003+
 
-- [ ] Task 1 pass verification
-- [ ] Task 2 pass verification
+- [ ] T001 pass verification
+- [ ] T002 pass verification
 - [ ] Build tổng thể sạch
 - [ ] Không có regression trong test suite
 
 ---
 
-### Task 3: <tên — thường là integration / wiring>
+### T003: <tên — thường là integration / wiring>
 
-- **Mode:** sequential after [Task 1, Task 2]
+- **Covers:** SC3
+
+- **Mode:** sequential after [T001, T002]
 - **Mô tả:**
 - **File dự kiến:** `<path>`
-- **Dependency:** Task 1, Task 2
+- **Dependency:** T001, T002
 - **Acceptance criteria:**
   - [ ]
 - **Verification:** `<lệnh>`
@@ -112,7 +141,8 @@ Dependency: "none" nếu có thể bắt đầu ngay.
 
 ## Pre-merge Checklist
 
-- [ ] Tất cả task pass verification
+- [ ] `spec-analyze`: 0 CRITICAL
+- [ ] Tất cả task pass verification (bằng chứng trong note.md)
 - [ ] `bash scripts/governance-check.sh` → PASS
 - [ ] `dev_selftest: pass` ghi vào trace TSV
 - [ ] Không có TODO/FIXME chưa resolve trong code mới

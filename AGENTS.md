@@ -7,7 +7,7 @@
 | `rules/` | **Static knowledge** — WHAT | Conventions, patterns, baselines. `_global/`, `{stack}/`, `_template/`, `_examples/` |
 | `skills/` | **Execution knowledge** — HOW | Quy trình + checklist. Tham chiếu rule qua `requires_rules` |
 | `workflows/` | **Navigation** — WHEN & NEXT | `canonical-flow.md` là single source of truth |
-| `scripts/` | **Governance runtime** — ENFORCE | validate-trace, validate-sdd-gate, validate-stack, validate-skill-graph, validate-context-state, governance-check |
+| `scripts/` | **Governance runtime** — ENFORCE | validate-trace, validate-sdd-gate, validate-spec-clarity, validate-stack, validate-skill-graph, validate-context-state, governance-check |
 | `agents/` | **Personas** — WHO | Vai trò và output format |
 | `templates/` | **Artifact scaffolds** | Spec, BDD, PR template, ... |
 | `router.yaml` | **Intent routing** | intent → skill, strict-first + fallback |
@@ -18,7 +18,7 @@
 **Single source of truth:** `workflows/canonical-flow.md`
 
 ```
-product-discovery → brainstorming → Product Brief → BDD → tech-docs → plan → tdd → review → qc → trace → ship
+product-discovery → brainstorming → Product Brief → clarify → BDD → tech-docs → plan → analyze → execute (tdd + review 2 tầng) → review → qc → trace → ship
 ```
 
 | Spec layer | Skill | Artifact |
@@ -45,6 +45,7 @@ Agent **chỉ đọc path liệt kê trong `_context.md`**; KHÔNG glob `docs/pl
 ```bash
 bash scripts/governance-check.sh          # all checks (gồm cả 2 check dưới)
 bash scripts/validate-sdd-gate.sh         # code ↔ spec
+bash scripts/validate-spec-clarity.sh     # spec không còn [NEEDS CLARIFICATION]
 bash scripts/validate-trace.sh            # BDD ↔ @trace
 bash scripts/validate-stack.sh            # stack rules exist
 bash scripts/validate-skill-graph.sh      # router/on_success trỏ tới skill tồn tại (bắt dangling ref)
@@ -69,6 +70,8 @@ Thêm stack mới:
 Project-specific convention (ví dụ k12-product-api) → `docs/principles.md` hoặc `rules/_examples/`, không nhét vào rule generic.
 
 ## Cách agent chọn skill
+
+> **Kỷ luật bootstrap (`skills/using-kit`)** — hook session-start nạp sẵn: kiểm skill TRƯỚC mọi hành động; trước mọi tuyên bố "xong/pass" phải chạy `verification-before-completion`.
 
 1. Đọc `router.yaml`, so khớp keyword với intent.
 2. 1 route match → dùng skill đó. Nhiều match → loại theo `not_for_skills`.

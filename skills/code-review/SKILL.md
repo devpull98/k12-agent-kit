@@ -20,12 +20,14 @@ requires_rules:
 # Steps
 1. Đọc spec/task trước để hiểu mục tiêu thay đổi.
 2. Đọc test trước code — test thể hiện intent và coverage thật.
-3. Đánh giá theo 5 trục: Correctness (đúng spec, edge case, error path), Readability (đặt tên, độ phức tạp), Architecture (theo pattern hiện có, không lặp code, ranh giới module), Security (theo rule security-baseline), Performance (N+1, unbounded fetch, pagination).
+3. **Tầng 1 — Spec compliance (làm trước)**: đối chiếu từng BDD scenario / acceptance criterion với diff. Thiếu behavior → Critical. Làm thừa ngoài scope (over-build) → Required (bỏ). Chỉ khi tầng 1 đạt mới sang tầng 2 — không review chất lượng cho code đang làm sai việc.
+   **Tầng 2 — Code quality**: đánh giá theo 5 trục: Correctness (đúng spec, edge case, error path), Readability (đặt tên, độ phức tạp), Architecture (theo pattern hiện có, không lặp code, ranh giới module), Security (theo rule security-baseline), Performance (N+1, unbounded fetch, pagination).
 4. Gắn severity rõ ràng cho mỗi finding: Critical (block merge) / Required / Nit / Optional / FYI — không để tất cả thành "bắt buộc".
 5. Khi đề xuất review (requesting): cung cấp mô tả ngắn, plan/requirement gốc, base/head SHA hoặc diff cụ thể — không kèm toàn bộ lịch sử session.
 6. Khi nhận review (receiving): đọc hết feedback trước khi phản hồi, diễn giải lại yêu cầu bằng lời mình, verify với codebase thật trước khi sửa — không đồng ý hình thức ("bạn đúng rồi!"), không sửa mù theo feedback sai.
 7. Nếu feedback không rõ hoặc có vẻ sai kỹ thuật: hỏi lại hoặc phản biện có lý do kỹ thuật, không im lặng làm theo.
-8. Approve khi thay đổi rõ ràng cải thiện codebase, dù chưa hoàn hảo — không block vì khác gu cá nhân.
+8. Trước khi Approve: tự chạy test/build trên head (`verification-before-completion`) — không approve dựa vào "CI chắc xanh" hay report của tác giả.
+9. Approve khi thay đổi rõ ràng cải thiện codebase, dù chưa hoàn hảo — không block vì khác gu cá nhân.
 
 # Output
 - Review verdict: Approve / Request changes, kèm finding theo severity

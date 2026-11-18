@@ -54,6 +54,17 @@ fi
 CANONICAL="Canonical flow: workflows/canonical-flow.md"
 GOVERNANCE="Governance: chạy scripts/governance-check.sh trước merge"
 
+# Bootstrap discipline: nạp body skill using-kit (bỏ frontmatter). SessionStart cũng
+# chạy lại sau /clear và compaction → kỷ luật "kiểm skill trước mọi hành động" không bị mất.
+BOOTSTRAP=""
+if [[ -f "$ROOT/skills/using-kit/SKILL.md" ]]; then
+  BOOTSTRAP="<EXTREMELY_IMPORTANT>
+Bạn đang dùng kit uniclass-workflow. Nội dung skill \`using-kit\` dưới đây ĐÃ được nạp — tuân thủ trước mọi phản hồi:
+
+$(awk 'BEGIN{fm=0} /^---[[:space:]]*$/ && fm<2 {fm++; next} fm>=2' "$ROOT/skills/using-kit/SKILL.md" | tr -d '\r')
+</EXTREMELY_IMPORTANT>"
+fi
+
 CONTEXT="Stack: ${STACK:-unset} | Config: $CONFIG_FILE"
 [[ -n "$TEST_RUNNER" ]] && CONTEXT="$CONTEXT | Test runner: $TEST_RUNNER"
 [[ -n "$QC_STACK" ]] && CONTEXT="$CONTEXT | QC stack: $QC_STACK"
@@ -64,12 +75,15 @@ $PRINCIPLES
 $CANONICAL
 $GOVERNANCE
 
+$BOOTSTRAP
+
 $AGENTS_CONTENT"
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg ctx "$CONTEXT" \
     '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $ctx}}'
 else
-  ESCAPED=$(printf '%s' "$CONTEXT" | sed 's/"/\\"/g' | tr '\n' ' ')
+  # JSON-escape thủ công, GIỮ xuống dòng (\n) để bảng/markdown của bootstrap không bị bẹp.
+  ESCAPED=$(printf '%s' "$CONTEXT" | tr -d '\r' | awk '{ gsub(/\\/,"\\\\"); gsub(/"/,"\\\""); gsub(/\t/,"\\t"); printf "%s\\n", $0 }')
   printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' "$ESCAPED"
 fi

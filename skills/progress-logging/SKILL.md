@@ -18,7 +18,7 @@ mà không cần tự hỏi lại — tránh mất dấu khi 1 feature có nhi�
 - Task vừa hoàn thành + kết quả verification step của nó
 
 # Steps
-1. Xác nhận task vừa xong đã pass verification step (test/build/manual check) — chưa pass thì KHÔNG log là "done".
+1. Xác nhận task vừa xong đã pass verification step (test/build/manual check) **chạy lại trong message này** theo `verification-before-completion` — chưa pass thì KHÔNG log là "done". Ghi nguyên lệnh + kết quả (exit code, số pass/fail) làm bằng chứng.
 2. Nếu chưa có file log cho task này, tạo từ `templates/progress-log-template.md` tại `docs/work/<KEY>-<slug>/note.md`.
 3. Cập nhật đúng 1 dòng của task đó: trạng thái (`done`), timestamp, lệnh verification + kết quả, file đã đụng tới.
 4. Cập nhật mục "Tóm tắt tiến độ" (số task done/tổng, task đang làm tiếp theo, block nếu có).

@@ -30,6 +30,37 @@ routes:
     skill: next-step
     confidence: strict
 
+  - intent: "làm rõ điểm mơ hồ trong Product Brief trước BDD"
+    keywords: [clarify, làm rõ, needs clarification, ambiguity, mơ hồ, clarify spec]
+    skill: clarify-spec
+    not_for_skills: [brainstorming, spec-driven-development]
+    notes: "Có Product Brief rồi mới clarify; ý tưởng còn thô → brainstorming"
+    confidence: strict
+
+  - intent: "kiểm nhất quán spec ↔ BDD ↔ tech design ↔ plan trước khi implement"
+    keywords: [analyze, consistency, cross-artifact, spec analyze, requirement checklist, checklist spec, phân tích nhất quán]
+    skill: spec-analyze
+    not_for_skills: [trace-validation, code-review]
+    notes: "Read-only, TRƯỚC implement. Sau implement dùng trace-validation"
+    confidence: strict
+
+  - intent: "thực thi plan đã duyệt theo từng task (inline hoặc subagent)"
+    keywords: [execute plan, thực thi plan, implement plan, chạy plan, subagent, subagent-driven, execute tasks]
+    skill: executing-plans
+    not_for_skills: [writing-plans]
+    confidence: strict
+
+  - intent: "xác minh trước khi tuyên bố hoàn thành"
+    keywords: [verify, verification, xác minh, done chưa, đã xong chưa, evidence, bằng chứng]
+    skill: verification-before-completion
+    confidence: strict
+
+  - intent: "viết hoặc sửa skill/rule của kit"
+    keywords: [writing skills, viết skill, tạo skill, sửa skill, new skill, skill authoring, thêm skill]
+    skill: writing-skills
+    not_for_skills: [spec-driven-development]
+    confidence: strict
+
   - intent: "viết spec trước khi code"
     keywords: [spec, requirement, acceptance criteria]
     skill: spec-driven-development

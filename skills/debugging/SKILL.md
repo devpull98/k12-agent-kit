@@ -16,6 +16,12 @@ Sửa đúng nguyên nhân gốc thay vì vá triệu chứng — dừng việc 
 - Mô tả lỗi / log / stack trace
 - Khả năng reproduce (steps, môi trường)
 
+# Iron Law
+```
+KHÔNG SỬA KHI CHƯA TÌM RA ROOT CAUSE
+```
+"Thử đổi cái này xem sao" = đoán. Mỗi giả thuyết phải được kiểm bằng 1 thay đổi nhỏ nhất + quan sát, và ghi lại kết quả.
+
 # Steps
 1. STOP: ngừng thêm feature mới, giữ nguyên evidence (log, output lỗi, repro steps).
 2. Reproduce lỗi ổn định. Nếu không reproduce được, thu thập thêm log/instrumentation tại từng layer trước khi đoán.
@@ -24,7 +30,7 @@ Sửa đúng nguyên nhân gốc thay vì vá triệu chứng — dừng việc 
 5. Tìm root cause bằng cách hỏi "vì sao" tới khi chạm nguyên nhân thật, không dừng ở nơi triệu chứng xuất hiện. Nếu cần trace ngược qua nhiều lớp gọi, dùng kỹ thuật ở skill root-cause-tracing.
 6. Viết 1 test tái hiện đúng bug đó (test phải fail trước khi fix) — theo skill tdd.
 7. Sửa đúng root cause, 1 thay đổi/lần, không bundle thêm refactor "tiện tay".
-8. Verify: test cụ thể pass, full suite không regression, build sạch, kiểm tra lại scenario gốc end-to-end.
+8. Verify (`verification-before-completion`): test regression fail khi revert fix và pass khi có fix, test cụ thể pass, full suite không regression, build sạch, kiểm tra lại scenario gốc end-to-end.
 9. Nếu đã thử ≥3 fix mà vẫn lỗi mới ở chỗ khác: dừng, nghi vấn kiến trúc, escalate cho user thay vì tiếp tục đoán.
 
 # Output

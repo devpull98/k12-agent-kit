@@ -5,6 +5,32 @@ Theo dõi thay đổi của kit `uniclass-workflow`. Format theo `templates/chan
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-18
+Tham chiếu: obra/superpowers (kỷ luật thực thi) + github/spec-kit (chất lượng spec).
+
+### Added
+- Skill `using-kit` — bootstrap "kiểm skill trước mọi hành động", bảng red flags; hook `session-start` nạp sẵn (chạy lại sau compaction).
+- Skill `verification-before-completion` — iron law: không tuyên bố xong khi chưa chạy lệnh verify trong message; bảng bằng chứng hợp lệ cho `dev_selftest`/governance.
+- Skill `clarify-spec` — quét 10 nhóm ambiguity, ≤5 câu hỏi từng câu một có khuyến nghị, ghi `## Clarifications` vào spec, gỡ marker `[NEEDS CLARIFICATION]`.
+- Skill `spec-analyze` — phân tích read-only Brief ↔ BDD ↔ Tech ↔ Plan ↔ principles (6 pass, severity, coverage FR/SC→Task) + requirement-quality checklist.
+- Skill `executing-plans` — thực thi plan inline hoặc subagent-driven, review 2 tầng (spec compliance → code quality), status DONE/DONE_WITH_CONCERNS/NEEDS_CONTEXT/BLOCKED, ledger, chọn model.
+- Skill `writing-skills` — contract skill của kit + pressure-test (TDD cho skill).
+- Script `validate-spec-clarity.sh` (gắn vào `governance-check.sh`): FAIL nếu `docs/specs/**` còn `[NEEDS CLARIFICATION]` ngoài HTML comment; WARN với `docs/work/**`.
+
+### Changed
+- Canonical flow: `Brief → clarify → BDD → tech → plan → analyze → executing-plans → review…`; thêm bảng "Kỷ luật xuyên suốt" + failure map cho gate mới.
+- `tdd`: iron law (code trước test → xóa), verify RED đúng lý do, bảng rationalization.
+- `debugging`: iron law "không sửa khi chưa có root cause"; verify regression test fail-khi-revert.
+- `writing-plans`: Principles Check gate, task ID `T0xx`, marker `[P]`, `Covers: FR/SC`, bước 2–5 phút; `on_success` → `spec-analyze`.
+- `spec-driven-development`: requirement `FR-xxx`, chỉ WHAT/WHY, marker `[NEEDS CLARIFICATION]` thay vì đoán; `on_success` → `clarify-spec | bdd-specification`.
+- `code-review`: review 2 tầng (spec compliance trước, quality sau) + tự verify trước Approve.
+- `brainstorming`: hard gate không code trước khi thiết kế được duyệt. `progress-logging`, `shipping`: bắt buộc bằng chứng verify mới.
+- Template `spec-template.md` (Requirements, Assumptions, Clarifications), `plan-template.md` (Principles Check, Complexity Tracking, task T0xx/[P]/Covers/Steps).
+- Router: 5 route mới; `next-step` lookup table đồng bộ.
+
+### ⚠️ BREAKING (consumer)
+- `governance-check.sh` thêm gate **Spec clarity** — spec đã merge còn `[NEEDS CLARIFICATION]` sẽ FAIL. Xử lý: chạy `clarify-spec`, hoặc tạm `GOVERNANCE_SKIP=1`.
+
 ## [0.3.0] - 2026-07-06
 ### Added
 - Validate command path trong `validate-skill-graph.sh` (section 5): `commands/*.md` phải trỏ file tồn tại, cấm `.claude/skills/` — chặn tái diễn lỗi command path chết.
