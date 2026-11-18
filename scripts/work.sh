@@ -508,8 +508,13 @@ migrated: $today
 ---"
       local tmp; tmp=$(mktemp)
       if [[ -f "$f" ]]; then
-        # bỏ state block cũ (```yaml có phase:) để tránh 2 nguồn sự thật
-        awk 'BEGIN{buf="";inb=0}
+        # - bỏ state block cũ (```yaml có phase:) để tránh 2 nguồn sự thật
+        # - bỏ mục "## Classification" (đã nằm trong frontmatter)
+        # - H1 "# <folder cũ> — title" → "# <ID> — title"
+        awk -v old="$d" -v nid="$id" 'BEGIN{buf="";inb=0;incls=0;h1=0}
+             !h1 && /^# / { h1=1; if (index($0, "# " old) == 1) $0 = "# " nid substr($0, length(old)+3) }
+             /^## / { incls = ($0 ~ /^## *Classification/) }
+             incls { next }
              /^```yaml/ {inb=1; buf=$0 "\n"; hasphase=0; next}
              inb { buf=buf $0 "\n"; if ($0 ~ /^[ \t]*phase:/) hasphase=1;
                    if ($0 ~ /^```/) { inb=0; if (hasphase) print "_(State đã chuyển lên frontmatter — `scripts/work.sh set`)_"; else printf "%s", buf } ; next }
