@@ -31,18 +31,30 @@ trace: pending          # pending|pass|fail   — validate-trace.sh / trace-vali
 > **ENTRY POINT** — đọc file này TRƯỚC. Chỉ đọc path liệt kê ở đây.
 > Ship-ready khi: `dev_selftest: pass` **và** `qc_status ∈ {pass, na}` **và** `trace: pass` (`scripts/validate-context-state.sh`).
 
+<!-- Index + state only. Metadata/state nằm trong FRONTMATTER (sửa bằng `work.sh set`).
+     Do NOT append recap/changelog/session notes (those go to note.md).
+     Keep this file ≤ 90 lines. -->
+
 ## Spec anchor
-- **File:** docs/specs/modules/<module>/<spec-file>.md
+- **File:** [docs/specs/modules/<module>/<spec-file>.md](../specs/modules/<module>/<spec-file>.md)
 - **Sections:** §X.Y, §Z (list only sections needed — not full spec)
+
+## Constraints (this drop)
+
+<!-- ≤5 hàng. Scope cấm / non-goal của đúng work package này. Chi tiết → plan.md -->
+
+| Cấm / giới hạn | Lý do |
+|----------------|-------|
+| <vd: không đổi schema public> | <1 câu> |
 
 ## Read order (ONLY — do not glob elsewhere)
 1. `_context.md` (this file)
-2. `plan.md`
+2. `plan.md` — Task Matrix + Non-goals
 3. `checklist.md`
 4. Spec sections listed above
 
 ## Dependencies (read if touching these areas)
-- **Code:** `<module-path>/ClassName.ext`
+- **Code:** [`<module-path>/ClassName.ext`](../../<module-path>/ClassName.ext)
 - **Cross-module:** `<other-module>` — reason
 - **Rules:** `rules/{stack}/<pattern>.mdc` — if perf/cache involved
 

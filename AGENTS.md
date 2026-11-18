@@ -42,6 +42,7 @@ docs/work/<ID>-<slug>/     ← 1 work item (ID = Jira key hoặc <PREFIX>-<NNN>,
 
 - Tạo item: `bash scripts/work.sh new <type> <module> "<title>"` · chuyển bước: `work.sh set <ID> status=… phase=…` · board: `work.sh index` · lịch sử: `work.sh history <module|ID> --git` (skill `work-tracker`).
 - Agent **chỉ đọc path liệt kê trong `_context.md`**; tra cứu chéo qua `INDEX.md`/`history`, KHÔNG glob package khác hay `docs/plans/`, `docs/notes/`, `docs/logs/` (legacy). Chi tiết: `rules/_global/work-items.mdc`, `rules/_global/doc-scoping.mdc`.
+- Plan dùng **Task Matrix + Non-goals + lệnh Verification**; khi DONE thu gọn Working notes (`compact-on-DONE`).
 
 ## Governance runtime (bắt buộc trước merge)
 
@@ -60,7 +61,7 @@ Chi tiết escape hatch (fast/hotfix): `rules/_global/governance.mdc`
 
 ## Stack rules — dev tự viết per stack
 
-Framework ship **reference stacks** (spring, laravel, golang, nodejs) + **template** (`rules/_template/`).
+Framework ship **reference stacks** (spring, laravel, golang, nodejs) + **template** (`rules/_template/`). Implement (`tdd`) đọc `rules/_global/solid.mdc` + `rules/_global/clean-code.mdc` — layer đúng chưa đủ; test xanh chưa xong nếu God service, tên mơ hồ, hàm dài, magic number.
 
 **`rules/_examples/`** — Convention cụ thể của từng project thật (không phải rule generic). Ví dụ: `rules/_examples/nodejs-k12-product-api/architecture.mdc` chứa convention riêng của service đó. Agent đọc file này khi làm việc với đúng project đó — không áp dụng chéo sang project khác.
 
@@ -86,7 +87,7 @@ Project-specific convention (ví dụ k12-product-api) → `docs/principles.md` 
 ## Orchestration — bước tiếp theo sau mỗi skill
 
 Mỗi skill khai báo `on_success` và `on_failure` trong frontmatter YAML.
-Sau khi skill hoàn thành, agent **cập nhật frontmatter `_context.md`** qua `work.sh set` (`status`, `phase`, `last_skill`, `next_skill`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file.
+Sau khi skill hoàn thành, agent **chỉ patch state trong frontmatter `_context.md`** qua `bash scripts/work.sh set <ID> status=… phase=… last_skill=… next_skill=…` (tự cập nhật `updated`) rồi đọc `on_success` để biết bước kế — không cần tự đọc lại workflow file. **Không** append recap vào `_context.md`/`plan.md`; nhật ký 1 dòng → `note.md` (`progress-logging`). Chi tiết: `rules/_global/doc-scoping.mdc` § Artifact hygiene.
 
 - **Không chắc bước tiếp theo** → gọi skill `next-step` (hoặc user hỏi "giờ làm gì?")
 - **on_success** → skill tiếp theo khi output đạt yêu cầu

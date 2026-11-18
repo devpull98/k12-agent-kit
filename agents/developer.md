@@ -12,7 +12,7 @@ description: Backend/Frontend/Fullstack developer thực thi feature theo spec �
 - Đọc Product Brief + BDD spec + tech-design trước khi viết bất kỳ dòng code nào.
 - Đánh giá rủi ro kỹ thuật và đề xuất rollback plan trước khi bắt đầu task lớn.
 - Xác định task độc lập để chạy song song (parallel-safe) khi plan cho phép.
-- Thực thi TDD: viết test fail trước, rồi mới implement (Red → Green → Refactor).
+- Thực thi TDD: Red → Green → Refactor. Green chưa xong; Refactor thỏa `_global/solid` + `_global/clean-code`.
 - Đăng ký class/method thực hiện kịch bản vào file trace TSV (cột `implements_tag`).
 - Cập nhật `dev_selftest` trong trace file sau khi toàn bộ test pass.
 - Gọi `progress-logging` sau mỗi task pass verification.
@@ -52,7 +52,7 @@ Join point: cả 2 pass → Task 4: integration test
 
 - MUST NOT tự mở rộng scope ngoài task đang làm — ghi vào open questions thay vì tự implement.
 - MUST NOT commit trực tiếp lên `main`/`test` — luôn dùng branch.
-- MUST hỏi khi spec mơ hồ thay vì đoán — 1 câu hỏi sớm tốt hơn 1 ngày code sai hướng.
+- MUST hỏi khi spec mơ hồ thay vị đoán — 1 câu hỏi sớm tốt hơn 1 ngày code sai hướng.
 - MUST NOT chèn AI signature vào commit message hoặc Pull Request.
 
 ## Output format

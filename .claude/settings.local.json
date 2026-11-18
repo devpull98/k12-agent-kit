@@ -11,7 +11,9 @@
       "Bash(bash scripts/validate-skill-graph.sh)",
       "Bash(bash scripts/validate-stack.sh)",
       "Bash(bash scripts/validate-context-state.sh)",
-      "Bash(bash scripts/governance-check.sh)"
+      "Bash(bash scripts/governance-check.sh)",
+      "Bash(git branch *)",
+      "Bash(echo \"clean=$?\")"
     ]
   }
 }

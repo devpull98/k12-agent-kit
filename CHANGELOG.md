@@ -5,6 +5,15 @@ Theo dõi thay đổi của kit `uniclass-workflow`. Format theo `templates/chan
 
 ## [Unreleased]
 
+### Added
+- Work-package hygiene v2: Non-goals / Trade-offs / Task Matrix + Verification bắt buộc trong `templates/plan-template.md`; Constraints mirror trong `_context.template.md`.
+- Compact-on-DONE: `progress-logging` + `shipping` thu gọn Working notes; `note.md` template tách ephemeral vs RCA.
+- `validate-context-state.sh`: enforce Non-goals + Verification trên plan có task; fail nếu Working notes còn nội dung khi `phase` ∈ {ship, done}.
+
+### Changed
+- `rules/_global/doc-scoping.mdc`: bảng SoT vs Work Log; relative links bắt buộc; compact-on-DONE.
+- Demo `docs/work/UC-LMS-001-teacher-create-assignment/` align template mới (mẫu đúng cho agent copy).
+
 ## [0.5.0] - 2026-11-18
 Tổ chức tài liệu kiểu "GitHub Issues trong repo" — dựa trên khảo sát 2 project thật (k12-backend-java: 52 package, ~30 không parse được state, 39 `NOJIRA`; k12-product-api).
 

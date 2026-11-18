@@ -1,14 +1,17 @@
 ---
 name: error-handling
 scope: global
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*
 ---
 
 # Purpose
-Quy tắc xử lý lỗi áp dụng cho mọi stack.
+Quy tắc xử lý lỗi và an toàn runtime áp dụng cho mọi stack.
 
 # Required
 - Mọi lỗi nghiệp vụ (business exception) phải có error code riêng, không dùng message tự do để so sánh logic.
 - Lỗi không xử lý được phải log kèm context (request id, user id) trước khi throw/return.
+- **Null Safety in Unboxing**: Khi so sánh hoặc tính toán với các đối tượng kiểu Wrapper Nullable (ví dụ: `Integer`, `Long` trong Java), bắt buộc phải kiểm tra null hoặc sử dụng helper quy đổi về giá trị mặc định (như 0 hoặc chuỗi rỗng) để tránh ngoại lệ NullPointerException phá hủy toàn bộ tiến trình.
+- **Safe Map Merging**: Khi sử dụng các hàm gom nhóm thành Map (như `Collectors.toMap` trong Java), bắt buộc phải cung cấp một **Merge Function** (ví dụ: `(a, b) -> a`) để ngăn ngừa lỗi sập ứng dụng (`IllegalStateException`) nếu môi trường Production xuất hiện dữ liệu trùng lặp key ngoài ý muốn.
 
 # Preferred
 - Tách exception class theo domain, không dùng 1 exception chung cho toàn app.
@@ -16,6 +19,8 @@ Quy tắc xử lý lỗi áp dụng cho mọi stack.
 # Forbidden
 - Catch exception rồi swallow im lặng (catch rỗng, không log không rethrow).
 - Trả lỗi hệ thống (stack trace, SQL error) trực tiếp ra response cho client.
+- Unbox trực tiếp các thuộc tính nullable mà không có guard-clause bảo vệ.
+- Gom nhóm dữ liệu không có cơ chế xử lý xung đột key (duplicate key resolution).
 
 # Examples
 - app/Exceptions/DomainException.php (Laravel)

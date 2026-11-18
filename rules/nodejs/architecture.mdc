@@ -8,6 +8,8 @@ Kiến trúc tầng generic cho project Node.js (Express/Fastify/Nest tương đ
 
 # Required
 - Route/Router chỉ khai báo path, middleware, validator — trỏ tới Controller/Handler, không chứa business logic.
+- SOLID: tuân `rules/_global/solid.mdc` (use case một trách nhiệm; repo/HTTP client là adapter, không `new` trong service).
+- Clean code: tuân `rules/_global/clean-code.mdc`.
 - Controller/Handler nhận request, gọi Service, trả response qua helper/format thống nhất — không query DB trực tiếp.
 - Service chứa business logic, gọi Repository — không import HTTP layer.
 - Repository là nơi duy nhất gọi ORM/DB driver (Sequelize, Prisma, Mongoose, TypeORM...).

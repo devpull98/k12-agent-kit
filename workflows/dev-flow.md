@@ -19,6 +19,6 @@ Từ `canonical-flow.md`: `tech-docs → writing-plans → (tdd → progress-log
 ## Dev artifacts
 - Spec (stable): `docs/specs/modules/<module>/<spec>.md` · `docs/specs/bdd/{UC-ID}.feature` · `docs/specs/tech-design/{UC-ID}-tech-design.md`
 - Execution (per task): `docs/work/<KEY>-<slug>/{_context,plan,checklist,note}.md`
-- Trace tags: code `@trace.implements: {UC-ID}-SC{N}` · test `@trace.verifies: {UC-ID}-SC{N}`
+- Trace mapping: Khai báo ánh xạ trong file trace TSV dạng `đường_dẫn_file::tên_phương_thức` (không ghi tag trực tiếp vào code).
 
 Bug fix: theo hotfix/bug track trong `canonical-flow.md` (`bug-flow → debugging/tdd → …`).

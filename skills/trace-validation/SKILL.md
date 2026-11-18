@@ -1,7 +1,7 @@
 ---
 name: trace-validation
-description: Kiểm tra @trace tags trong code và test có khớp với BDD spec không. Use when trước khi merge để verify coverage, hoặc khi nghi ngờ code bị drift khỏi spec.
-keywords: [trace, traceability, coverage, drift, @trace, validate trace, spec coverage]
+description: Kiểm tra ánh xạ traceability trong file trace TSV có khớp với BDD spec và mã nguồn thực tế không. Use when trước khi merge để verify coverage, hoặc khi nghi ngờ code bị drift khỏi spec.
+keywords: [trace, traceability, coverage, drift, validate trace, spec coverage, tsv trace]
 not_for: [viết test mới — dùng tdd hoặc qc-automation, review code quality — dùng code-review]
 on_success: [shipping]
 on_failure: [tdd, code-review]

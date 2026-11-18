@@ -1,0 +1,46 @@
+---
+name: solid
+scope: global
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*
+---
+
+# Purpose
+Ràng buộc SOLID khi viết/sửa production code. Layered architecture (`{stack}/architecture`) không đủ — God Service vẫn “đúng tầng” nhưng vi phạm SRP/DIP.
+
+Áp dụng khi **thêm behavior**. Không bắt rewrite toàn module cũ trong cùng PR; vi phạm mới trong diff = phải sửa hoặc ghi tech-debt có ticket.
+
+# Required
+
+- **S — Single Responsibility:** một type/module một lý do để đổi. Orchestration (use case) tách khỏi persistence, mapping DTO, notification, authz.
+- **O — Open/Closed:** thêm biến thể bằng type/strategy/handler mới, không phình `if/switch` theo từng loại trong use case đang ổn định.
+- **L — Liskov:** subtype dùng được everywhere nơi expect supertype; không no-op / throw “not supported” để “cho đủ interface”.
+- **I — Interface Segregation:** client chỉ phụ thuộc method nó gọi. Không nhét query + command + admin + report vào một port.
+- **D — Dependency Inversion:** domain/use case phụ thuộc **port (interface)**; adapter (ORM, HTTP client, mail, clock) implement port. Construction/`new` infrastructure ở composition root, không trong business method.
+
+# Preferred
+
+- Constructor/factory injection; test fake port, không mock concrete ORM trong unit test của use case.
+- Policy/strategy cho nhánh nghiệp vụ sẽ còn mở rộng; `if` 1–2 nhánh ổn định thì giữ cho đơn giản.
+- Mapping DTO ↔ domain ở boundary, không rải khắp service.
+
+# Forbidden
+
+- God class: một Service vừa validate, query nhiều aggregate, gửi mail, ghi log nghiệp vụ, format HTTP.
+- `new SomeRepository()` / `new HttpClient()` / lấy DB handle bên trong use case.
+- Copy-paste cùng policy sang controller thứ hai thay vì một abstraction.
+- Interface “IXxxx” chỉ có một impl và một method mà không có lý do test/swap — không bắt tạo interface giả.
+- “Tối thiểu để test xanh” rồi **bỏ bước Refactor** — Green được phép xấu; **Done thì không**.
+
+# Smell → hướng xử lý (không bắt framework cụ thể)
+
+| Smell | Thường vỡ | Hướng |
+|-------|-----------|--------|
+| Hàm/use case > ~40 dòng, nhiều concern | S | Tách collaborator theo lý do đổi |
+| `switch(type)` thêm case mỗi feature | O | Strategy / handler map |
+| Impl để trống method của interface chung | L / I | Tách interface nhỏ hơn |
+| Use case import ORM model / HTTP framework | D | Port + adapter |
+| Test không viết được nếu không spin DB | D | Inject port, fake in-memory |
+
+# Examples
+- Use case `CreateAssignment` gọi `AssignmentRepository` (port), `Clock`, `IdGenerator` — không gọi Sequelize/JPA trực tiếp.
+- `DueDatePolicy` riêng, không nhét rule ngày vào controller.

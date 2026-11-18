@@ -17,17 +17,97 @@
 
 ### MUST
 
-**1. Create feature branch first:**
-```bash
-# Feature: feature/<ticket>-<short-desc>
-git checkout -b feature/JIRA-123-trophy-lag-fix
+**1. Create branch following Enterprise Git Branch Naming Convention:**
 
-# Hotfix (urgent bug): hotfix/<ticket>
-git checkout -b hotfix/JIRA-456-payment-crash
-
-# Chore (docs, refactor): chore/<desc>
-git checkout -b chore/update-trophy-docs
+### Naming Format
+```text
+<type>/<ticket-id>-<short-description>
 ```
+Ví dụ:
+```text
+feature/K12-1024-add-student-ranking
+bugfix/K12-1102-fix-session-timeout
+hotfix/K12-1150-fix-login-production
+refactor/K12-1200-optimize-cache-loading
+deps/K12-1210-upgrade-spring-boot-3-5
+build/K12-1215-optimize-docker-image
+ci/K12-1220-add-integration-test-pipeline
+infra/K12-1230-update-k8s-resource-limits
+release/v2.8.0
+```
+
+### Branch Types
+| Type | Purpose |
+| --- | --- |
+| feature | Phát triển tính năng mới. |
+| bugfix | Sửa lỗi thông thường. |
+| hotfix | Sửa lỗi khẩn cấp trên Production. |
+| refactor | Cải thiện cấu trúc code, không thay đổi business logic. |
+| test | Thêm hoặc cập nhật Unit Test, Integration Test, E2E Test. |
+| docs | Cập nhật tài liệu, API Documentation, README. |
+| deps | Nâng cấp hoặc thay đổi dependency, framework, library. |
+| build | Thay đổi build script, Dockerfile, Maven, Gradle, npm, packaging. |
+| ci | Thay đổi Jenkins, GitHub Actions, GitLab CI, Azure DevOps Pipeline... |
+| infra | Thay đổi Kubernetes, Helm, Terraform, Nginx, Redis, Kafka, cấu hình hạ tầng. |
+| release | Chuẩn bị phát hành phiên bản mới. |
+| revert | Hoàn tác một thay đổi đã merge. |
+| spike | Proof of Concept (PoC), nghiên cứu hoặc thử nghiệm kỹ thuật. |
+
+### Ticket ID
+Nếu sử dụng Jira hoặc hệ thống quản lý công việc:
+```text
+feature/K12-1234-add-user-avatar
+```
+Nếu không có ticket:
+```text
+feature/add-user-avatar
+```
+
+### Description Rules
+Luôn sử dụng:
+* Tiếng Anh.
+* lowercase.
+* kebab-case (`-`).
+
+Ví dụ:
+```text
+add-payment-api
+optimize-cache-loading
+update-session-service
+```
+Không sử dụng: `AddPaymentAPI`, `student_ranking`, `studentRanking`, `student ranking`.
+
+### Single Responsibility Branch
+Mỗi branch chỉ phục vụ **một mục tiêu duy nhất**. Không trộn nhiều loại thay đổi trong cùng một branch.
+* ❌ `feature/K12-1200-add-user-api-and-upgrade-spring`
+* ✅ `feature/K12-1200-add-user-api` và `deps/K12-1201-upgrade-spring-boot`
+
+### Release Branch
+Không sử dụng Ticket ID. Ví dụ: `release/v1.0.0`, `release/v2.5.3`.
+
+### Hotfix Branch
+Luôn tạo từ Production hoặc Release branch. Ví dụ: `hotfix/K12-1500-fix-payment-timeout`.
+
+### Spike Branch
+Chỉ dùng để nghiên cứu hoặc PoC. Không merge trực tiếp vào Production. Ví dụ: `spike/redis-streams`.
+
+### CI/CD Compatibility
+Tên branch chỉ nên chứa: `a-z`, `0-9`, `-`, `/`. Không sử dụng ký tự đặc biệt (`@`, `#`, `&`, `?`, `%`, `()`, `[]`, `_`).
+
+### Always & Never
+* **Always:** Chỉ sử dụng tiếng Anh, lowercase, kebab-case. Có Ticket ID nếu dự án sử dụng hệ thống quản lý công việc. Mỗi branch chỉ giải quyết một công việc. Chọn đúng branch type theo mục đích thay đổi.
+* **Never:** Không đặt tên chung chung như `fix`, `update`, `new`, `temp`, `branch`, `abc`, `mybranch`. Không sử dụng tên cá nhân (`feature/john`) hoặc ngày tháng (`feature/20260723`). Không dùng type không phản ánh rõ mục đích (như `chore`).
+
+### Checklist đặt tên Branch
+- [ ] Đúng branch type.
+- [ ] Có Ticket ID (nếu áp dụng).
+- [ ] Mô tả ngắn gọn, rõ nghĩa bằng tiếng Anh.
+- [ ] Sử dụng chữ thường (lowercase) và dấu gạch ngang (kebab-case).
+- [ ] Không chứa ký tự đặc biệt hay dấu gạch dưới (`_`).
+- [ ] Không chứa tên cá nhân hoặc ngày tháng.
+- [ ] Chỉ giải quyết một mục đích duy nhất.
+- [ ] Không sử dụng các từ chung chung hoặc type không rõ nghĩa (như `chore`).
+
 
 **2. Commit on feature branch:**
 ```bash

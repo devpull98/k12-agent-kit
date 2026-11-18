@@ -1,12 +1,16 @@
 # Plan: <feature-name>
 
-<!-- 
-Lưu tại:        docs/work/<KEY>-<slug>/plan.md
+<!--
+Lưu tại:        docs/work/<ID>-<slug>/plan.md
 Spec gốc:       docs/specs/modules/<module>/<spec>.md
 BDD spec:       docs/specs/bdd/<UC-ID>.feature
 Tech design:    docs/specs/tech-design/<UC-ID>-tech-design.md
 Track:          standard | fast | hotfix
 Estimated size: XS (<2h) | S (<1d) | M (<3d) | L (<1w) | XL (>1w)
+
+Viết 1 lần khi writing-plans. Sau mỗi task: chỉ tick Status trong Task Matrix
++ [x] AC — không rewrite, không append recap. Nhật ký → note.md.
+Giữ ≤ 250 dòng. Ưu tiên bảng / Mermaid ngắn; cấm prose dài.
 -->
 
 ---
@@ -24,12 +28,23 @@ parallel_safe: true   # true nếu các task độc lập có thể chạy song 
 |--------------------------------|-----------|---------|
 | <MUST ...> | ✅ / ❌ | |
 
-### Complexity Tracking (chỉ điền khi có vi phạm được chấp nhận)
+<!-- Complexity Tracking — chỉ khi có vi phạm được chấp nhận:
+| Vi phạm | Vì sao cần | Phương án đơn giản hơn đã loại vì | -->
 
-| Vi phạm | Vì sao cần | Phương án đơn giản hơn đã loại vì |
-|---------|-----------|-----------------------------------|
+## Non-goals / Restrictions (đợt này)
 
----
+<!-- Việc CẤM trong scope này — ngăn dev sau đưa lại thiết kế đã bác bỏ. -->
+
+| Hành vi / scope bị cấm | Lý do kỹ thuật |
+|------------------------|----------------|
+| <vd: không persist X qua Redis> | <vd: cosmetic data — giảm IO phức tạp> |
+| <vd: không đổi public API contract> | <vd: breaking change ngoài UC này> |
+
+## Trade-offs (Why)
+
+| Quyết định | Chọn | Bỏ / không làm | Lý do |
+|------------|------|----------------|-------|
+| <vd: validation ở service> | A | B (controller-only) | <1 câu why> |
 
 ## Risk Assessment
 
@@ -39,112 +54,86 @@ parallel_safe: true   # true nếu các task độc lập có thể chạy song 
 | <rủi ro dependency> | | | |
 | <rủi ro scope creep> | | | |
 
-**Rollback plan:**
-- Trigger: <điều kiện nào cần rollback — ví dụ: error rate > 1% sau deploy>
-- Action: <feature flag off / revert commit / DB migration rollback>
-- Command: `<lệnh cụ thể>`
-- Estimated time: <bao lâu để rollback hoàn tất>
+**Rollback:** Trigger `<điều kiện>` → Action `<flag off / revert>` → Cmd `` `<lệnh>` `` · ETA `<thời gian>`
 
 ---
 
-## Execution Mode
+## Task Matrix (source of progress)
 
-<!--
-sequential: task phải chạy theo thứ tự (có dependency chain)
-parallel:   task độc lập, nhiều agent/dev có thể làm cùng lúc
-mixed:      một số block tuần tự, một số block song song
--->
+<!-- Bảng này = tiến độ chính. Status: pending | in_progress | done.
+     Task ID ổn định (chèn thêm: T2a); thêm [P] nếu chạy song song được (khác file, không phụ thuộc task chưa xong).
+     Covers: FR/SC mà task hiện thực — spec-analyze tính coverage từ cột này.
+     Verification: lệnh copy-run được (bắt buộc). Path: relative link. -->
+
+| Task ID | Component | Covers | Status | Verification | Code / Spec links |
+|---------|-----------|--------|--------|--------------|-------------------|
+| T1 | `<component>` | FR-001, SC1 | pending | `` `<lệnh test/build>` `` | [`path`](../../..) · [spec §](../specs/...) |
+| T2 [P] | `<component>` | FR-002, SC2 | pending | `` `<lệnh>` `` | [`path`](../../..) |
+| T3 | `<component>` | SC3 | pending | `` `<lệnh>` `` | [`path`](../../..) |
 
 **Mode:** sequential | parallel | mixed
 
 ```
-Dependency graph (chỉ điền khi mode = mixed):
-
-  [T001] ──→ [T003]
-  [T002] ──→ [T003] ──→ [T005 (deploy)]
-  [T004] ──────────────→ [T005]
+Dependency (mixed only):
+  T1 ──→ T3
+  T2 ──→ T3 ──→ T5
+  T4 ──────────→ T5
 ```
 
----
-
-## Task List
-
-<!--
-Mỗi task: scope rõ ràng, 1 người / 1 agent làm được hoàn chỉnh.
-ID ổn định T001, T002... (chèn thêm dùng T002a — không đánh số lại).
-[P] = chạy song song được (khác file, không phụ thuộc task chưa xong).
-Covers: FR/SC mà task hiện thực — skill spec-analyze tính coverage từ đây.
-Steps: bước 2–5 phút theo nhịp TDD, path chính xác, không "xử lý tương tự".
-Dependency: "none" nếu có thể bắt đầu ngay.
+<!-- Mermaid ngắn thay 3–4 đoạn văn mô tả luồng (optional):
+```mermaid
+flowchart LR
+  A[API] --> B[Service] --> C[Repo]
+```
 -->
 
-### T001: <tên — động từ + danh từ>
-
-- **Covers:** FR-001, SC1
-- **Mode:** sequential after [none] | parallel with [T00X]
-- **Mô tả:** <1-2 câu — làm gì, kết quả là gì>
-- **File dự kiến:** `<path chính xác>` (create | modify | test)
-- **Dependency:** none | T00N phải xong trước
-- **Steps:**
-  1. Viết test fail `<path test>::<tên test>` cho <behavior>
-  2. Chạy `<lệnh>` → kỳ vọng FAIL: `<thông điệp lỗi>`
-  3. Implement tối thiểu `<Class.method(signature)>`
-  4. Chạy `<lệnh>` → kỳ vọng PASS
-  5. Commit `<type>(<scope>): <message>`
-- **Acceptance criteria:**
-  - [ ] <tiêu chí 1 — đo được, không mơ hồ>
-  - [ ] <tiêu chí 2>
-- **Verification:** `<lệnh test/build/check cụ thể>` → <output kỳ vọng>
-- **Rollback nếu fail:** <revert file / drop migration / turn off flag>
-
 ---
 
-### T002 [P]: <tên>
+## Task details (slim)
 
-- **Covers:** FR-002, SC2
-- **Mode:** parallel with [T001]
-- **Mô tả:**
-- **File dự kiến:** `<path>`
-- **Dependency:** none
-- **Acceptance criteria:**
+<!-- Mỗi task ≤ 6 dòng. Không kể chuyện. AC đo được. -->
+
+### T1: <động từ + danh từ>
+
+- **Files:** [`src/...`](../../src/...) · [`test/...`](../../test/...)
+- **Dep:** none | T<n>
+- **AC:**
+  - [ ] <tiêu chí đo được>
+  - [ ] <tiêu chí đo được>
+- **Verify:** `` `<lệnh — trùng cột Verification>` ``
+- **Rollback:** <revert file / drop migration / flag off>
+
+### T2: <tên>
+
+- **Files:**
+- **Dep:**
+- **AC:**
   - [ ]
-- **Verification:** `<lệnh>`
-- **Rollback nếu fail:**
+- **Verify:** `` `<lệnh>` ``
+- **Rollback:**
 
----
+### Sync checkpoint (mixed only)
 
-### Sync checkpoint (chỉ cần khi mode = mixed)
+- [ ] T1 + T2 pass verification
+- [ ] Build tổng sạch · không regression
 
-> Chờ T001 + T002 xong trước khi bắt đầu T003+
+### T3: <integration / wiring>
 
-- [ ] T001 pass verification
-- [ ] T002 pass verification
-- [ ] Build tổng thể sạch
-- [ ] Không có regression trong test suite
-
----
-
-### T003: <tên — thường là integration / wiring>
-
-- **Covers:** SC3
-
-- **Mode:** sequential after [T001, T002]
-- **Mô tả:**
-- **File dự kiến:** `<path>`
-- **Dependency:** T001, T002
-- **Acceptance criteria:**
+- **Files:**
+- **Dep:** T1, T2
+- **AC:**
   - [ ]
-- **Verification:** `<lệnh>`
-- **Rollback nếu fail:**
+- **Verify:** `` `<lệnh>` ``
+- **Rollback:**
 
 ---
 
 ## Pre-merge Checklist
 
-- [ ] `spec-analyze`: 0 CRITICAL
-- [ ] Tất cả task pass verification (bằng chứng trong note.md)
+- [ ] `spec-analyze`: 0 CRITICAL (standard track)
+- [ ] Task Matrix: mọi Status = `done` + Verify cmd đã chạy xanh (bằng chứng trong note.md)
 - [ ] `bash scripts/governance-check.sh` → PASS
-- [ ] `dev_selftest: pass` ghi vào trace TSV
-- [ ] Không có TODO/FIXME chưa resolve trong code mới
-- [ ] Feature flag tắt (nếu ship dần) hoặc bật đúng environment
-- [ ] Rollback plan đã test (staging)
+- [ ] `dev_selftest: pass` trong frontmatter `_context.md` (`work.sh set`) + trace TSV nếu có
+- [ ] Không TODO/FIXME mới chưa resolve
+- [ ] Non-goals không bị vi phạm trong diff
+- [ ] Rollback plan đã test (staging) nếu risk Med/High
