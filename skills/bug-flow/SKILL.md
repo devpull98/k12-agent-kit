@@ -34,8 +34,11 @@ BDD spec → (tech-design nếu có) → code → test
 | **5. Test bug** | Test sai (assert sai, setup sai) — code và spec đều đúng | Tester | Sửa test, không sửa code |
 | **6. Env/Data bug** | Spec + code + test đều đúng — lỗi do config/data/infra | DevOps/Dev | Check logs, env config, data seeding |
 
-## Bước 3 — Tạo bug report
-Dùng `templates/bug-report-template.md`:
+## Bước 3 — Tạo bug report (có ID — xem `rules/_global/work-items.mdc`)
+- Bug thuộc item **đang làm** (chưa merge/done) → thêm entry vào `bugs.md` của item đó, heading `## <ID>-B<n> — …`.
+- Bug trên item **đã done** / production → item mới: `bash scripts/work.sh new bug <module> "<tóm tắt>" --fixes <ID gốc> --priority <P0-P3>`.
+
+Nội dung theo `templates/bug-report-template.md`:
 - UC-ID + SC-ID bị ảnh hưởng
 - Case phân loại (1-6)
 - Steps to reproduce
@@ -50,7 +53,7 @@ Dùng `templates/bug-report-template.md`:
 
 ## Bước 5 — Verify sau fix
 - Dev fix xong → chạy lại `qc-automation` từ bước Run (không cần analyze lại)
-- Cập nhật bug report: Open → Fixed → Closed
+- Cập nhật dòng `**Status:**` của bug: open → fixed → verified/closed (hoặc `work.sh set <ID> status=done` nếu bug là item riêng), rồi `bash scripts/work.sh index`
 
 # Output
 - Bug report với case classification + người phụ trách + trạng thái

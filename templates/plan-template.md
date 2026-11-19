@@ -1,7 +1,7 @@
 # Plan: <feature-name>
 
 <!--
-Lưu tại:        docs/work/<KEY>-<slug>/plan.md
+Lưu tại:        docs/work/<ID>-<slug>/plan.md
 Spec gốc:       docs/specs/modules/<module>/<spec>.md
 BDD spec:       docs/specs/bdd/<UC-ID>.feature
 Tech design:    docs/specs/tech-design/<UC-ID>-tech-design.md
@@ -19,6 +19,17 @@ track: standard
 size: M
 parallel_safe: true   # true nếu các task độc lập có thể chạy song song
 ---
+
+## Principles Check (gate — điền TRƯỚC task list)
+
+<!-- Đối chiếu docs/principles.md. Vi phạm MUST mà không có justification → dừng, không lập task. -->
+
+| Principle (docs/principles.md) | Tuân thủ? | Ghi chú |
+|--------------------------------|-----------|---------|
+| <MUST ...> | ✅ / ❌ | |
+
+<!-- Complexity Tracking — chỉ khi có vi phạm được chấp nhận:
+| Vi phạm | Vì sao cần | Phương án đơn giản hơn đã loại vì | -->
 
 ## Non-goals / Restrictions (đợt này)
 
@@ -50,13 +61,15 @@ parallel_safe: true   # true nếu các task độc lập có thể chạy song 
 ## Task Matrix (source of progress)
 
 <!-- Bảng này = tiến độ chính. Status: pending | in_progress | done.
+     Task ID ổn định (chèn thêm: T2a); thêm [P] nếu chạy song song được (khác file, không phụ thuộc task chưa xong).
+     Covers: FR/SC mà task hiện thực — spec-analyze tính coverage từ cột này.
      Verification: lệnh copy-run được (bắt buộc). Path: relative link. -->
 
-| Task ID | Component | Status | Verification | Code / Spec links |
-|---------|-----------|--------|--------------|-------------------|
-| T1 | `<component>` | pending | `` `<lệnh test/build>` `` | [`path`](../../..) · [spec §](../specs/...) |
-| T2 | `<component>` | pending | `` `<lệnh>` `` | [`path`](../../..) |
-| T3 | `<component>` | pending | `` `<lệnh>` `` | [`path`](../../..) |
+| Task ID | Component | Covers | Status | Verification | Code / Spec links |
+|---------|-----------|--------|--------|--------------|-------------------|
+| T1 | `<component>` | FR-001, SC1 | pending | `` `<lệnh test/build>` `` | [`path`](../../..) · [spec §](../specs/...) |
+| T2 [P] | `<component>` | FR-002, SC2 | pending | `` `<lệnh>` `` | [`path`](../../..) |
+| T3 | `<component>` | SC3 | pending | `` `<lệnh>` `` | [`path`](../../..) |
 
 **Mode:** sequential | parallel | mixed
 
@@ -117,9 +130,10 @@ flowchart LR
 
 ## Pre-merge Checklist
 
-- [ ] Task Matrix: mọi Status = `done` + Verify cmd đã chạy xanh
+- [ ] `spec-analyze`: 0 CRITICAL (standard track)
+- [ ] Task Matrix: mọi Status = `done` + Verify cmd đã chạy xanh (bằng chứng trong note.md)
 - [ ] `bash scripts/governance-check.sh` → PASS
-- [ ] `dev_selftest: pass` trong `_context.md` state (+ trace TSV nếu có)
+- [ ] `dev_selftest: pass` trong frontmatter `_context.md` (`work.sh set`) + trace TSV nếu có
 - [ ] Không TODO/FIXME mới chưa resolve
 - [ ] Non-goals không bị vi phạm trong diff
 - [ ] Rollback plan đã test (staging) nếu risk Med/High

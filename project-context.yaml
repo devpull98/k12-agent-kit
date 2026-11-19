@@ -21,6 +21,10 @@ domains:
 #   lms-api: { stack: spring, domain: lms }
 #   k12-product-api: { stack: nodejs, domain: products }
 
+# --- Work items (rules/_global/work-items.mdc) ---
+# Registry module: docs/modules.yaml (templates/modules.template.yaml)
+# work_items_strict: false   # giai đoạn migrate: package thiếu frontmatter chỉ WARN (mặc định true)
+
 # --- TÙY CHỌN: Infrastructure ---
 # db: [mysql, mongodb, redis]
 # messaging: [kafka, rabbitmq]

@@ -1,5 +1,9 @@
 ---
-name: optimize-performance
+name: performance-optimization
+description: Đo và tối ưu hiệu năng có dữ liệu (baseline → sửa N+1/payload → đo lại), không tối ưu theo cảm tính. Use when có báo cáo chậm, query N+1 nghi ngờ, CPU DB tăng, hoặc trước release feature chịu tải cao.
+keywords: [performance, tối ưu, chậm, n+1, latency, projection, bulk query]
+on_success: [code-review]
+on_failure: [debugging]
 priority: HIGH
 triggers:
   - IF: Response time của API vượt ngưỡng p95, CPU DB tăng vọt, hoặc có yêu cầu tối ưu trước release.

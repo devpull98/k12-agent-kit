@@ -17,6 +17,16 @@ Mọi workflow khác (`feature.md`, `dev-flow.md`, `qc-flow.md`, `enterprise-flo
 
 Thứ tự bắt buộc (standard track): **Product Brief → BDD → Tech Design → Plan → Implement**
 
+## Kỷ luật xuyên suốt (mọi track)
+
+| Kỷ luật | Skill | Luật |
+|---------|-------|------|
+| Kiểm skill trước mọi hành động | `using-kit` | ≥1% khả năng áp dụng → load skill (hook session-start nạp sẵn) |
+| Bằng chứng trước tuyên bố | `verification-before-completion` | Chưa chạy lệnh verify trong message này → không được nói "xong/pass" |
+| Test trước code | `tdd` | Code viết trước test → xóa, viết lại |
+| Root cause trước fix | `debugging` | Không sửa đoán; ≥3 fix fail → nghi kiến trúc |
+| Principles là luật | `writing-plans`, `spec-analyze` | Vi phạm MUST trong `docs/principles.md` = CRITICAL |
+
 > **Doc scoping:** spec ổn định ở `docs/specs/modules/<module>/`; artifact thực thi (plan, checklist, note, bugs) gom vào `docs/work/<KEY>-<slug>/`, bắt đầu từ `_context.md`. Xem `rules/_global/doc-scoping.mdc`.
 
 ## Full flow (standard track)
@@ -24,11 +34,13 @@ Thứ tự bắt buộc (standard track): **Product Brief → BDD → Tech Desig
 ```
 product-discovery (optional)
   → brainstorming
-  → spec-driven-development     [Product Brief]
+  → spec-driven-development     [Product Brief — đánh marker [NEEDS CLARIFICATION] thay vì đoán]
+  → clarify-spec                [≤5 câu hỏi, gỡ hết marker — bỏ qua nếu brief đã rõ]
   → bdd-specification           [Behavior]
   → tech-docs                   [Technical — bỏ qua nếu không có API/DB mới]
-  → writing-plans
-  → (tdd → progress-logging) × n tasks
+  → writing-plans               [Principles Check + task T0xx, [P], Covers: FR/SC]
+  → spec-analyze                [read-only, cross-artifact — CRITICAL chặn implement]
+  → executing-plans             [mỗi task: tdd → review 2 tầng (spec → quality) → progress-logging]
   → code-review
   → qc-automation
   → trace-validation
@@ -38,7 +50,7 @@ product-discovery (optional)
 ## Fast track (< 30 phút, scope rõ, rủi ro thấp)
 
 ```
-brainstorming (rút gọn) → writing-plans (rút gọn) → tdd → code-review → trace-validation (tối thiểu) → shipping
+brainstorming (rút gọn) → writing-plans (rút gọn) → executing-plans (inline) / tdd → code-review → trace-validation (tối thiểu) → shipping
 ```
 
 - Bỏ qua Product Brief/BDD/Tech Design nếu không đổi behavior chính
@@ -58,6 +70,8 @@ bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → 
 | Gate | Kiểm chứng bởi | Script |
 |------|----------------|--------|
 | Spec exists | SDD gate | `scripts/validate-sdd-gate.sh` |
+| Spec clarity (không còn `[NEEDS CLARIFICATION]`) | Clarity gate | `scripts/validate-spec-clarity.sh` |
+| Spec ↔ plan nhất quán | spec-analyze (0 CRITICAL) | — (skill, read-only) |
 | Stack rules | Dev onboarding | `scripts/validate-stack.sh` |
 | Trace coverage | Trace gate | `scripts/validate-trace.sh` |
 | Dev verified | `dev_selftest: pass` | Test runner (manual/CI) |
@@ -83,6 +97,10 @@ bug-flow (classify) → debugging/tdd (repro & sửa lỗi) → code-review → 
 | tech-docs | BDD scenario thiếu / ambiguous | bdd-specification |
 | writing-plans | Spec chưa đủ chi tiết để breakdown | bdd-specification hoặc tech-docs |
 | writing-plans | Rủi ro quá cao, cần thiết kế lại | brainstorming → tech-docs |
+| validate-spec-clarity.sh | Spec còn marker `[NEEDS CLARIFICATION]` | clarify-spec |
+| spec-analyze (CRITICAL) | Vi phạm principles / FR-SC không có task | writing-plans (hoặc bdd-specification / clarify-spec) |
+| executing-plans (BLOCKED) | Task quá lớn / plan sai | writing-plans |
+| executing-plans (review tầng 1 fail) | Implement thiếu/thừa so với spec | tdd (fix loop ≤3 vòng) |
 | validate-stack.sh | Rules stack chưa tạo / chưa đúng | copy `rules/_template/` → điền convention |
 | validate-sdd-gate.sh | Code thay đổi nhưng chưa có spec/BDD | spec-driven-development → bdd-specification |
 | tdd (test fail) | Logic sai, edge case thiếu | debugging → tdd |

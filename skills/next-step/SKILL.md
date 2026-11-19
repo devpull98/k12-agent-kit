@@ -24,15 +24,22 @@ Trả lời chính xác "bước tiếp theo là gì" mà không cần agent t�
 | product-discovery | any | brainstorming |
 | brainstorming | standard | spec-driven-development |
 | brainstorming | fast | writing-plans |
+| spec-driven-development | standard (còn `[NEEDS CLARIFICATION]`) | clarify-spec |
 | spec-driven-development | standard | bdd-specification |
 | spec-driven-development | fast | writing-plans |
+| clarify-spec | standard | bdd-specification |
 | bdd-specification | standard (dev) | tech-docs |
 | bdd-specification | standard (tester) | qc-automation |
 | tech-docs | standard | writing-plans |
-| writing-plans | any | tdd |
-| tdd (1 task done) | any | progress-logging → tdd (task tiếp) |
-| tdd (tất cả tasks done) | standard | code-review |
-| tdd (tất cả tasks done) | fast | trace-validation |
+| writing-plans | standard | spec-analyze |
+| writing-plans | fast | executing-plans (inline) |
+| spec-analyze (0 CRITICAL) | standard | executing-plans |
+| spec-analyze (có CRITICAL) | standard | writing-plans / bdd-specification / clarify-spec |
+| executing-plans (mỗi task) | any | tdd → review 2 tầng → progress-logging |
+| executing-plans (xong hết) | standard | code-review |
+| executing-plans (xong hết) | fast | trace-validation |
+| tdd (1 task done, không qua executing-plans) | any | progress-logging → tdd (task tiếp) |
+| writing-skills | any | code-review |
 | code-review (APPROVE) | standard | trace-validation |
 | code-review (APPROVE) | fast | shipping |
 | qc-automation (pass) | any | trace-validation |
@@ -67,10 +74,12 @@ Trả lời chính xác "bước tiếp theo là gì" mà không cần agent t�
 # Steps
 
 1. **Xác định skill vừa xong** — hỏi nếu chưa rõ: "Bạn vừa hoàn thành skill nào?"
-2. **Xác định track** — đọc từ trace file (`current_track`) hoặc hỏi: "Đang chạy standard / fast / hotfix?"
+2. **Xác định track + vị trí** — đọc frontmatter `_context.md` của item (`track`, `phase`, `status`, `next_skill`); item theo branch hiện tại `<type>/<ID>-…`. Chưa có item → gọi `work-tracker` tạo trước.
 3. **Tra lookup table** theo `on_success` hoặc `on_failure`.
 4. **Kiểm tra precondition** của next skill:
-   - Nếu next = `tdd` → BDD spec và writing-plans đã tồn tại chưa?
+   - Nếu next = `bdd-specification` → spec còn `[NEEDS CLARIFICATION]` không? (`bash scripts/validate-spec-clarity.sh`)
+   - Nếu next = `executing-plans`/`tdd` → BDD spec và writing-plans đã tồn tại chưa? spec-analyze đã 0 CRITICAL chưa (standard)?
+   - Mọi bước "đã xong" → có bằng chứng theo `verification-before-completion` chưa?
    - Nếu next = `shipping` → governance-check pass chưa?
    - Nếu next = `trace-validation` → `dev_selftest` và `qc_status` đã pass chưa?
 5. **Đề xuất cụ thể** — không chỉ nói tên skill, mà nói rõ:

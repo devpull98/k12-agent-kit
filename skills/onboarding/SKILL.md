@@ -33,6 +33,7 @@ Tự động hóa hoàn toàn quy trình onboarding của lập trình viên và
 3.  **Chuẩn bị Rules Stack:**
     *   Kiểm tra thư mục `rules/{stack}/` xem đã có file `architecture.mdc` chưa.
     *   Nếu chưa có $\rightarrow$ Tự động sao chép các file mẫu `.mdc` từ `rules/_template/` sang thư mục `rules/{stack}/` của dự án và báo cho lập trình viên biết để điền các convention riêng (nếu có).
+3b. **Module registry (`docs/modules.yaml`):** copy `templates/modules.template.yaml`, liệt kê module thật (key, PREFIX, paths code, aliases). Repo đã có `docs/work/` → chạy `bash scripts/work.sh migrate` (dry-run) và đặt `work_items_strict: false` tới khi migrate xong (skill `work-tracker` §D).
 4.  **Cài đặt Git Hooks:**
     *   Thực thi lệnh shell cài đặt Git Hook chặn AI-spam:
         ```bash

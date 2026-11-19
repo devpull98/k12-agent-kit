@@ -1,5 +1,9 @@
 ---
-name: review-code-pr
+name: code-review
+description: Review code qua 2 tầng (spec compliance → 5 trục chất lượng) trước khi merge, kèm quy trình request/receive review. Use when sắp merge PR, hoàn thành 1 task/feature, hoặc nhận feedback review cần phản hồi.
+keywords: [review, pull request, pr, code review, merge, feedback]
+on_success: [trace-validation]
+on_failure: [tdd]
 priority: MEDIUM
 triggers:
   - IF: Lập trình viên chuẩn bị đẩy mã nguồn hoặc gửi Pull Request (PR) yêu cầu review.
@@ -19,11 +23,29 @@ Review hời hợt bỏ lọt lỗi bảo mật, code bẩn, hoặc lỗi logic 
 
 # Rules & Knowledge
 
-## 1. Gác cổng an toàn (Quy tắc)
+## 1. Hai tầng — spec trước, chất lượng sau (Quy tắc)
+*   **IF** Bắt đầu review:
+    *   **THEN** Đọc spec/task (BDD scenario, acceptance criteria) rồi đọc **test trước code**.
+*   **IF** Tầng 1 — Spec compliance: diff thiếu behavior của scenario/AC:
+    *   **THEN** Critical (block merge). Làm thừa ngoài scope (over-build) → Required (bỏ). **Chưa đạt tầng 1 thì không review chất lượng.**
+*   **IF** Tầng 2 — Code quality:
+    *   **THEN** Đánh giá 5 trục: Correctness (edge case, error path) · Readability · Architecture (pattern hiện có, ranh giới module) · Security (`security-baseline`) · Performance (N+1, unbounded fetch).
+
+## 2. Gác cổng an toàn (Quy tắc)
 *   **IF** Nhánh code chưa chạy thành công toàn bộ test suite (`dev_selftest` chưa pass):
     *   **THEN** Từ chối duyệt (REJECT) PR ngay lập tức.
+*   **IF** Sắp Approve:
+    *   **THEN** Tự chạy test/build trên head (`verification-before-completion`) — không approve dựa vào "CI chắc xanh" hay report của tác giả.
 *   **IF** Phát hiện vi phạm quy tắc toàn cục (như N+1 query, unboxing không an toàn, log/secret bị lộ, God service, use case `new` infra):
     *   **THEN** Yêu cầu sửa đổi và chỉ ra file:line + rule (`_global/solid.mdc` / `_global/clean-code.mdc` / `{stack}/architecture`).
+
+## 3. Severity & phản hồi (Quy tắc)
+*   **IF** Ghi finding:
+    *   **THEN** Gắn severity: Critical (block) / Required / Nit / Optional / FYI — không để tất cả thành "bắt buộc". Thay đổi cải thiện codebase dù chưa hoàn hảo → Approve, không block vì khác gu.
+*   **IF** Nhận review (receiving):
+    *   **THEN** Đọc hết, diễn giải lại bằng lời mình, verify với code thật trước khi sửa; feedback sai kỹ thuật → phản biện có lý do, không đồng ý hình thức.
+*   **IF** Gửi yêu cầu review (requesting):
+    *   **THEN** Kèm mô tả ngắn, plan/requirement gốc, base/head SHA — không kèm toàn bộ lịch sử session.
 
 ## Bad vs Good
 *   **Bad (Review chung chung):**

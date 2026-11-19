@@ -1,14 +1,33 @@
+---
+id: UC-LMS-001
+title: "Teacher creates assignment"
+type: feature
+status: done
+priority: P2
+modules: [lms]
+track: standard
+phase: done
+created: 2026-07-06
+updated: 2026-07-06
+closed: "2026-07-06"
+assignee: ""
+jira: ""
+fixes: []
+relates_to: []
+supersedes: []
+prs: []
+last_skill: "shipping"
+next_skill: ""
+dev_selftest: pass
+qc_status: pass
+trace: pass
+migrated: 2026-11-18
+---
 # UC-LMS-001 — Teacher creates assignment
 
 > **Reference example** cho toàn kit: một UC chạy trọn vòng đời standard track
 > (spec → BDD → tech → plan → tdd → QC → bug → rerun → ship) theo mô hình
 > Work Package của `rules/_global/doc-scoping.mdc`. Đây là mẫu để copy, không phải task thật.
-
-## Classification
-- **Type:** feature (phát sinh 1 bug ở QC, đã fix & close)
-- **Module:** lms
-- **Jira:** NOJIRA (demo UC)
-- **Artifact key:** `UC-LMS-001-teacher-create-assignment`
 
 ## Spec anchor
 - **BDD:** [docs/specs/bdd/UC-LMS-001.feature](../../specs/bdd/UC-LMS-001.feature) (SC1, SC2, SC3)
@@ -43,17 +62,5 @@
 - `docs/plans/*`, `docs/logs/*`, `docs/notes/features/*` — legacy flat
 - Unrelated module specs
 
-## State (machine-readable — governance + hook đọc block này)
-<!-- Mỗi skill khi hoàn thành CẬP NHẬT block này. scripts/validate-context-state.sh parse block này. -->
-```yaml
-phase: done             # discovery|spec|bdd|tech|plan|implement|review|qc|trace|ship|done
-track: standard         # standard|fast|hotfix
-last_skill: shipping    # skill vừa chạy xong
-next_skill: ""          # skill kế (đọc từ on_success của last_skill)
-dev_selftest: pass      # pending|pass|fail
-qc_status: pass         # pending|pass|fail|na  (rerun sau khi fix BUG-LMS-001)
-trace: pass             # pending|pass|fail
-updated: 2026-07-03     # YYYY-MM-DD
-```
 
-**Ship-ready khi:** `dev_selftest: pass` **và** `qc_status ∈ {pass, na}` **và** `trace: pass`.
+> **Ship-ready khi:** `dev_selftest: pass` **và** `qc_status ∈ {pass, na}` **và** `trace: pass`.

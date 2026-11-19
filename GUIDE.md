@@ -23,11 +23,11 @@ Tài liệu này hướng dẫn chi tiết cách vận hành hàng ngày của d
 Hệ thống hỗ trợ 3 tuyến phát triển (Delivery Tracks) chính:
 
 ### A. Standard Track (Dành cho tính năng mới hoặc thay đổi logic lớn)
-- **Luồng đi:** `brainstorming` $\rightarrow$ `spec-driven-development` $\rightarrow$ `bdd-specification` $\rightarrow$ `tech-docs` $\rightarrow$ `writing-plans` $\rightarrow$ Vòng lặp `tdd` (code & test) $\rightarrow$ `code-review` $\rightarrow$ `shipping`.
+- **Luồng đi:** `brainstorming` $\rightarrow$ `spec-driven-development` $\rightarrow$ `clarify-spec` $\rightarrow$ `bdd-specification` $\rightarrow$ `tech-docs` $\rightarrow$ `writing-plans` $\rightarrow$ `spec-analyze` $\rightarrow$ `executing-plans` (mỗi task: `tdd` + review 2 tầng) $\rightarrow$ `code-review` $\rightarrow$ `shipping`.
 - **Đặc trưng:** Bắt buộc phải viết tài liệu đặc tả nghiệp vụ (Spec/BDD) trước khi code. Lỗi sẽ bị chặn cứng bởi SDD Gate nếu cố tình code trước.
 
 ### B. Fast Track (Dành cho thay đổi nhỏ, rủi ro thấp < 30 phút)
-- **Luồng đi:** Bỏ qua spec pipeline, đi thẳng từ `writing-plans` $\rightarrow$ `tdd` $\rightarrow$ `code-review`.
+- **Luồng đi:** Bỏ qua spec pipeline, đi thẳng từ `writing-plans` $\rightarrow$ `executing-plans` (inline) / `tdd` $\rightarrow$ `code-review`.
 - **Cách kích hoạt:** Thêm tag `[fast-track]` vào câu lệnh gửi cho agent hoặc trong commit message.
 
 ### C. Hotfix Track (Sự cố sản xuất khẩn cấp)
@@ -82,21 +82,28 @@ Dưới đây là danh sách các kỹ năng (skills) được định nghĩa s�
 
 | Tên Skill | Trường hợp sử dụng |
 |---|---|
+| `using-kit` | Kỷ luật bootstrap — kiểm skill trước mọi hành động (hook session-start tự nạp). |
 | `brainstorming` | Phân tích yêu cầu sơ bộ khi đặc tả chưa rõ ràng. |
-| `spec-driven-development` | Viết/cập nhật tài liệu đặc tả nghiệp vụ (Spec). |
+| `spec-driven-development` | Viết/cập nhật tài liệu đặc tả nghiệp vụ (Spec), đánh marker `[NEEDS CLARIFICATION]` thay vì đoán. |
+| `clarify-spec` | Hỏi ≤5 câu để gỡ điểm mơ hồ, ghi đáp án vào `## Clarifications` của spec. |
 | `bdd-specification` | Viết kịch bản kiểm thử hành vi Given-When-Then (`.feature`). |
 | `tech-docs` | Thiết kế kiến trúc kỹ thuật chi tiết (Database schema, API contracts). |
-| `writing-plans` | Lên kế hoạch thực hiện, phân rã task chi tiết (checklist.md). |
-| `tdd` | Thực hiện viết code đi kèm test (Red-Green-Refactor). |
+| `writing-plans` | Lên kế hoạch thực hiện, phân rã task `T0xx` có `[P]` + `Covers: FR/SC` (plan.md, checklist.md). |
+| `spec-analyze` | Kiểm nhất quán read-only Brief ↔ BDD ↔ Tech ↔ Plan ↔ principles trước khi code. |
+| `executing-plans` | Thực thi plan inline hoặc mỗi task 1 subagent, review 2 tầng (spec → quality). |
+| `tdd` | Thực hiện viết code đi kèm test (Red-Green-Refactor) — code trước test thì xóa. |
+| `verification-before-completion` | Không tuyên bố "xong/pass" khi chưa chạy lệnh verify trong message. |
 | `debugging` / `root-cause-tracing` | Khắc phục lỗi và tìm nguyên nhân gốc của bug. |
 | `code-review` | Rà soát chất lượng code trước khi merge PR. |
 | `shipping` | Chuẩn bị và deploy release lên môi trường kiểm thử/thực tế. |
+| `writing-skills` | Viết/sửa skill của kit đúng contract + pressure-test. |
+| `work-tracker` | Work item có ID (như GitHub issue): tạo, đổi status, board `docs/work/INDEX.md`, bug đang mở, lịch sử module/feature, migrate package cũ. |
 
 ---
 
 ## 6. Viết Skill mới cho Dự án
 
-Nếu dự án có các nghiệp vụ đặc thù lặp đi lặp lại nhiều lần (ví dụ: tạo file DB migration, viết API doc, cấu hình Docker...), bạn có thể định nghĩa thêm skill mới:
+Nếu dự án có các nghiệp vụ đặc thù lặp đi lặp lại nhiều lần (ví dụ: tạo file DB migration, viết API doc, cấu hình Docker...), bạn có thể định nghĩa thêm skill mới. Cách nhanh nhất: nói với agent `"viết skill <tên>"` để dùng skill `writing-skills` (có pressure-test). Làm tay:
 
 1. **Tạo thư mục skill:**
    Tạo `skills/<tên-skill-mới>/SKILL.md`.
@@ -122,3 +129,4 @@ Nếu dự án có các nghiệp vụ đặc thù lặp đi lặp lại nhiều 
    ```
 5. **Khởi động lại session:**
    Để AI agent quét và tải skill mới, hãy gõ `/exit` và mở lại phiên Claude Code.
+6. **Chạy gate:** `bash scripts/validate-skill-graph.sh` phải PASS (bắt `on_success`/router trỏ tới skill không tồn tại).

@@ -1,8 +1,16 @@
-# Bug Report — {BUG-ID}
+<!--
+Bug sống ở 1 trong 2 nơi (rules/_global/work-items.mdc):
+  A. Phát hiện TRONG lúc làm item (review/QC trước merge) → thêm entry vào docs/work/<ITEM-ID>-<slug>/bugs.md
+     Heading BẮT BUỘC:  ## <ITEM-ID>-B<n> — <tóm tắt>   (vd ## SOCKETIO-012-B1 — Drain bỏ sót message)
+  B. Phát hiện SAU khi item đã done / trên production → tạo work item riêng:
+     bash scripts/work.sh new bug <module> "<tóm tắt>" --fixes <ITEM-ID-gốc>
+Hai dòng **Status:** và **Severity:** được scripts/work.sh index đọc để dựng "Bug đang mở" — giữ đúng enum.
+-->
+## {ITEM-ID}-B{n} — {tóm tắt 1 dòng}
 
-**Date:** {YYYY-MM-DD}
-**Reporter:** {tên / role}
-**Status:** Open | Fixed | Closed
+- **Status:** open            <!-- open | fixed | verified | closed | wontfix | deferred -->
+- **Severity:** high          <!-- critical | high | medium | low -->
+- **Date:** {YYYY-MM-DD} · **Reporter:** {tên / role} · **Fixed in:** {commit/PR}
 
 ---
 

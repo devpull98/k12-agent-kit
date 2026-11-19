@@ -1,0 +1,19 @@
+# docs/modules.yaml — Module registry (copy từ templates/modules.template.yaml)
+#
+# Vì sao: work item gắn `modules: [key]` → board/lịch sử "module X có những feature/bug/perf nào"
+# và commit chạm code module (qua `paths`). Module text tự do = không query được.
+#
+# Quy tắc:
+#   key     — kebab-case, ổn định (đổi key = phải migrate mọi item)
+#   prefix  — IN HOA, dùng cấp ID khi không có Jira: <PREFIX>-<NNN> (vd SOCKETIO-012)
+#   paths   — thư mục code của module (git log -- <paths> → lịch sử commit)
+#   aliases — tên khác hay xuất hiện trong doc cũ (giúp `work.sh migrate` tự map)
+#   spec_dir— stable truth của module (docs/specs/modules/<x>)
+modules:
+  - key: example-module
+    prefix: EXMOD
+    title: "Mô tả ngắn module"
+    paths: [src/example-module/]
+    aliases: [example, example-svc]
+    spec_dir: docs/specs/modules/example-module
+    owner: ""

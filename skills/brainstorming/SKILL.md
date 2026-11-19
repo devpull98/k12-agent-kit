@@ -15,13 +15,16 @@ Biến ý tưởng thô thành thiết kế đủ rõ để viết spec, qua h�
 - Yêu cầu ban đầu của user (có thể mơ hồ)
 - Codebase/context hiện tại của project (nếu đang sửa project có sẵn)
 
+# Hard gate
+KHÔNG viết code, scaffold, hay gọi skill implement nào cho tới khi thiết kế được user duyệt — kể cả việc "trông đơn giản". Việc đơn giản thì thiết kế ngắn (vài câu chốt trong chat), nhưng vẫn phải chốt.
+
 # Steps
 1. Khảo sát context hiện tại (file, docs, commit gần đây) trước khi hỏi bất cứ gì.
 2. Đánh giá phạm vi: nếu yêu cầu gộp nhiều subsystem độc lập, đề xuất tách nhỏ trước khi đi sâu.
 3. Hỏi từng câu một (không hỏi dồn nhiều câu/message), ưu tiên multiple-choice, tập trung vào: mục đích, constraint, success criteria.
 4. Đề xuất 2-3 hướng giải quyết kèm trade-off, có khuyến nghị rõ ràng. Nếu một hướng còn ẩn số kỹ thuật cần thực nghiệm để chốt → tách 1 spike theo `templates/spike-template.md`.
 5. Trình bày thiết kế theo từng phần (architecture, components, data flow, error handling, testing), xin xác nhận sau mỗi phần.
-6. Tự rà soát thiết kế: không còn placeholder/TBD, không mâu thuẫn nội bộ, phạm vi đủ nhỏ cho 1 spec, không còn câu mơ hồ.
+6. Tự rà soát thiết kế: không còn placeholder/TBD, không mâu thuẫn nội bộ, phạm vi đủ nhỏ cho 1 spec, không còn câu mơ hồ. Điểm user chưa chốt được → ghi rõ để spec-driven-development đánh marker `[NEEDS CLARIFICATION]`, không tự đoán. Bám YAGNI: cắt mọi tính năng "để sau có thể cần".
 7. Bàn giao cho spec-driven-development để viết spec chính thức. Khi cần chuẩn bị input cho session mới hoặc handoff, dùng `templates/context-engineering/04-session-context-card.md`.
 
 # Output
