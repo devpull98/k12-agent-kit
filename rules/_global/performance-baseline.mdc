@@ -16,7 +16,7 @@ Quy tắc hiệu năng tối thiểu áp dụng cho mọi stack — chống các
 
 # Preferred
 - **Coalescing Gate**: Đối với các tác vụ ghi/rebuild dữ liệu đồng thời cao điểm (ví dụ: rebuild bảng xếp hạng), áp dụng cơ chế khóa tạm thời (Lock) kết hợp cờ báo cập nhật (Dirty flag) để gom hàng loạt trigger trùng lặp về một luồng xử lý duy nhất.
-- Cache dữ liệu đọc nhiều, ít đổi (config, lookup table) với TTL hợp lý.
+- Cache dữ liệu đọc nhiều, ít đổi (config, lookup table) với TTL hợp lý — quy tắc chi tiết (stampede, penetration, parse ở write path, đo hit ratio) ở `_global/caching`.
 - Dùng index cho cột thường filter/sort.
 - Với UI: ảnh có kích thước rõ ràng, lazy-load phần dưới fold, code-splitting cho route nặng.
 

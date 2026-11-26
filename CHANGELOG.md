@@ -6,11 +6,14 @@ Theo dõi thay đổi của kit `uniclass-workflow`. Format theo `templates/chan
 ## [Unreleased]
 
 ### Added
+- `rules/_global/caching.mdc`: quy tắc cache — cache giá trị ĐÃ transform (parse ở write path, không parse mỗi hit), single-flight chống stampede, negative caching + trần khoá khi khoá đến từ URL, bắt buộc xuất hit/miss ra metrics, phần phụ thuộc thời điểm gọi không được nằm trong cache. Rút từ tối ưu `GET /in-class/items` (k12-product-api): 0 lần JSON.parse cho request sau lần đầu.
 - Work-package hygiene v2: Non-goals / Trade-offs / Task Matrix + Verification bắt buộc trong `templates/plan-template.md`; Constraints mirror trong `_context.template.md`.
 - Compact-on-DONE: `progress-logging` + `shipping` thu gọn Working notes; `note.md` template tách ephemeral vs RCA.
 - `validate-context-state.sh`: enforce Non-goals + Verification trên plan có task; fail nếu Working notes còn nội dung khi `phase` ∈ {ship, done}.
 
 ### Changed
+- `performance-optimization` + `code-review`: nạp `_global/caching`; perf skill thêm mục "Cache và chi phí parse" + checklist khi thêm cache; router nhận thêm keyword cache/caching/hit ratio/stampede/json parse.
+- `rules/_global/performance-baseline.mdc`: dòng cache trỏ sang `_global/caching` thay vì tự mô tả.
 - `rules/_global/doc-scoping.mdc`: bảng SoT vs Work Log; relative links bắt buộc; compact-on-DONE.
 - Demo `docs/work/UC-LMS-001-teacher-create-assignment/` align template mới (mẫu đúng cho agent copy).
 

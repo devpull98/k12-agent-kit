@@ -1,0 +1,52 @@
+---
+name: caching
+scope: global
+globs: src/**/*, app/**/*, internal/**/*, lib/**/*, packages/**/*, services/**/*, modules/**/*, api/**/*, repositories/**/*, utils/**/*
+---
+
+# Purpose
+Quy tắc đặt cache đúng chỗ và đo được. Không phải hướng dẫn chọn hạ tầng (Redis vs memory) —
+phần đó ở `_global/performance-baseline` và tech design.
+
+# Required
+- **Cache GIÁ TRỊ ĐÃ TRANSFORM, không cache payload thô.** Parse + map phải chạy 1 lần lúc nạp
+  (write path), không chạy mỗi lần đọc (read path). Khi hot path đã nằm trong RAM thì JSON.parse/
+  deserialize chính là phần CPU lớn nhất còn lại, và nó đồng bộ — chặn event loop (Node) / tốn CPU
+  (mọi stack). Chi phí này ẩn vì đoạn code đọc cache trông rất bình thường.
+- **Single-flight cho mọi cache dùng chung.** TTL hết hạn mà N request cùng miss thì backend nhận N
+  lời gọi (cache stampede). Gom về 1 promise/lock theo khoá. Hai chi tiết sai là vô hiệu:
+  promise phải vào map **ngay** (không `await` trước đó), và entry phải được ghi **trước** khi xoá
+  inflight (xoá trước = vẫn còn khe hở cho request lọt xuống backend).
+- **Khoá đến từ input người dùng (param URL, query) phải có negative caching + trần số khoá.**
+  Không phân biệt "miss" với "rỗng" thì mọi request mang id không tồn tại đều lọt xuống backend
+  (cache penetration). TTL âm ngắn hơn TTL thường để bản ghi mới tạo vẫn lên nhanh.
+- **Xuất hit/miss ra metrics trước khi tuyên bố cache có hiệu quả.** Không có hit ratio thật trên
+  production thì không được kết luận. Mốc tham chiếu: ~90% dữ liệu động, >95% dữ liệu tĩnh.
+- **Phần phụ thuộc thời điểm gọi KHÔNG được nằm trong giá trị cache.** Lọc "còn hiệu lực",
+  "chưa hết hạn", "trong khung giờ" phải chạy lại mỗi request trên dữ liệu đã cache; nhét vào cache
+  là đóng băng kết quả theo thời điểm nạp.
+- **Giá trị cache là read-only.** Một entry dùng chung cho mọi request; caller mutate là hỏng cho
+  tất cả. Cần sửa thì copy.
+
+# Preferred
+- Lỗi backend mà còn bản cũ: trả bản cũ (stale) thay vì để vỡ request.
+- Cần tươi ngay sau khi ghi: invalidate chủ động qua queue/pub-sub, đừng hạ TTL xuống thấp —
+  TTL thấp làm mất gần hết lợi ích mà vẫn không đảm bảo nhất quán.
+- Dữ liệu đọc nhiều, ít đổi (config, lookup table, danh mục): TTL 30–60s ở bộ nhớ process là đủ
+  để cắt gần hết IO mà staleness vẫn chấp nhận được.
+- Tách phần đổi nhanh ra khỏi phần ổn định, thay vì hạ TTL của cả payload.
+
+# Forbidden
+- Cache per-user không có trần số khoá (bộ nhớ tăng theo số user, pod OOM).
+- Giữ promise lỗi trong cache: backend lỗi 1 lần thành lỗi suốt TTL.
+- Xuất hit ratio tính từ lúc boot: nó phẳng dần và che mất giai đoạn xấu. Xuất counter thô,
+  để dashboard tính ratio trên cửa sổ thời gian.
+- Đánh giá hiệu quả cache bằng hit ratio của Redis khi Redis đó còn dùng cho việc khác
+  (queue, pub-sub) — số đó không phản ánh cache.
+- Cache ở nhiều tầng chồng nhau cho cùng một dữ liệu (TTL chồng TTL): staleness nhân lên,
+  invalidate không còn kiểm soát được.
+
+# Examples
+- `utils/TtlCache.js` (nodejs k12-product-api — factory TTL + single-flight + negative caching + stats)
+- `modules/observability/cacheMetrics.js` (xuất `cache_hits_total`/`cache_misses_total`/`cache_keys`)
+- `docs/cache-architecture.md` (tài liệu đi kèm: công thức dùng, bảng bẫy, PromQL tính hit ratio)

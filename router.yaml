@@ -142,7 +142,7 @@ routes:
     confidence: strict
 
   - intent: "tối ưu hiệu năng có đo lường"
-    keywords: [performance, tối ưu, chậm, n+1, latency]
+    keywords: [performance, tối ưu, chậm, n+1, latency, cache, caching, hit ratio, stampede, json parse]
     skill: performance-optimization
     not_for_skills: [refactoring]
     confidence: strict

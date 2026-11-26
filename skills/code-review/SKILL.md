@@ -12,6 +12,7 @@ requires_rules:
   - _global/security-baseline
   - _global/observability
   - _global/performance-baseline
+  - _global/caching
   - _global/error-handling
   - _global/solid
   - _global/clean-code
