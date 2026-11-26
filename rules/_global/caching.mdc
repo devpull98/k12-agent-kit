@@ -43,6 +43,8 @@ phần đó ở `_global/performance-baseline` và tech design.
   để dashboard tính ratio trên cửa sổ thời gian.
 - Đánh giá hiệu quả cache bằng hit ratio của Redis khi Redis đó còn dùng cho việc khác
   (queue, pub-sub) — số đó không phản ánh cache.
+- Giữ entry cũ sau khi backend xác nhận dữ liệu đã rỗng/bị xoá: stale-on-error sẽ trả lại dữ liệu
+  đã xoá, và entry hết hạn nằm lại vĩnh viễn khiến mọi request thành cache miss. Rỗng = quên bản cũ.
 - Cache ở nhiều tầng chồng nhau cho cùng một dữ liệu (TTL chồng TTL): staleness nhân lên,
   invalidate không còn kiểm soát được.
 
